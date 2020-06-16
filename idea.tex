@@ -1,6 +1,70 @@
 \documentclass{article}
 
+\usepackage{parskip,enumitem}
+
+\newcommand{\oprf}[0]{\mathsf{OPRF}}
+\newcommand{\getr}[0]{\stackrel{\$}{\leftarrow}}
+\newcommand{\enc}[0]{{\mathsf{Enc}}}
+\newcommand{\dec}[0]{{\mathsf{Dec}}}
+\newcommand{\fixme}[1]{{\bf FIXME:} {\emph{#1}}}
+
 
 \begin{document}
-.
+\paragraph{Preliminaries} There are two parties $P_1$ and $P_2$ with
+input sets $S_1=\{e_{1,1},\ldots,e_{1,n}\}$ and
+$S_2=\{e_{2,1},\ldots,e_{2,n}\}$ of elements
+$e_{i,j}\in\{0,1\}^\ell$. Both parties have agreed on an Elgamal key
+pair $(pk,sk)$ where $sk$ is shared between the two of them.
+
+For security parameter $\lambda$, there exists an oblivious
+pseudo-random function
+$\oprf:\{0,1\}^\lambda\times\{0,1\}^\ell\rightarrow{}\{0,1\}^\ell$.
+In our context, $\oprf$ will be evaluated with $P_1$ being the sender
+and $P_2$ being the receiver.
+
+\begin{enumerate}[label={\bf Step {\arabic*}:},leftmargin=*]
+\item Party $P_1$ prepares a binary prefix tree of its input set as follows.
+
+  First, $P_1$ generates a random key $k\getr\{0,1\}^\lambda$ for $\oprf$.
+
+  For each $e_{1,i}\in{}S_1$, $P_1$ computes $v_i=\oprf_k(e_{1,i})$
+  and builds a prefix tree $T$ with the $v_i$ as keys. Observe that
+  each node $N_i$ in $T$ contains tuple
+  $(\mathsf{prefix}_i,\mathsf{L}_i,\mathsf{R}_i)$, where
+  $\mathsf{prefix}_i$ is node $N_i$'s bit string prefix, and
+  $\mathsf{L}_i$ and $\mathsf{R}_i$ are pointers to the $N_i$'s left
+  and right children and can therefore be $\bot$.
+
+  $P_1$ stores $T$ in an array $A$, so pointers $\mathsf{L}_i$ and
+  $\mathsf{R}_i$ are indices of $A$'s elements. Let the number
+  of nodes in $T$ and therewith the number of elements in $A$ be
+  $n'$.
+
+  \fixme{Why would $P_1$ have to shuffle $T$?}
+  
+  Finally, $P_1$ Elgamal encrypts each element $N_i$ of array $A$ to
+  $c_i=(\enc_{pk}(\mathsf{prefix}_i),\enc_{pk}(\mathsf{L}_i),\enc_{pk}(\mathsf{R}_i))$
+  and sends the $c_i$ to $P_2$.
+
+\item $P_2$ re-encrypts array $A$, i.e., all $c_i$ to $c'_i$, chooses
+  a random permutation $\pi:\{1,\ldots,n\}\rightarrow\{1,\ldots,n\}$
+  and randomly shuffles the $c'_i$ with $\pi$. Party $P_2$ sends
+  resulting array $A'$, the sequence of $c'_{\pi(i)}$, back to $P_1$.
+
+\item For each $e_{2,i}\in{}S_2$, $P_1$ and $P_2$ jointly evaluate
+  $\oprf$ such that $P_2$ learns $v'_i=\oprf_k(e_{2,i})$, and $P_1$
+  learns nothing.
+
+\item Let $v'_i=b_{i,1}\ldots{}b_{i,\ell}$ be the bit representation
+  of $v'_i$. Party $P_2$ fetches data from $P_1$ as follows.
+
+  After fetching root $\pi(0)$, $P_2$ uses bit $b_{i,j}$ to either use
+  $next=\mathsf{L}$ or $next=\mathsf{R}$, fetches $\pi(next)$ from
+  $A'$ and so on.
+
+  Note that $P_2$ never fetches the same element from $A'$ twice. 
+  
+\end{enumerate}
+
+\fixme{Optimization: do not send back the shuffled array...}
 \end{document}
