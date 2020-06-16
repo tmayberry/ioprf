@@ -1,0 +1,2 @@
+all:
+	rubber -df idea
