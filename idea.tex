@@ -22,6 +22,7 @@ $\oprf:\{0,1\}^\lambda\times\{0,1\}^\ell\rightarrow{}\{0,1\}^\ell$.
 In our context, $\oprf$ will be evaluated with $P_1$ being the sender
 and $P_2$ being the receiver.
 
+\paragraph{Protocol Overview}
 \begin{enumerate}[label={\bf Step {\arabic*}:},leftmargin=*]
 \item Party $P_1$ prepares a binary prefix tree of its input set as follows.
 
@@ -58,9 +59,13 @@ and $P_2$ being the receiver.
 \item Let $v'_i=b_{i,1}\ldots{}b_{i,\ell}$ be the bit representation
   of $v'_i$. Party $P_2$ fetches data from $P_1$ as follows.
 
-  After fetching root $\pi(0)$, $P_2$ uses bit $b_{i,j}$ to either use
-  $next=\mathsf{L}$ or $next=\mathsf{R}$, fetches $\pi(next)$ from
-  $A'$ and so on.
+  Party $P_2$ asks $P_1$ to partially decrypt element $\pi(0)$, the
+  root, from $A'$. Upon receipt, $P_2$ finalizes decryption of
+  $\pi(0)$ to $(\mathsf{prefix},\mathsf{L},\mathsf{R})$.
+
+  They then use bit $b_{i,1}$ to either set
+  ${\mathsf{next}}=\mathsf{L}$ or ${\mathsf{next}}=\mathsf{R}$, fetch
+  the partial decryption of $\pi({\mathsf{next}})$ from $A'$ and so on.
 
   Note that $P_2$ never fetches the same element from $A'$ twice. 
   
