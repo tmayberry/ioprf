@@ -1,6 +1,6 @@
 \documentclass{article}
 
-\usepackage{parskip,enumitem}
+\usepackage{parskip,enumitem,url}
 
 \newcommand{\oprf}[0]{\mathsf{OPRF}}
 \newcommand{\getr}[0]{\stackrel{\$}{\leftarrow}}
@@ -72,4 +72,14 @@ and $P_2$ being the receiver.
 \end{enumerate}
 
 \fixme{Optimization: do not send back the shuffled array...}
-\end{document}
+
+\section{Related Work}
+\begin{itemize}
+\item Katzenbeisser: \url{https://dl.acm.org/doi/pdf/10.1145/1315245.1315309}:
+  privacy-preserving evaluation of a FSM, semi-honest, number of
+  states (and therewith this scheme's communication complexity) of the
+  FSM is exponential in the edit distance:
+  \url{https://store.fmi.uni-sofia.bg/fmi/logic/theses/mitankin-en.pdf}
+\item Kerschbaum: \url{http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.584.3879&rep=rep1&type=pdf}, semi-honest, $\ell^2$ per item
+\end{itemize}
+  \end{document}
