@@ -1,15 +1,44 @@
 \documentclass{article}
 
-\usepackage{parskip,enumitem,url}
+\usepackage{amsmath,parskip,enumitem,url}
 
 \newcommand{\oprf}[0]{\mathsf{OPRF}}
 \newcommand{\getr}[0]{\stackrel{\$}{\leftarrow}}
 \newcommand{\enc}[0]{{\mathsf{Enc}}}
 \newcommand{\dec}[0]{{\mathsf{Dec}}}
 \newcommand{\fixme}[1]{{\bf FIXME:} {\emph{#1}}}
+\newcommand{\dash}[0]{{\text -}}
+\newcommand{\A}[0]{{\mathcal{A}}}
 
+\newcommand{\ioprf}[0]{\mathsf{i}\dash\mathsf{OPRF}}
+\newcommand{\proto}[0]{{\pi_{\ioprf}}}
+\newcommand{\myS}[0]{{\mathcal{S}}}
 
 \begin{document}
+An iterated oblivious pseudo-random function $\ioprf$ is a protocol
+$\proto$ between a sender $S$ with input $K$ and receiver $R$
+with input $(b_1,\ldots,b_\ell)$ with the following properties.
+
+\begin{itemize}
+\item Protocol $\proto$ outputs a sequence of values
+  $(v_1,\ldots,v_\ell),|v_i|=\lambda$ to $R$ and nothing to $S$.
+
+\item Consider the $v_i$ as random variables describing $R$'s output
+  for a fixed input $(b_1,\ldots,b_\ell)$ and random key $K$.
+   
+  We require $\forall{}(b_1,\ldots,b_\ell)\in\{0,1\}^\ell,\forall{}i\in\{1,\ldots,\ell\}:$
+  $$|Pr[\A(v_1,\ldots,v_{i-1},v_i)]-Pr[\A(v_1,\ldots,v_{i-1},U_\lambda)]|=\epsilon(\lambda),$$
+  where $U_\lambda$ is the random variable describing uniformly random
+  bit strings of length $\lambda$.
+
+\item For all $\lambda$ and $(b_1,\ldots,b_\ell)$, there exists a
+  simulator $\myS(\ioprf_K(b_1,\ldots,b_\ell))$ who can simulate $R$'s
+  view of the execution of $\pi$
+\item Oblivious
+  
+\end{itemize}
+
+\section{Old}
 \paragraph{Preliminaries} There are two parties $P_1$ and $P_2$ with
 input sets $S_1=\{e_{1,1},\ldots,e_{1,n}\}$ and
 $S_2=\{e_{2,1},\ldots,e_{2,n}\}$ of elements
