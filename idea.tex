@@ -30,7 +30,7 @@ with input bits $(b_1,\ldots,b_\ell)\in\{0,1\}^{\ell}$ with the following proper
   
 \item 
 For all $(b_1,\ldots,b_\ell)\in\{0,1\}^\ell$ we require
-\begin{align*}\forall{}i\in\{1,\ldots,\ell\}:|&Pr[(v_1,\ldots,v_\ell)\leftarrow{}(v)_\lambda:\A(v_1,\ldots,v_i)]-\\&Pr[(v_1,\ldots,v_\ell)\leftarrow{}(v)_\lambda,u\leftarrow{}(U)_\lambda:\A(v_1,\ldots,v_{i-1},u)]|\\&=\epsilon(\lambda),
+\begin{align*}\forall{}i\in\{1,\ldots,\ell\}:|&Pr[(v_1,\ldots,v_\ell)\leftarrow{}(v)_\lambda:\A(v_1,\ldots,v_i)=1]-\\&Pr[(v_1,\ldots,v_\ell)\leftarrow{}(v)_\lambda,u\leftarrow{}(U)_\lambda:\A(v_1,\ldots,v_{i-1},u)=1]|\\&=\epsilon(\lambda),
   \end{align*}
   where $(U)_\lambda$ is the random variable describing uniformly random
   bit strings of length $\lambda$. The probabilities are taken over
