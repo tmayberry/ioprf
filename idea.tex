@@ -15,6 +15,8 @@
 \newcommand{\iprf}[0]{\mathsf{i}\mathsf{PRF}}
 \newcommand{\proto}[0]{{\pi_{\ioprf}}}
 \newcommand{\myS}[0]{{\mathcal{S}}}
+\newcommand{\Z}[0]{\mathbb{Z}}
+
 
 \newcommand{\N}[0]{{\mathbb{N}}}
 
@@ -46,7 +48,8 @@
   $(b_1,\ldots,b_\ell)\in\{0,1\}^{\ell}$ with the following
   properties.
 
-\begin{itemize}
+  \begin{itemize}
+   
 \item Protocol $\proto$ realizes the ideal functionality $\iprf$. It
   outputs
   $(v_1,\ldots,v_\ell)=\iprf_K(b_1,\ldots,b_\ell),|v_i|=\lambda$, to
@@ -68,6 +71,21 @@
   the ideal world.  
 \end{itemize}
 \end{definition}
+
+
+\section{Our function $\iprf$}
+Let $q$ be the order of the group in which we operate (e.g., points of
+an elliptic curve with point addition), and $G$ is a generator.
+
+Initialization: choose $\ell$ random scalars $r_i\getr\Z^*_q$
+
+$\iprf(b_1,\ldots,b_\ell)$: output 
+$({r_1^{b_1}}\cdot{}G,\ldots,{r_1^{b_1}\cdots{}r_\ell^{b_\ell}}\cdot{}G)$
+
+\section{Our $\proto$}
+
+
+
 \newpage
 
 \section{Old}
