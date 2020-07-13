@@ -1,6 +1,7 @@
 \documentclass{article}
 
-\usepackage{amsmath,amssymb,parskip,enumitem,url}
+\usepackage{amsmath,amsthm,amssymb,parskip,enumitem,url}
+\newtheorem{definition}{Definition}
 
 \newcommand{\oprf}[0]{\mathsf{OPRF}}
 \newcommand{\getr}[0]{\stackrel{\$}{\leftarrow}}
@@ -10,42 +11,64 @@
 \newcommand{\dash}[0]{{\text -}}
 \newcommand{\A}[0]{{\mathcal{A}}}
 
-\newcommand{\ioprf}[0]{\mathsf{i}\dash\mathsf{OPRF}}
+\newcommand{\ioprf}[0]{\mathsf{i}\mathsf{OPRF}}
+\newcommand{\iprf}[0]{\mathsf{i}\mathsf{PRF}}
 \newcommand{\proto}[0]{{\pi_{\ioprf}}}
 \newcommand{\myS}[0]{{\mathcal{S}}}
 
 \newcommand{\N}[0]{{\mathbb{N}}}
 
 \begin{document}
-An iterated oblivious pseudo-random function is a probabilistic protocol
-$\proto$ between a sender $S$ with input key $K\in\{0,1\}^*$ and receiver $R$
-with input bits $(b_1,\ldots,b_\ell)\in\{0,1\}^{\ell}$ with the following properties.
+
+\begin{definition}[$\iprf$]
+  Consider function family
+  $f_K(b_1,\ldots,b_\ell):\{0,1\}^{\lambda\cdot\ell}\times\{0,1\}^{\ell}\rightarrow{}(v_1,\ldots,v_\ell)\in\{0,1\}^{\lambda\cdot\ell}$. For a
+  randomly chosen key $K$, observe that range
+  $V_\lambda=(v_1,\ldots,v_\ell)$ is a family of random variables (a
+  probability ensemble) of length $\ell\cdot\lambda$ bit strings. We
+  call function $f_K$ an iterated pseudo-random function family
+  $(\iprf_K)$ \emph{iff} for all adversaries $\A$ and for all
+  $(b_1,\ldots,b_\ell)\in\{0,1\}^\ell$ there exists a negligible
+  function $\epsilon$ such that for sufficiently large $\lambda$
+\begin{align*}\forall{}i\in\{1,\ldots,\ell\}:|&Pr[(v_1,\ldots,v_\ell)\leftarrow{}V_\lambda:\A(v_1,\ldots,v_i)=1]-\\&Pr[(v_1,\ldots,v_\ell)\leftarrow{}V_\lambda,u\leftarrow{}U_\lambda:\A(v_1,\ldots,v_{i-1},u)=1]|\\&=\epsilon(\lambda),
+  \end{align*}
+  where $U_\lambda$ is the random variable describing uniformly random
+  bit strings of length $\lambda$. The probabilities are taken over
+  the random coins of $\A$ and $K$.
+
+\end{definition}
+
+\begin{definition}[$\proto$]
+  Let $\iprf_K$ be an iterated pseudo-random function family.  An
+  iterated \emph{oblivious} pseudo-random function is a probabilistic
+  protocol $\proto$ between a sender $S$ with input key
+  $K\in\{0,1\}^{\lambda\cdot\ell}$ and receiver $R$ with input bits
+  $(b_1,\ldots,b_\ell)\in\{0,1\}^{\ell}$ with the following
+  properties.
 
 \begin{itemize}
-\item Protocol $\proto$ outputs a sequence of values
-  $v=(v_1,\ldots,v_\ell),|v_i|=\lambda$, to $R$ and nothing to $S$.
-  Observe that $v$ is a family of random variables (a probability
-  ensemble) $v=\{(v_1,\ldots,v_\ell)_{\lambda}\}_{\lambda\in\N}$ of length
-  $\ell\cdot\lambda$ bit strings.
+\item Protocol $\proto$ realizes the ideal functionality $\iprf$. It
+  outputs
+  $(v_1,\ldots,v_\ell)=\iprf_K(b_1,\ldots,b_\ell),|v_i|=\lambda$, to
+  $R$ and nothing to $S$.
   
-\item 
-For all $(b_1,\ldots,b_\ell)\in\{0,1\}^\ell$ we require
-\begin{align*}\forall{}i\in\{1,\ldots,\ell\}:|&Pr[(v_1,\ldots,v_\ell)\leftarrow{}(v)_\lambda:\A(v_1,\ldots,v_i)=1]-\\&Pr[(v_1,\ldots,v_\ell)\leftarrow{}(v)_\lambda,u\leftarrow{}(U)_\lambda:\A(v_1,\ldots,v_{i-1},u)=1]|\\&=\epsilon(\lambda),
-  \end{align*}
-  where $(U)_\lambda$ is the random variable describing uniformly random
-  bit strings of length $\lambda$. The probabilities are taken over
-  the random coins of $S$ and $R$.
+\item For all adversaries $\A$ in the real world, there exists a
+  simulator $\myS_R$ in the ideal world such $R$'s view
+  $\mathsf{REAL}_{\proto,\A,R}(b_1,\ldots,b_\ell,K)$ in the real world is
+  computationally indistinguishable from $R$'s view
+  $\mathsf{IDEAL}_{\iprf,\myS_R(b_1,\ldots,b_\ell)}(b_1,\ldots,b_\ell,K)$ in
+  the ideal world.
 
-\item For any input $(b_1,\ldots,b_\ell)$, let
-  $(v_1,\ldots,v_\ell)$ be the corresponding output after execution of
-  $\proto$. We require that for all $(b_1,\ldots,b_\ell)$ there exists
-  a simulator $\myS_R(v_1,\ldots,v_\ell)$ who can simulate $R$'s view
-  of the execution of $\proto$.
-
-\item For any protocol execution, there exists a simulator $\myS_S$ who
-  can simulate $S$'s view of the execution of $\proto$.
-  
+\item
+   For all adversaries $\A$ in the real world, there exists a
+  simulator $\myS_S$ in the ideal world such $S$'s view
+  $\mathsf{REAL}_{\proto,\A,S}(b_1,\ldots,b_\ell,K)$ in the real world is
+  computationally indistinguishable from $S$'s view
+  $\mathsf{IDEAL}_{\iprf,\myS_S}(b_1,\ldots,b_\ell,K)$ in
+  the ideal world.  
 \end{itemize}
+\end{definition}
+\newpage
 
 \section{Old}
 \paragraph{Preliminaries} There are two parties $P_1$ and $P_2$ with
