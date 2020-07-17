@@ -95,9 +95,9 @@ S holds $y_0$ and $y_1$, and $R$ obliviously retrieves $y_b$ from $S$.
 
 \begin{itemize}
 \item $S$ generates $\ell$ random scalars $a_i\getr\Z^*_q$
-\item For each $1 \leq i \leq \ell$, $R$ and $S$ execute $\ot(b_i, a_i\cdot{}r_i, a_i \cdot s_i)$ and stores the result as $z_i$
+\item For each $1 \leq i \leq \ell$, $R$ and $S$ execute $\ot(b_i, a_ir_i, a_is_i)$ and stores the result as $z_i$
 \item $S$ sends to $R$ the vector $\vec{C}$ where $\forall 1 \leq i \leq \ell$, $C_i =  G \cdot \frac{1}{\prod_{j=1}^{i} a_j}$
-\item $R$ recovers $\iprf$ output vector $v$ by calculating $v_i = C_i \cdot \prod_{j=1}^{i} z_i$
+\item $R$ recovers $\iprf$ output vector $v$ by calculating $v_i = C_i \cdot \prod_{j=1}^{i} z_j$
 \end{itemize}
 
 {\bf Corectness:} For all $1 \leq i \leq \ell$ we have
