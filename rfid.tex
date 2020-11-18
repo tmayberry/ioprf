@@ -1,22 +1,7 @@
 \documentclass{article}
 
-\newcommand{\ioprf}[0]{\mathsf{iOPRF}}
-\newcommand{\prg}[0]{\mathsf{PRG}}
-\newcommand{\seed}[0]{\mathsf{seed}}
-\newcommand{\myroot}[0]{\mathsf{ROOT}}
+\input{macros}
 
-
-\makeatletter
-\def\old@comma{,}
-\catcode`\,=13
-\def,{%
-  \ifmmode%
-    \old@comma\discretionary{}{}{}%
-  \else%
-    \old@comma%
-  \fi%
-}
-\makeatother
 \begin{document}
 We support a total of $N$ tags in the system. Each tag uniquely
 corresponds to a leaf of a height $L$ (binary) tree. To identify a
@@ -42,7 +27,7 @@ children.
 
 Here are protocol details.
 \begin{itemize}
-\
+
 \item During initialization of a new tag $x$, the database stores a
   sequence of $L$ keys $K$ on the tag, one for each node on the path from
   the root of the database's tree to leaf $x$. We keep the intuitive $0$

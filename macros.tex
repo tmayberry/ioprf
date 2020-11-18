@@ -1,0 +1,42 @@
+\usepackage{xfrac,amsmath,amsthm,amssymb,parskip,enumitem,url}
+\newtheorem{definition}{Definition}
+
+\newcommand{\oprf}[0]{\mathsf{OPRF}}
+\newcommand{\getr}[0]{\stackrel{\$}{\leftarrow}}
+\newcommand{\enc}[0]{{\mathsf{Enc}}}
+\newcommand{\dec}[0]{{\mathsf{Dec}}}
+\newcommand{\fixme}[1]{{\bf FIXME:} {\emph{#1}}}
+\newcommand{\todo}[1]{{\bf ToDo:} {{\bf #1}}}
+\newcommand{\dash}[0]{{\text -}}
+\newcommand{\A}[0]{{\mathcal{A}}}
+
+
+\newcommand{\myO}[0]{\mathcal{O}}
+\newcommand{\ioprf}[0]{\mathsf{i}\mathsf{OPRF}}
+\newcommand{\iprf}[0]{\mathsf{i}\mathsf{PRF}}
+\newcommand{\ot}[0]{\mathsf{OT}}
+\newcommand{\proto}[0]{{\pi_{\ioprf}}}
+\newcommand{\myS}[0]{{\mathcal{S}}}
+\newcommand{\Z}[0]{\mathbb{Z}}
+\newcommand{\Hide}[1]{}
+
+\newcommand{\prg}[0]{\mathsf{PRG}}
+\newcommand{\seed}[0]{\mathsf{seed}}
+\newcommand{\myroot}[0]{\mathsf{ROOT}}
+
+
+\let\ignore\Hide
+
+\newcommand{\N}[0]{{\mathbb{N}}}
+
+\makeatletter
+\def\old@comma{,}
+\catcode`\,=13
+\def,{%
+  \ifmmode%
+    \old@comma\discretionary{}{}{}%
+  \else%
+    \old@comma%
+  \fi%
+}
+\makeatother

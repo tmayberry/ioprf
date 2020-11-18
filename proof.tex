@@ -1,0 +1,86 @@
+\documentclass{article}
+
+\input{macros}
+
+\begin{document}
+Let there be 2 generators $G_1$ and $G_2$ of some DDH group. The
+sender has secret key $K=(a_1,\ldots,a_\ell,b_1,\ldots,b_\ell)$ as
+before. For some input $x=x_1\ldots{}x_\ell$, we define
+$\ioprf_K(x)=\prod_{i=1}^{\ell}(a_ix_i+b_i(1-x_i))\cdot{}G_1$.
+
+\paragraph{Init}
+The receiver sets $V_0 = G_1$ and $D_0 = G_2$, commits to $V_0$ and
+$D_0$, but also sends randomness used for commitments to the
+sender. Therewith, the sender knows that the commitments are really
+containing $G_1$ and $G_2$. The sender commits to $a_i,b_i$.
+
+\paragraph{Iterative Processing $\ell$ rounds}
+In round $i\in\{1,\ldots,\ell\}$, for sender's input bit $x_i$:
+
+\begin{enumerate}
+\item {\bf Blinding:} The receiver computes $V'_i = t_i\cdot{}V_{i-1}$ and
+  $D'_i=t_i \cdot D_{i-1}$ for a randomly chosen $t_i$. The receiver
+  commits to $t_i$, $V'_i$, and $D'_i$ and proves the following two
+  Groth-Sahai (GS) equations to the sender
+\begin{align}
+  \myO &= t_i \cdot V_{i-1} - 1 \cdot V'_i \\
+  \myO &= t_i \cdot D_{i-1} - 1\cdot{}D'_i
+\end{align}
+
+      (Constants are $0$ and $-1$, and variables are $t_i, V_i, D_i,
+      V'_i, D'_i$.)
+
+      These two equations prove correctness of commitments $V'_i$ and
+      $D'_i$. Observe that the receiver does not send $V'_i,D'_i$ to
+      the sender, but only their commitments.
+
+    \item {\bf Shuffling:} For input bit $x_i$, the receiver computes
+      \begin{align}
+        R_i = x_i \cdot V'_i + (1-x_i) \cdot D'_i
+        \\S_i = (1-x_i) \cdot V'_i + x_i \cdot D'_i.
+      \end{align}
+
+      The receiver
+      commits to $x_i$ (and has to prove that $x_i$ is either a 0 or
+      1, see below). The receiver sends both $R_i$ and $S_i$ proves them as GS equations.
+
+      (Constants are $R_i,S_i$, and
+      the -1 (there are some tricks), and variables are $x_i, V'_i$, and
+      $D'_i$.)
+
+      Therewith, the receiver has given a random shuffle (depending on
+      $x_i$) of $V_i$ and $D_i$ to the sender. The sender does not
+      know which of $R_i$ and $S_i$ is $V_i$ or $D_i$.
+      
+    \item The sender computes \begin{align}
+                                X_i &= a_i \cdot R_i\\
+                                Y_i &= b_i \cdot S_i
+                                \end{align}
+
+                                and sends $X_i,Y_i$ back and proves
+                                them with two GS equations.
+
+                              \item The receiver commits to $t_i^{-1}$
+                                and proves $t_i^{-1}\cdot{}t_i = 1$. This is a quadratic equation.
+
+
+                              \item The receiver computes
+\begin{align}
+  V_{i} = t_i^{-1} \cdot X_i\\
+  D_{i} = t_i^{-1} \cdot Y_i,
+\end{align}
+and proves them.
+
+
+\end{enumerate}
+
+Proving that $x_i$ is a bit is a quadratic equation:
+$x_i \cdot (1-x_i) = 0$.
+
+
+It is important that $G_1$ and $G_2$ are random. Specifically, the
+receiver does not know the elliptic curve DLOG of $G_2$ to basis
+$G_1$, i.e., $\log_{G_1}{G_2}$. Both $G_1$ and $G_2$ could be part of
+the CRS.
+
+\end{document}
