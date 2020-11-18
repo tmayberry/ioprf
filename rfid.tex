@@ -1,0 +1,91 @@
+\documentclass{article}
+
+\newcommand{\ioprf}[0]{\mathsf{iOPRF}}
+\newcommand{\prg}[0]{\mathsf{PRG}}
+\newcommand{\seed}[0]{\mathsf{seed}}
+\newcommand{\myroot}[0]{\mathsf{ROOT}}
+
+
+\makeatletter
+\def\old@comma{,}
+\catcode`\,=13
+\def,{%
+  \ifmmode%
+    \old@comma\discretionary{}{}{}%
+  \else%
+    \old@comma%
+  \fi%
+}
+\makeatother
+\begin{document}
+We support a total of $N$ tags in the system. Each tag uniquely
+corresponds to a leaf of a height $L$ (binary) tree. To identify a
+tag, a reader (a simple device which can query the tag and has
+Internet connectivity) can talk to a database which stores the tree.
+
+The reader wants to know whether a tag is valid by interacting first
+with the tag and then with the database. To protect tag privacy,
+internal details of a supply/distribution chain etc, the database
+should not learn which tag the reader is querying for. An adversary
+observing tag-reader interaction or being able to query tags
+themselves should not be able to identify or trace/follow tags or
+even fabricate new tags, too.
+
+
+The database has a secret key S and will run $\ioprf_S(x)$ as the
+sender, and the reader will be the receiver with inputs $x$. Recall
+that with our $\ioprf$ inputs $x$ are bit strings of length $L$. Also
+remember that the database's tree is $\ioprf_S(x)$ for each node $x$,
+following the intuitive $0$ and $1$ convention for left and right
+children.
+
+
+Here are protocol details.
+\begin{itemize}
+\
+\item During initialization of a new tag $x$, the database stores a
+  sequence of $L$ keys $K$ on the tag, one for each node on the path from
+  the root of the database's tree to leaf $x$. We keep the intuitive $0$
+  and $1$ notation also for keys $K$, so for example tag $x = 1011$ stores
+  keys $K_1$, $K_{10}$, $K_{101}$, $K_{1011}$, a total of $L=4$ keys.
+
+\item The database computes each key as follows:  
+\begin{itemize}
+\item for a key corresponding to node $i$, it computes $\seed =
+  \ioprf_S(\mathsf{PARENT}(i))$. For example, for $K_{1011}$, it would
+  compute $\seed = \ioprf_S(101)$.
+
+\item the database then computes
+  $K_{\mathsf{leftChild}}||K_{\mathsf{rightChild}} = \prg(\seed)$. In
+  our example, it would compute $K_{1010}||K_{1011} = \prg(\seed)$.
+
+\item the database stores one of the two keys on the tag, the one corresponding to the node. So, $K_{1011}$ in our case.
+\end{itemize}
+
+\item Each tag can now identify itself to a reader using the Molnar protocol:
+
+  \begin{itemize}
+\item The tag chooses a random $r$ and sends $r$ together with a hash (or a PRF) of $r$ and each of their $L$ keys. So, it would send $r, H(r||K_1), H(r||K_{10}), H(r||K_{101}), H(r||K_{1011})$ to the reader.
+
+\item The reader uses our $\ioprf$ to identify the tag as follows (I am now sticking to our running example of $x=1011$):
+  \begin{itemize}
+    
+\item The reader would query the database for $\seed =
+  \ioprf_S(\myroot)$, for some special input symbol $\myroot$.
+
+\item The reader would derive $K_0$ and $K_1$ and would then check which of them matches the tag's first hash evaluation. 
+
+\item If yes, the reader would continue and query either the left or right child of the root with the $\ioprf$, compute keys, check which hash matches etc.
+\end{itemize}
+  \end{itemize}
+\end{itemize}
+
+As you can see, the security we are aiming for asks only for a
+delegatable OPRF. Our $\ioprf$ supports delegation, but can do more. We
+could also ask as an additional security requirement that the reader
+should only learn ``one path'', i.e., one tag per interaction with the
+database. This is not 100\% true, because we currently also leak the
+sibling of each ``key node'' in the above protocol. I don't think this
+is a major problem though.
+
+\end{document}
