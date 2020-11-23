@@ -1,10 +1,13 @@
-all: idea.pdf rfid.pdf proof.pdf
+all: idea.pdf rfid.pdf ioprf-proof.pdf rfid-proof.pdf
 
-idea.pdf: idea.tex
+idea.pdf: idea.tex macros.tex
 	rubber -d idea
 
-rfid.pdf: rfid.tex
+rfid.pdf: rfid.tex macros.tex
 	rubber -d rfid
 
-proof.pdf: proof.tex
-	rubber -d proof
+ioprf-proof.pdf: ioprf-proof.tex macros.tex
+	rubber -d ioprf-proof
+
+rfid-proof.pdf: rfid-proof.tex macros.tex
+	rubber -d rfid-proof

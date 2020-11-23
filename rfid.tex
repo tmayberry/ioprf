@@ -4,9 +4,10 @@
 
 \begin{document}
 We support a total of $N$ tags in the system. Each tag uniquely
-corresponds to a leaf of a height $L$ (binary) tree. To identify a
-tag, a reader (a simple device which can query the tag and has
-Internet connectivity) can talk to a database which stores the tree.
+corresponds to a leaf of a height $\ell$ (binary) key tree. To
+identify a tag, a reader (a simple device which can query the tag and
+has Internet connectivity) can talk to a database which knows all keys
+of the key tree.
 
 The reader wants to know whether a tag is valid by interacting first
 with the tag and then with the database. To protect tag privacy,
@@ -17,28 +18,82 @@ themselves should not be able to identify or trace/follow tags or
 even fabricate new tags, too.
 
 
-The database has a secret key S and will run $\ioprf_S(x)$ as the
-sender, and the reader will be the receiver with inputs $x$. Recall
-that with our $\ioprf$ inputs $x$ are bit strings of length $L$. Also
-remember that the database's tree is $\ioprf_S(x)$ for each node $x$,
-following the intuitive $0$ and $1$ convention for left and right
-children.
+The database knows a secret key $K$ and populates a binary key tree
+$T$ as follows.  The root node stores key
+$K_{\myroot}=\ioprf_K(\myroot)$ for a special bit string $\myroot$
+discussed later.  The left child of the root (``0'') stores key
+$K_0=\ioprf_K(0)$, and the right child (``1'') stores key
+$K_1=\ioprf_K(1)$. By induction, for any node $\beta_1\ldots\beta_i$
+we define inductively that its left child stores key
+$K_{\beta_1\ldots\beta_i0}=\ioprf_K(\beta_1\ldots\beta_i0)$, and its
+right child stores key
+$K_{\beta_1\ldots\beta_i1}=\ioprf_K(\beta_1\ldots\beta_i1)$.
 
+During authentication of tag $x$, the database will run
+$\ioprf_K(\cdot)$ as the sender, and the reader will be the receiver
+with input bit strings $x=x_1\ldots{}x_\ell$.
+
+Here are protocol details.
+\begin{itemize}
+  
+\item During initialization of a new tag $x$, the database stores a
+  sequence of $\ell+1$ keys $K$ on the tag: one for each node on the
+  path from the root of the database's tree $T$ to leaf
+  $x=x_1\ldots{}x_\ell$. The tag also stores its own ID, i.e., $x$.
+
+\item Each tag now identifies itself to a reader using a variation of
+  the Molnar (\fixme{Difference: we send the next bit by appending
+    it}) protocol:
+
+  \begin{itemize}
+  \item Tag $x$ chooses a random $r$ and sends $r$ together with a
+    hash (or a PRF) of $r$ and each of their $\ell+1$ keys and the
+    next bit, respectively:
+    $\trace=(r,T_0=H(r,
+    K_\myroot,x_1),\ldots,T_\ell=H(r,K_{x_1\ldots{}x_{\ell-1}},x_{\ell}),H(r,K_{x_1\ldots{}x_\ell}))$.
+
+\item The reader uses our $\ioprf$ to identify the tag as follows (I am now sticking to our running example of $x=1011$):
+
+ \begin{itemize}
+
+ \item The reader either sends $H(\trace)$ to the database or
+   commits to it using an extractable commitment \fixme{Do we need both?}.
+   
+  \item The reader queries the database for
+    $K_\myroot=\ioprf_K(\myroot)$ and checks whether either $H(r,K_\myroot,0)$ or $H(r,K_\myroot,1)$  matches
+    $T_0$.
+
+  \item If yes, the reader would continue and query either the left or
+    right child of the root with the $\ioprf$, compute keys, check
+    which matches etc.
+\end{itemize}
+  \end{itemize}
+\end{itemize}
+
+As you can see, the security we are aiming for asks only for a
+(delegatable) OPRF. Our $\ioprf$ supports delegation, but can do more. We
+could also ask as an additional security requirement that the reader
+should only learn ``one path'', i.e., one tag per interaction with the
+database. 
+
+
+\newpage
+section{This is the old protocol:}
 
 Here are protocol details.
 \begin{itemize}
 
 \item During initialization of a new tag $x$, the database stores a
-  sequence of $L$ keys $K$ on the tag, one for each node on the path from
+  sequence of $\ell$ keys $K$ on the tag, one for each node on the path from
   the root of the database's tree to leaf $x$. We keep the intuitive $0$
   and $1$ notation also for keys $K$, so for example tag $x = 1011$ stores
-  keys $K_1$, $K_{10}$, $K_{101}$, $K_{1011}$, a total of $L=4$ keys.
+  keys $K_1$, $K_{10}$, $K_{101}$, $K_{1011}$, a total of $\ell=4$ keys.
 
 \item The database computes each key as follows:  
 \begin{itemize}
 \item for a key corresponding to node $i$, it computes $\seed =
-  \ioprf_S(\mathsf{PARENT}(i))$. For example, for $K_{1011}$, it would
-  compute $\seed = \ioprf_S(101)$.
+  \ioprf_K(\mathsf{PARENT}(i))$. For example, for $K_{1011}$, it would
+  compute $\seed = \ioprf_K(101)$.
 
 \item the database then computes
   $K_{\mathsf{leftChild}}||K_{\mathsf{rightChild}} = \prg(\seed)$. In
@@ -50,13 +105,13 @@ Here are protocol details.
 \item Each tag can now identify itself to a reader using the Molnar protocol:
 
   \begin{itemize}
-\item The tag chooses a random $r$ and sends $r$ together with a hash (or a PRF) of $r$ and each of their $L$ keys. So, it would send $r, H(r||K_1), H(r||K_{10}), H(r||K_{101}), H(r||K_{1011})$ to the reader.
+\item The tag chooses a random $r$ and sends $r$ together with a hash (or a PRF) of $r$ and each of their $\ell$ keys. So, it would send $r, H(r||K_1), H(r||K_{10}), H(r||K_{101}), H(r||K_{1011})$ to the reader.
 
 \item The reader uses our $\ioprf$ to identify the tag as follows (I am now sticking to our running example of $x=1011$):
   \begin{itemize}
     
 \item The reader would query the database for $\seed =
-  \ioprf_S(\myroot)$, for some special input symbol $\myroot$.
+  \ioprf_K(\myroot)$, for some special input symbol $\myroot$.
 
 \item The reader would derive $K_0$ and $K_1$ and would then check which of them matches the tag's first hash evaluation. 
 
