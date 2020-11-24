@@ -5,6 +5,10 @@
 \begin{document}
 NOTE: for one-sided security, we use the OT-based solution.
 
+\fixme{Add description that PRF outputs must be hashed to become real
+  output of the PRF. This is necessary for the leftover hash lemma and
+  will also allow ROM proofs.}
+
 \begin{definition}[$\iprf$]
   Consider function family
   $f_K(b_1,\ldots,b_\ell):\{0,1\}^{\lambda\cdot\ell}\times\{0,1\}^{\ell}\rightarrow{}(v_1,\ldots,v_\ell)\in\{0,1\}^{\lambda\cdot\ell}$. For a
@@ -62,10 +66,10 @@ an elliptic curve with point addition), and $G$ is a random generator.
 
 Initialization: choose a key $K=(\vec{{r}},\vec{s})$ by sampling $\ell$ pairs of random scalars ${r_{i}}\getr\Z^*_q,{s_{i}}\getr\Z^*_q.$
 
-$\iprf(b_1,\ldots,b_\ell)$: output a vector $\vec{v}$ of length $\ell$ where $v_i = G \cdot \prod_{j=1}^{i} r_j^{b_j}s_j^{1-b_j}$
+$\iprf(b_1,\ldots,b_\ell)$: output a vector $\vec{v}$ of length $\ell$ where $v_i = ( \prod_{j=1}^{i} r_j^{b_j}s_j^{1-b_j}) \cdot{}G$
 %$({r_1^{b_1}}\cdot{}G,\ldots,{r_1^{b_1}\cdots{}r_\ell^{b_\ell}}\cdot{}G)$
 
-\todo{Show that this is a PRF}
+\todo{Show that this is a PRF, add leftover hash lemma}
 
 \section{Our $\proto$}
 

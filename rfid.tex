@@ -19,12 +19,18 @@ even fabricate new tags, too.
 
 
 The database knows a secret key $K$ and populates a binary key tree
-$T$ as follows.  The root node stores key
-$K_{\myroot}=\ioprf_K(\myroot)$ for a special bit string $\myroot$
-discussed later.  The left child of the root (``0'') stores key
-$K_0=\ioprf_K(0)$, and the right child (``1'') stores key
-$K_1=\ioprf_K(1)$. By induction, for any node $\beta_1\ldots\beta_i$
-we define inductively that its left child stores key
+$T$ as follows. First, nodes in this key tree are indexed by bit
+strings following the intuitive notation that the left child (``0'')
+of some node indexed by bit string $\beta_1\ldots\beta_i$ is index by
+$\beta_1\ldots\beta_i0$, and the right child (``1'') is indexed by
+$\beta_1\ldots\beta_i1$. By convention, the root is indexed by
+empty bit string $\epsilon$.
+
+Root node $\epsilon$ stores random key
+$K_{\epsilon}\getr\{0,1\}^\lambda$.  The left child of the root stores
+key $K_0=\ioprf_K(0)$, and the right child stores key
+$K_1=\ioprf_K(1)$. For a node $\beta_1\ldots\beta_i$,
+the left child stores key
 $K_{\beta_1\ldots\beta_i0}=\ioprf_K(\beta_1\ldots\beta_i0)$, and its
 right child stores key
 $K_{\beta_1\ldots\beta_i1}=\ioprf_K(\beta_1\ldots\beta_i1)$.
@@ -47,8 +53,8 @@ Here are protocol details.
 
   \begin{itemize}
   \item Tag $x$ chooses a random $r$ and sends $r$ together with a
-    hash (or a PRF) of $r$ and each of their $\ell+1$ keys and the
-    next bit, respectively:
+    hash of $r$ and each of their $\ell+1$ keys and the next bit,
+    respectively:
     $\trace=(r,T_0=H(r,
     K_\myroot,x_1),\ldots,T_\ell=H(r,K_{x_1\ldots{}x_{\ell-1}},x_{\ell}),H(r,K_{x_1\ldots{}x_\ell}))$.
 
@@ -56,11 +62,9 @@ Here are protocol details.
 
  \begin{itemize}
 
- \item The reader either sends $H(\trace)$ to the database or
-   commits to it using an extractable commitment \fixme{Do we need both?}.
+ \item The database beings by sending $K_\epsilon$ to the reader.
    
-  \item The reader queries the database for
-    $K_\myroot=\ioprf_K(\myroot)$ and checks whether either $H(r,K_\myroot,0)$ or $H(r,K_\myroot,1)$  matches
+  \item The reader checks whether either $H(r,K_\epsilon,0)$ or $H(r,K_\epsilon,1)$  matches
     $T_0$.
 
   \item If yes, the reader would continue and query either the left or

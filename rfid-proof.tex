@@ -19,44 +19,59 @@ state to $s=\beta_1\ldots\beta_{i}$.
 
 
 \section{Proof}
-N.B.: For the proof, we assume that the RFID reader knows
-$\trace=(r,H(r,
-K_\myroot,x_1),\ldots,H(r,K_{x_1\ldots{}x_{\ell-1}},x_{\ell}),H(r,K_{x_1\ldots{}x_\ell}))$
-from a valid tag $x$.
+
+\begin{proof}[Proof Draft]
+  %For the proof, we assume that the RFID reader knows
+  %$\trace=(r,H(r,
+  %K_\myroot,x_1),\ldots,H(r,K_{x_1\ldots{}x_{\ell-1}},x_{\ell}),H(r,K_{x_1\ldots{}x_\ell}))$
+  %from a valid tag $x$.
 
 Public information: the total number $N$ of tags in the system (leaves
 in tree $T$, $\lambda$ security parameter.
 
-\begin{proof}[Draft]
-  \begin{itemize}
+  \begin{enumerate}
 
   \item Simulator $\myS$ begins by preparing an initially empty
-    key-value table to implement a standard random oracle
-    functionality $H$. Whenever any party calls $H(\cdot)$ with some
-    input $k$, this functionality will check whether $k$ is already in
-    the table and responds with $v$. Otherwise, $H$ generates a random
+    key-value table $\mathsf{RO}$ to implement a standard random
+    oracle functionality $H(\cdot)$. During simulation, whenever any
+    party calls $H(k)$ for some input $k$, this functionality will
+    check whether pair $(k,v)$ is already in table $\mathsf{RO}$ and
+    responds with $v$ in that case. Otherwise, $H$ generates a random
     string $v$ of length $\lambda$, sends $v$ back to the caller, and
-    places $(k,v)$ in the table.
+    places $(k,v)$ in $\mathsf{RO}$.
 
-  \item Adversary $\A$ sends $v'$ to $\myS$ (\fixme{or extractable
-      commitment}). $\myS$ looks up $v'$ in its internal table and
-    thus extracts $k'=\trace'$ such that $v'=H(\trace)$.
+  \item Also, $\myS$ generates a random key
+    $\kappa=((a_1,b_1),\ldots,(a_\ell,b_\ell))$ for $\ioprf$ and generates
+    a common reference string including parameters which will allow
+    $\myF$ to extract commitments from $\A$ (\fixme{be more formal,
+    do some kind of GEN algorithm for iOPRF}).
 
-  \item $\myS$ forwards $\trace$ to $\myF$ and gets back reply
-    $\beta_1\ldots\beta_\ell=\mathsf{ValidPrefix(\trace')}$.
+  \item $\myS$ sends $\epsilon$ to $\myF$ and receives $K_\epsilon$
+    which it forwards to $\A$.
     
-  \item  $\myS$ begins by building their own binary key tree
-    $T'$ with $n$ leaves.  For each node, $\myS$ randomly chooses a
-    bit string of length $\lambda$ and writes into the node.  Using
-    the same notation as with the database's tree $T$, each node
-    $\beta_1\ldots{}\beta_i$ in $T'$ thus stores a random bit string
-    $K'_{\beta_1\ldots{}\beta_i}$, and the root stores random bit
-    string $K'_\myroot$.
+  \item $\myS$ and $\A$ run $\proto$ with $\myS$ as the sender and
+    $\A$ as the receiver.
 
+    Recall that protocol $\proto$ runs iteratively with two messages
+    exchanged between sender and receiver during each
+    iteration. Consequently, $\A$ can adaptively choose their input
+    bit $x_i$ for the $i^\text{th}$ iteration. The input of $\myS$ to
+    $\proto$ is key $\kappa$.
 
+    During the $i^\text{th}$ iteration\fixme{add check all ZK proofs
+      etc}:
+    \begin{enumerate}
+    \item After receiving the first message in $\proto$, $\myS$
+      extracts $\A$'s input $x_i$ from the Elgamal commitment,
+      forwards it to $\myF$, and receives back $K_{x_1\ldots{}x_i}$.
 
-    
-    \end{itemize}
+    \item $\myS$ adds key-value pair
+      $(( \prod_{j=1}^{i}
+      a_j^{x_j}b_j^{1-x_j})\cdot{}G,K_{x_1\ldots{}x_i})$ to table
+      $\mathsf{RO}$.
+   
+    \end{enumerate}
+\end{enumerate}
 \end{proof}
 
 
