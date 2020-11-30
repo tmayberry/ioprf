@@ -12,8 +12,9 @@ the basis of another generator $g_{j\neq{}i}$.
 
 We will use additive Elgamal encryption with private keys $sk\in\Z_p$
 and public keys $pk=g_1^{sk}$. For either $g=g_2$ or $g=g_3$, the
-ciphertext to encrypt $m\in\Z_p$ is
-$(g_1^r,pk^r\cdot{}g^m)\leftarrow\enc_{pk,g}(m)$, where $r\getr\Z_p$.
+ciphertext $c$ to encrypt $m\in\Z_p$ is
+$c=(c[0],c[1])=(g_1^r,pk^r\cdot{}g^m)\leftarrow\enc_{pk,g}(m)$, where
+$r\getr\Z_p$.
 
 The sender in $\proto$ knows the $\ioprf$'s secret key
 $K=(a_1,\ldots,a_\ell,b_1,\ldots,b_\ell)$ as before. For some input
@@ -24,32 +25,62 @@ $\ioprf_K(x)=g_2^{\prod_{i=1}^{\ell}(a_ix_i+b_i(1-x_i))}$.
 The receiver computes $V_0 \leftarrow\enc_{pk,g_2}(1)$ and
 $D_0\leftarrow\enc_{pk,g_2}(1)$, sends them to the sender and proves
 that these are encryptions of $1$ with respect to bases $g_2$ and
-$g_3$ (see below for details).
+$g_3$ (see below for details). The sender computes Pedersen
+commitments
+$(\com_{g_2}(a_1),\ldots,\com_{g_2}(a_\ell),\com_{g_2}(b_1),\ldots,\com_{g_2}(b_\ell))$,
+sends them to the receiver, and proves knowledge of plaintexts in ZK
+(see below).
 
 \paragraph{Iterative Processing $\ell$ rounds}
 In round $i\in\{1,\ldots,\ell\}$, for sender's input bit $x_i$:
 \begin{enumerate}
-\item {\bf Shuffling:} For input bit $x_i$, the receiver computes
+\item {\bf Shuffling:}
+\begin{enumerate}
+\item   For input bit $x_i$, the receiver computes
   Pedersen commitment $\com_{g_2}(x_i)$ and proves knowledge of $x_i$
-  (see below).
+  (see below). Similarly, the receiver computes $\com_{g_2}(1-x_i)$
+  and proves knowledge of $1-x_i$. Finally, the receiver proves that
+  the sum of plaintexts behind $\com_{g_2}(x_i)$ and
+  $\com_{g_2}(1-x_i)$ equals $1$ (see below).
 
 
-  
+\item  The receiver chooses $r\getr\Z_p$ and computes Elgamal ciphertexts
+  \begin{align*}
+    &c_i=(g_1^r\cdot{}V_{i-1}[0]^{x_i},g_1^{r}\cdot{}V_{i-1}[1]^{x_i})
+    \\&c'_i=(g_1^{r'}\cdot{}V_{i-1}[0]^{1-x_i},g_1^{r'}\cdot{}V_{i-1}[1]^{1-x_i})
+    \\&d_i=(g_1^{r''}\cdot{}D_{i-1}[0]^{x_i},g_1^{r''}\cdot{}D_{i-1}[1]^{x_i})
+    \\&d'_i=(g_1^{r'''}\cdot{}D_{i-1}[0]^{1-x_i},g_1^{r'''}\cdot{}D_{i-1}[1]^{1-x_i})%\text{ and}
+  \end{align*}
+  and sends $(c_i,c'_i,d_i,d'_i,R_i,S_i)$ to the sender.
 
-  The receiver computes $t_i\getr\Z_p$,
-  $V'_i=(V_{i-1}[0]^{t_i},V_{i-1}[1]^{t_i})$, and
-  $D'_i=(D_{i-1}[0]^{t_i},D_{i-1}[1]^{t_i})$ and sends $t_i,V'_i,D'_i$
-  to the sender.
+  \item The receiver proves correctness of the above computations in
+    ZK. Specifically, $(c_i,c'_i,d_i,d'_i)$ result from correct
+    exponentiation with $x_i$ (or $1-x_i$) from $\com_{g_2}(x_i)$ (or
+    $\com_{g_2}(1-x_i)$), and multiplication with a random power of
+    $g_1$, i.e., re-randomization (homomorphic addition of encryption
+    of $0$). Similarly, the receiver shows that ciphertexts $R_i$ and
+    $S_i$ are correct additions.
 
-  The receiver also sends proofs to the sender proving that both
-  components of both Elgamal ciphertexts, respectively, have been
-  exponentiated with $t_i$ coming from $g^{t_i}$. This is done by DLOG
-  equivalence proofs (see below), i.e.,
-  $\log_g{g^{t_i}}=\log_{V_{i-1}[0]}{V'_i[0]}$ for the first component
-  of $V'_i$, and similar for the other component and for $D'_i$.
+    See below for technical details.
 
-  
+    Both parties can now compute
+    \begin{align*}&R_i=(c_i[0]\cdot{}d'_i[0],c_i[1]\cdot{}d'_i[1])
+    \\&S_i=(c'_i[0]\cdot{}d_i[0],c'_i[1]\cdot{}d_i[1]).
+    \end{align*}
+   
+  \end{enumerate}
+
+\item {\bf PRF:} The sender computes Elgamal ciphertexts
+  \begin{align*}
+&X_i=(R_i[0]^{a_i},R_i[1]^{a_i})
+\\&Y_i=(S_i[0]^{b_i},S_i[1]^{b_i}),
+  \end{align*}
+sends $(X_i,Y_i)$ to the receiver and proves correct exponentiation
+(multiplication of plaintexts) in ZK (see below).
 \end{enumerate}
+After $\ell$ rounds, the receiver computes
+$\ioprf_K(x)=\frac{X_\ell[1]}{X_{\ell}^{sk}}$.
+
 \section{Tools}
 \subsection{Pedersen Commitments}
 A Pedersen commitment $\com_{g}(m)$ to message $m$ is defined as
@@ -58,13 +89,6 @@ a generator of our DDH group of order $p$.
 
 To open $\com_{g}(m)$, $(m,r)$ is revealed.
 
-\paragraph{Prove of Knowledge of Plaintext}
-For $\com_{g}(m)=g_1^r\cdot{}g^m$, the prover can prove that they know
-$m$.
-\begin{enumerate}
-  \item $P$ sends $t=g_1^{\rho_1}$...\fixme{continue here}
-\end{enumerate}
-
 \paragraph{Witness Extraction}
 Pedersen commitments are trapdoor commitments and allow witness
 extraction in Sigma-based ZK proofs as follows.
@@ -72,29 +96,43 @@ extraction in Sigma-based ZK proofs as follows.
 Before starting the actual ZK proof by the first message from the
 prover to the verifier, we send the following two messages:
 \begin{enumerate}
-\item Prover $P$ sends to verifier $V$: $g=g_1^s$ for some
-  $s\getr\Z_p$. The verifier will use this $g$ for the computation of
-  their commitment.
-  \item $V$ sends back a commitment $\com_g(e)$ for their challenge $e$.
+\item Prover $P$ sends to verifier $V$: $g=g_1^\rho$ for random
+  $\rho\getr\Z_p$. Verifier $V$ will use this $g$ for the computation
+  of their commitment.
+  \item $V$ computes and sends back commitment $\com_g(e)$ for their
+    challenge $e\in\Z_p$.
 \end{enumerate}
 
 The ZK proof then continues as usual with the difference that $V$
-sends $e$ as their challenge (together with $r$ used to compute
-the commitment), and $P$ verifies whether $e$ matches $\com_g(e)$.
-After $P$ has sent their final message, $P$ also reveals $s$ to
-$V$. Only if both is correct, the last ZK proof message matches the
-challenge and $r$ matches $g=g_1^r$, $V$ accepts.
+opens $e$ as their challenge together with randomness $r$ used to
+compute the commitment, and $P$ verifies whether $(e,r)$ match
+$\com_g(e)$.  After $P$ has sent their final message, $P$ also reveals
+$\rho$ to $V$. Only if both is correct, the last ZK proof message
+matches  challenge $e$, and $\rho$ matches $g=g_1^\rho$, $V$ accepts.
 
 This setup enables a simulator $\myS$ to extract the witness from
-$P$. After receiving trapdoor $s$ from $V$, $\myS$ rewinds $P$ until
+$P$. After receiving trapdoor $\rho$ from $V$, $\myS$ rewinds $P$ until
 after the point were $V$ sends $\com_g(e)$ to $P$. Knowing trapdoor
-$s$, $\myS$ can open $\com_g(e)$ to any $e'\neq{}e$ they want by
-solving $r+s\cdot{}e=r'+s\cdot{}e'$ for $r'$, i.e., they compute
-$r'=r+s\cdot{}(e-e')$. Running two executions of the ZK proof with the
+$\rho$, $\myS$ can open $\com_g(e)$ to any $e'\neq{}e$ they want by
+solving $r+\rho\cdot{}e=r'+\rho\cdot{}e'$ for $r'$, i.e., they compute
+$r'=r+\rho\cdot{}(e-e')$. Running two executions of the ZK proof with the
 same input and messages from $P$, but different challenges extracts
 the witness of the ZK proof. Details on which $e$ to send in each
 execution depend on the exact Sigma ZK proof, but are typically
 obvious. We will show an example later.
+
+\paragraph{Prove of Knowledge of Plaintext}
+For $\com_{g}(m)=g_1^r\cdot{}g^m$,  prover $P$ can prove that they know
+$m$.
+
+\begin{enumerate}
+\item $P$ sends $t=g_1^{\rho_1}\cdot{}g^{\rho_2}$ for
+  $\rho_1,\rho_2\getr\Z_p$ to $V$.
+\item $V$ sends $e\getr\Z_p$ to $P$.
+  \item $P$ sends $s_1=\rho_1+e\cdot{}r$ and $s_2=\rho_2+e\cdot{}m$ to
+    $V$.
+    \item $V$ checks whether $g_1^{s_1}\cdot{}g^{s_2}\sr\com_{g}(m)^e\cdot{}t$.
+\end{enumerate}
 
 
 \subsection{ZK Proofs for Exponents}
@@ -171,9 +209,9 @@ We can do simple arithmetics on Pedersen Commitments.
 \end{enumerate}
 
   \item Multiplication with group elements: given two elements $(A,B)$
-    of our DDH group, a party can commit to a value $x$ with
-    $\com_g(x) =g_1^r\cdot{}g^x$ and prove that $(C=A^x,D=B^X)$ are the
-    result of exponentiation with $x$.
+    of our DDH group, such as an Elgamal ciphertext tuple, a party can
+    commit to a value $x$ with $\com_g(x) =g_1^r\cdot{}g^x$ and prove
+    that $(C=A^x,D=B^X)$ are the result of exponentiation with $x$.
     \begin{enumerate}
       \item $P$ sends $t_1=A^{\rho_1},t_2=B^{\rho_1},
         t_3=g_1^{\rho_2}\cdot{}g^{\rho_1}$, for randomly chosen
@@ -185,8 +223,46 @@ We can do simple arithmetics on Pedersen Commitments.
         \item $V$ checks $A^{s_1}\sr{}C^e\cdot{}t_1$,
           $B^{s_1}\sr{}D^e\cdot{}t_2$, and
           $g_1^{s_2}\cdot{}g^{s_1}\sr{}\com_g(x)^e\cdot{}t_3$.
-      \end{enumerate}
+          
+      \end{enumerate}   
+
+\item Simple combinations: you can efficiently combine arithmetic
+  operations. For example, the following proves correctness of
+  exponentiation of two group elements with a committed value and
+  multiplying both with $g_1^{r'}$. So, you can prove correct scalar
+  multiplication of an Elgamal ciphertext by a previously committed
+  value and subsequent re-randomization of the result (addition of
+  Elgamal encryption of $0$).
+
+Given two group elements $(A,B)$ and commitment $\com_g(x)
+=g_1^{r}\cdot{}g^x$, prove correctness that
+$(C=g_1^{r'}\cdot{}A^x,D=g_1^{r'}\cdot{}B^X)$ are the result of
+exponentiation with $x$ and multiplying with some $r'\getr\Z_p$ known
+to the prover.
+
+\begin{enumerate}
+  \item $P$ sends $t_1=g_1^{\rho_1}\cdot{}A^{\rho_2},t_2=g_1^{\rho_1}\cdot{}B^{\rho_2},t_3=g_1^{\rho_3}\cdot{}g^{\rho_2}$ to $V$.
+  \item $V$ sends $e\getr\Z_p$ to $P$.
+    \item $P$ sends $s_1=\rho_1+e\cdot{}r'$, $s_2=\rho_2+e\cdot{}x$,
+      and $s_3=\rho_3+e\cdot{}r$ to $V$.
+\item $V$ check whether $g_1^{s_1}\cdot{}A^{s_2}\sr{}C^e\cdot{}t_1$,
+  $g_1^{s_1}\cdot{}B^{s_2}\sr{}D^e\cdot{}t_2$, and
+  $g_1^{s_3}\cdot{}g^{s_2}\sr{}\com_g(x)^e\cdot{}t_3$.
+\end{enumerate}
+
+\item Sum of plaintexts equals $1$: for commitments
+  $\com_{g}(x)=g_1^r\cdot{}g^x$ and
+  $\com_{g}(1-x)=g_1^{r'}\cdot{}g^{1-x}$, the prover can show that the sum of
+  plaintexts equals $1$.
+
+  \begin{enumerate}
+  \item $P$ and $V$ compute
+    $\com_{g}(1)=\com_{g}(x)\cdot{}\com_{g}(1-x)=g_1^{r+r'}\cdot{}g$.
+\item $P$ proves that $\com_{g}(1)$ is a commitment to $1$ (see
+  above).
+  \end{enumerate}
 \end{itemize}
+
 
 \newpage
 \section{Old}
