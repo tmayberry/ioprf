@@ -90,8 +90,10 @@ a generator of our DDH group of order $p$.
 To open $\com_{g}(m)$, $(m,r)$ is revealed.
 
 \paragraph{Witness Extraction}
-Pedersen commitments are trapdoor commitments and allow witness
-extraction in Sigma-based ZK proofs as follows.
+Pedersen commitments are trapdoor commitments which means that a party
+knowing a trapdoor $t$ can open a commitment $\com_g(\cdot)$ to any
+plaintext they want.  We use this property for witness extraction in
+three-move ZK proofs as follows.
 
 Before starting the actual ZK proof by the first message from the
 prover to the verifier, we send the following two messages:
@@ -118,8 +120,37 @@ solving $r+\rho\cdot{}e=r'+\rho\cdot{}e'$ for $r'$, i.e., they compute
 $r'=r+\rho\cdot{}(e-e')$. Running two executions of the ZK proof with the
 same input and messages from $P$, but different challenges extracts
 the witness of the ZK proof. Details on which $e$ to send in each
-execution depend on the exact Sigma ZK proof, but are typically
+execution depend on the exact three-move ZK proof, but are typically
 obvious. We will show an example later.
+
+\paragraph{Zero Knowledge (instead of Honest-Verifier ZK}
+To ease readability, all  ZK proofs here are described in their
+honest-verifier ZK version. To make these proofs zero-knowledge
+instead, we replace the first message of the regular three-move protocol by a
+Pedersen commitment from prover $P$ to the first message. The protocol
+then continues with $V$ sending their commitment $e$, and finally $P$
+sending the last message of the regular protocol together with opening
+the commitment. Verifier $V$ accepts, if the commitment matches and
+the last message of the regular protocol.
+
+In the CRS model, this technique allows a simulator $\myS$ to learn
+$e$ before sending the first message of the three-move
+protocol. Before interacting with the verifier, $\myS$ chooses
+$x\getr\Z_p$ and places $g'=g_1^x$ on the CRS. Parties agree that $P$'s
+commitment has to be using a Pedersen $\com_g(\cdot)$ commitment,
+where $g$ is from the CRS. The commitment of $\myS$ at the beginning
+is then just a commitment to a random $r$. As soon as $\myS$ has
+received $e$, they can fake the last message of the three-move
+protocol and open the initial commitment accordingly.
+(\fixme{This} idea is
+described in
+\url{https://www.iacr.org/archive/eurocrypt2000/1807/18070424-new.pdf}.)
+
+Observe that witness extraction and zero knowledge can be combined in
+the natural way: first, $P$ sends $g=g^\rho$ to $V$ who replies with
+$\com_g(e)$, then $P$ sends commitment $\com_{g'}(r)$, where $g'$ is
+from the CRS, then $V$ opens $\com_g(e)$, and finally $P$ opens
+$\com_{g'}(r)$ and sends the last message of the three-move protocol.
 
 \paragraph{Prove of Knowledge of Plaintext}
 For $\com_{g}(m)=g_1^r\cdot{}g^m$,  prover $P$ can prove that they know
