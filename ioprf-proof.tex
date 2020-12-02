@@ -75,12 +75,24 @@ In round $i\in\{1,\ldots,\ell\}$, for sender's input bit $x_i$:
 sends $(X_i,Y_i)$ to the receiver and proves correct exponentiation
 (multiplication of plaintexts) in ZK (see below).
 
-\item \fixme{ToDo: flip back}
-
+\item
+  For $r,r',r'',r'''\getr\Z_p$, the receiver computes
+  \begin{align*}
+    P_i&=(g_1^r\cdot{}X_i[0]^{x_i},pk^r\cdot{}X_i[1]^{x_i})
+    \\P'_i&=(g_1^{r'}\cdot{}X_i[0]^{1-x_i},pk^{r'}\cdot{}X_i[1]^{1-x_i})
+   \\Q_i&=(g_1^{r''}\cdot{}Y_i[0]^{x_i},pk^{r''}\cdot{}Y_i[1]^{x_i})
+   \\Q'_i&=(g_1^{r'''}\cdot{}Y_i[0]^{1-x_i},pk^{r'''}\cdot{}Y_i[1]^{1-x_i})
+  \end{align*} 
+  and sends $(P_i,P'_i,Q_i,Q'_i)$ together with ZK proofs of correct
+  computation (see below) to the sender.
+\item Both sender and receiver compute
+  $V_i=(P_i[0]\cdot{}Q'_i[0],P_i[1]\cdot{}Q'_i[1])$ and
+  $D_i=(P'_i[0]\cdot{}Q_i[0],P'_i[1]\cdot{}Q_i[1])$.
+  
 \end{enumerate}
 
 After $\ell$ rounds, the receiver computes
-$\ioprf_K(x)=\frac{X_\ell[1]}{X_{\ell}[0]^{sk}}$.
+$\ioprf_K(x)=\frac{V_\ell[1]}{V_{\ell}[0]^{sk}}$.
 
 
 \section{Tools}
