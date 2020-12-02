@@ -23,7 +23,7 @@ $\ioprf_K(x)=g_2^{\prod_{i=1}^{\ell}(a_ix_i+b_i(1-x_i))}$.
 
 \paragraph{Init}
 The receiver computes $V_0 \leftarrow\enc_{pk,g_2}(1)$ and
-$D_0\leftarrow\enc_{pk,g_2}(1)$, sends them to the sender and proves
+$D_0\leftarrow\enc_{pk,g_3}(1)$, sends them to the sender and proves
 that these are encryptions of $1$ with respect to bases $g_2$ and
 $g_3$ (see below for details). The sender computes Pedersen
 commitments
@@ -44,14 +44,14 @@ In round $i\in\{1,\ldots,\ell\}$, for sender's input bit $x_i$:
   $\com_{g_2}(1-x_i)$ equals $1$ (see below).
 
 
-\item  The receiver chooses $r\getr\Z_p$ and computes Elgamal ciphertexts
+\item  The receiver chooses $r,r',r'',r'''\getr\Z_p$ and computes Elgamal ciphertexts
   \begin{align*}
     &c_i=(g_1^r\cdot{}V_{i-1}[0]^{x_i},g_1^{r}\cdot{}V_{i-1}[1]^{x_i})
     \\&c'_i=(g_1^{r'}\cdot{}V_{i-1}[0]^{1-x_i},g_1^{r'}\cdot{}V_{i-1}[1]^{1-x_i})
     \\&d_i=(g_1^{r''}\cdot{}D_{i-1}[0]^{x_i},g_1^{r''}\cdot{}D_{i-1}[1]^{x_i})
     \\&d'_i=(g_1^{r'''}\cdot{}D_{i-1}[0]^{1-x_i},g_1^{r'''}\cdot{}D_{i-1}[1]^{1-x_i})%\text{ and}
   \end{align*}
-  and sends $(c_i,c'_i,d_i,d'_i,R_i,S_i)$ to the sender.
+  and sends $(c_i,c'_i,d_i,d'_i)$ to the sender.
 
   \item The receiver proves correctness of the above computations in
     ZK. Specifically, $(c_i,c'_i,d_i,d'_i)$ result from correct
@@ -63,7 +63,7 @@ In round $i\in\{1,\ldots,\ell\}$, for sender's input bit $x_i$:
 
     See below for technical details.
 
-    Both parties can now compute
+   Both parties can now compute
     \begin{align*}&R_i=(c_i[0]\cdot{}d'_i[0],c_i[1]\cdot{}d'_i[1])
     \\&S_i=(c'_i[0]\cdot{}d_i[0],c'_i[1]\cdot{}d_i[1]).
     \end{align*}
@@ -77,9 +77,14 @@ In round $i\in\{1,\ldots,\ell\}$, for sender's input bit $x_i$:
   \end{align*}
 sends $(X_i,Y_i)$ to the receiver and proves correct exponentiation
 (multiplication of plaintexts) in ZK (see below).
+
+\item \fixme{ToDo: flip back}
+
 \end{enumerate}
+
 After $\ell$ rounds, the receiver computes
-$\ioprf_K(x)=\frac{X_\ell[1]}{X_{\ell}^{sk}}$.
+$\ioprf_K(x)=\frac{X_\ell[1]}{X_{\ell}[0]^{sk}}$.
+
 
 \section{Tools}
 \subsection{Pedersen Commitments}
