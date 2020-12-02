@@ -46,22 +46,19 @@ In round $i\in\{1,\ldots,\ell\}$, for sender's input bit $x_i$:
 
 \item  The receiver chooses $r,r',r'',r'''\getr\Z_p$ and computes Elgamal ciphertexts
   \begin{align*}
-    &c_i=(g_1^r\cdot{}V_{i-1}[0]^{x_i},g_1^{r}\cdot{}V_{i-1}[1]^{x_i})
-    \\&c'_i=(g_1^{r'}\cdot{}V_{i-1}[0]^{1-x_i},g_1^{r'}\cdot{}V_{i-1}[1]^{1-x_i})
-    \\&d_i=(g_1^{r''}\cdot{}D_{i-1}[0]^{x_i},g_1^{r''}\cdot{}D_{i-1}[1]^{x_i})
-    \\&d'_i=(g_1^{r'''}\cdot{}D_{i-1}[0]^{1-x_i},g_1^{r'''}\cdot{}D_{i-1}[1]^{1-x_i})%\text{ and}
+    &c_i=(g_1^r\cdot{}V_{i-1}[0]^{x_i},pk^{r}\cdot{}V_{i-1}[1]^{x_i})
+    \\&c'_i=(g_1^{r'}\cdot{}V_{i-1}[0]^{1-x_i},pk^{r'}\cdot{}V_{i-1}[1]^{1-x_i})
+    \\&d_i=(g_1^{r''}\cdot{}D_{i-1}[0]^{x_i},pk^{r''}\cdot{}D_{i-1}[1]^{x_i})
+    \\&d'_i=(g_1^{r'''}\cdot{}D_{i-1}[0]^{1-x_i},pk^{r'''}\cdot{}D_{i-1}[1]^{1-x_i})%\text{ and}
   \end{align*}
   and sends $(c_i,c'_i,d_i,d'_i)$ to the sender.
 
-  \item The receiver proves correctness of the above computations in
-    ZK. Specifically, $(c_i,c'_i,d_i,d'_i)$ result from correct
-    exponentiation with $x_i$ (or $1-x_i$) from $\com_{g_2}(x_i)$ (or
-    $\com_{g_2}(1-x_i)$), and multiplication with a random power of
-    $g_1$, i.e., re-randomization (homomorphic addition of encryption
-    of $0$). Similarly, the receiver shows that ciphertexts $R_i$ and
-    $S_i$ are correct additions.
-
-    See below for technical details.
+\item The receiver proves correctness of the above computations in
+  ZK. Specifically, $(c_i,c'_i,d_i,d'_i)$ result from correct
+  exponentiation with $x_i$ (or $1-x_i$) from $\com_{g_2}(x_i)$ (or
+  $\com_{g_2}(1-x_i)$), and multiplication with a random power of
+  $g_1$ and $pk$, i.e., re-randomization (homomorphic addition of
+  encryption of $0$).  See below for technical details.
 
    Both parties can now compute
     \begin{align*}&R_i=(c_i[0]\cdot{}d'_i[0],c_i[1]\cdot{}d'_i[1])
@@ -247,7 +244,7 @@ We can do simple arithmetics on Pedersen Commitments.
   \item Multiplication with group elements: given two elements $(A,B)$
     of our DDH group, such as an Elgamal ciphertext tuple, a party can
     commit to a value $x$ with $\com_g(x) =g_1^r\cdot{}g^x$ and prove
-    that $(C=A^x,D=B^X)$ are the result of exponentiation with $x$.
+    that $(C=A^x,D=B^x)$ are the result of exponentiation with $x$.
     \begin{enumerate}
       \item $P$ sends $t_1=A^{\rho_1},t_2=B^{\rho_1},
         t_3=g_1^{\rho_2}\cdot{}g^{\rho_1}$, for randomly chosen
@@ -262,27 +259,27 @@ We can do simple arithmetics on Pedersen Commitments.
           
       \end{enumerate}   
 
-\item Simple combinations: you can efficiently combine arithmetic
-  operations. For example, the following proves correctness of
-  exponentiation of two group elements with a committed value and
-  multiplying both with $g_1^{r'}$. So, you can prove correct scalar
-  multiplication of an Elgamal ciphertext by a previously committed
-  value and subsequent re-randomization of the result (addition of
-  Elgamal encryption of $0$).
+    \item Simple combinations: you can efficiently combine arithmetic
+      operations. For example, the following proves correctness of
+      exponentiation of two group elements with a committed value $x$
+      and multiplying one by $g_1^{r'}$ and $pk^{r'}$. So, you can
+      prove correct scalar multiplication of an Elgamal ciphertext by
+      a previously committed $x$ and subsequent re-randomization of
+      the result (addition of Elgamal encryption of $0$).
 
-Given two group elements $(A,B)$ and commitment $\com_g(x)
-=g_1^{r}\cdot{}g^x$, prove correctness that
-$(C=g_1^{r'}\cdot{}A^x,D=g_1^{r'}\cdot{}B^X)$ are the result of
-exponentiation with $x$ and multiplying with some $r'\getr\Z_p$ known
-to the prover.
+      Given two group elements $(A,B)$ and commitment
+      $\com_g(x) =g_1^{r}\cdot{}g^x$, prove correctness that
+      $(C=g_1^{r'}\cdot{}A^x,D=pk^{r'}\cdot{}B^x)$ are the result of
+      exponentiation with $x$ and multiplying with $g^{r'}$ and
+      $pk^{r'}$, $r'\getr\Z_p$, known to the prover.
 
 \begin{enumerate}
-  \item $P$ sends $t_1=g_1^{\rho_1}\cdot{}A^{\rho_2},t_2=g_1^{\rho_1}\cdot{}B^{\rho_2},t_3=g_1^{\rho_3}\cdot{}g^{\rho_2}$ to $V$.
+  \item $P$ sends $t_1=g_1^{\rho_1}\cdot{}A^{\rho_2},t_2=pk^{\rho_1}\cdot{}B^{\rho_2},t_3=g_1^{\rho_3}\cdot{}g^{\rho_2}$ to $V$.
   \item $V$ sends $e\getr\Z_p$ to $P$.
     \item $P$ sends $s_1=\rho_1+e\cdot{}r'$, $s_2=\rho_2+e\cdot{}x$,
       and $s_3=\rho_3+e\cdot{}r$ to $V$.
 \item $V$ check whether $g_1^{s_1}\cdot{}A^{s_2}\sr{}C^e\cdot{}t_1$,
-  $g_1^{s_1}\cdot{}B^{s_2}\sr{}D^e\cdot{}t_2$, and
+  $pk^{s_1}\cdot{}B^{s_2}\sr{}D^e\cdot{}t_2$, and
   $g_1^{s_3}\cdot{}g^{s_2}\sr{}\com_g(x)^e\cdot{}t_3$.
 \end{enumerate}
 
