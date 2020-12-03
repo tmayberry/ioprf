@@ -2,22 +2,34 @@
 NOTE: for one-sided security, we use the OT-based solution.
 \fixme{Switch to additive notation}
 
-Let there be three generators $g_1,g_2,g_3$ of some DDH group $G$. Nobody
-knows the discrete log of one generator $g_i\in\{g_1,g_2,g_3\}$ to
-the basis of another generator $g_{j\neq{}i}$.
 
+\subsubsection{Preliminaries}
+Let there be three generators $g_1,g_2,g_3$ of prime order $p$ DDH
+group $\G$. Nobody knows the discrete log of one generator
+$g_i\in\{g_1,g_2,g_3\}$ to the basis of another generator
+$g_{j\neq{}i}$. \fixme{They can come from the CRS.}
+
+\paragraph{Elgamal Encryption}
 We will use additive Elgamal encryption with private keys $sk\in\Z_p$
 and public keys $pk=g_1^{sk}$. For either $g=g_2$ or $g=g_3$, the
 ciphertext $c$ to encrypt $m\in\Z_p$ is
 $c=(c[0],c[1])=(g_1^r,pk^r\cdot{}g^m)\leftarrow\enc_{pk,g}(m)$, where
 $r\getr\Z_p$.
 
-The sender in $\proto$ knows the $\ioprf$'s secret key
-$K=(a_1,\ldots,a_\ell,b_1,\ldots,b_\ell)$ as before. For some input
-$x=x_1\ldots{}x_\ell$, we define
-$\ioprf_K(x)=g_2^{\prod_{i=1}^{\ell}(a_ix_i+b_i(1-x_i))}$.
+\paragraph{Pedersen Commitments}
+A Pedersen commitment $\com_{g}(m)\in\G$ to message $m\in\Z_p$ is defined as
+$\com_{g}(m)=g_1^r\cdot{}g^m$, where $r\getr\Z_p$, and $g\neq{}g_1$ is
+a generator of $\G$.  To open $\com_{g}(m)$, $(m,r)$ is revealed.
 
-\paragraph{Init}
+
+\subsubsection{$\proto$ Initialization}
+The sender in $\proto$ knows the $\iprf$'s secret key
+$K=(a_1,\ldots,a_\ell,b_1,\ldots,b_\ell)$ as before. For some input
+string $x=(x_1,\ldots{},x_\ell)$, we define the output of $\proto$ for
+the receiver as
+$\iprf_K(x)=g_2^{\prod_{i=1}^{\ell}(a_ix_i+b_i(1-x_i))}$.
+
+
 The receiver computes $V_0 \leftarrow\enc_{pk,g_2}(1)$ and
 $D_0\leftarrow\enc_{pk,g_3}(1)$, sends them to the sender and proves
 that these are encryptions of $1$ with respect to bases $g_2$ and
@@ -27,7 +39,7 @@ $(\com_{g_2}(a_1),\ldots,\com_{g_2}(a_\ell),\com_{g_2}(b_1),\ldots,\com_{g_2}(b_
 sends them to the receiver, and proves knowledge of plaintexts in ZK
 (see below).
 
-\paragraph{Iterative Processing $\ell$ rounds}
+\subsubsection{$\proto$ Iterative Processing in $\ell$ Rounds}
 In round $i\in\{1,\ldots,\ell\}$, for sender's input bit $x_i$:
 \begin{enumerate}
 \item {\bf Shuffling:}
@@ -71,7 +83,7 @@ In round $i\in\{1,\ldots,\ell\}$, for sender's input bit $x_i$:
 sends $(X_i,Y_i)$ to the receiver and proves correct exponentiation
 (multiplication of plaintexts) in ZK (see below).
 
-\item
+\item {\bf Shuffling back:}
   For $r,r',r'',r'''\getr\Z_p$, the receiver computes
   \begin{align*}
     P_i&=(g_1^r\cdot{}X_i[0]^{x_i},pk^r\cdot{}X_i[1]^{x_i})
@@ -81,7 +93,8 @@ sends $(X_i,Y_i)$ to the receiver and proves correct exponentiation
   \end{align*} 
   and sends $(P_i,P'_i,Q_i,Q'_i)$ together with ZK proofs of correct
   computation (see below) to the sender.
-\item Both sender and receiver compute
+
+  Both sender and receiver compute
   $V_i=(P_i[0]\cdot{}Q'_i[0],P_i[1]\cdot{}Q'_i[1])$ and
   $D_i=(P'_i[0]\cdot{}Q_i[0],P'_i[1]\cdot{}Q_i[1])$.
   
@@ -91,19 +104,22 @@ After $\ell$ rounds, the receiver computes
 $\ioprf_K(x)=\frac{V_\ell[1]}{V_{\ell}[0]^{sk}}$.
 
 
-\section{Security Analysis}
-\subsection{Pedersen Commitments}
-A Pedersen commitment $\com_{g}(m)$ to message $m$ is defined as
-$\com_{g}(m)=g_1^r\cdot{}g^m$, where $r\getr\Z_p$, and $g\neq{}g_1$ is
-a generator of our DDH group of order $p$.
+\subsection{Security Analysis}
+\subsubsection{Dual-iPRF is still a PRF}
 
-To open $\com_{g}(m)$, $(m,r)$ is revealed.
 
-\paragraph{Witness Extraction}
+\subsubsection{Proof}
+\todo{We prove in the hybrid model and make use of several ZK hybrids
+  introduced below. Description is HVZK for ease of reading, but we
+  convert to malicious verifier using CRS model introduced below,
+  too. For ease of reading, we present ZK proofs, but convert to ZKPoK
+  using a generic transformation introduced below, too.}
+
+\paragraph{Witness Extraction for Pedersen Commitments}
 Pedersen commitments are trapdoor commitments which means that a party
 knowing a trapdoor $t$ can open a commitment $\com_g(\cdot)$ to any
-plaintext they want.  We use this property for witness extraction in
-three-move ZK proofs as follows.
+plaintext they want (equivocal).  We use this property for witness
+extraction in three-move ZK proofs as follows.
 
 Before starting the actual ZK proof by the first message from the
 prover to the verifier, we send the following two messages:
@@ -162,7 +178,7 @@ $\com_g(e)$, then $P$ sends commitment $\com_{g'}(r)$, where $g'$ is
 from the CRS, then $V$ opens $\com_g(e)$, and finally $P$ opens
 $\com_{g'}(r)$ and sends the last message of the three-move protocol.
 
-\paragraph{Prove of Knowledge of Plaintext}
+\subsubsection{Proof of Knowledge of Pedersen Plaintext}
 For $\com_{g}(m)=g_1^r\cdot{}g^m$,  prover $P$ can prove that they know
 $m$.
 
@@ -176,7 +192,7 @@ $m$.
 \end{enumerate}
 
 
-\subsection{ZK Proofs for Exponents}
+\subsubsection{ZK Proofs for Exponents}
 \paragraph{DLOG equivalence/DDH tuple/Proof of Encryption of $0$}
 You can prove that tuple $(a=g_1,b=g_1^r,c=g_1^x,d=g_1^{xr})$ is a DDH
 tuple, i.e., you show that $\log_{a}{b}=\log_c{d}$.
@@ -205,7 +221,7 @@ respect to base $g$, a simple trick for the prover is to compute
 another encryption $c_2$ of $m$ with respect to base $g$, show
 plaintext equivalence, and then open randomness of $c_2$.
 
-\subsection{Arithmetics with Pedersen Commitments}
+\subsubsection{Arithmetics with Pedersen Commitments}
 We can do simple arithmetics on Pedersen Commitments.
 \begin{itemize}
 \item Addition: given $\com_g(a)$ and $\com_g(b)$, everybody can

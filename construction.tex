@@ -1,14 +1,13 @@
-\section{Construction}
+\section{Constructions}
 \subsection{$\iprf$ Construction}
-Let $p$ be the order of some DDH group in which we operate (e.g., points of
-an elliptic curve with point addition), and $g$ is a random generator.
+Let $\G$ be a group of prime order $p$ where the DDH assumption holds,
+and $g$ is a random generator of $\G$.
 
 Initialization: choose a key $K=(\vec{{a}},\vec{b})$ by sampling
 $\ell$ pairs of random scalars
 ${a_{i}}\getr\Z_q,{b_{i}}\getr\Z_p.$
 
-$\iprf(x_1,\ldots,x_\ell)$: output a vector $\vec{v}$ of length $\ell$ where $v_i = g^{\prod_{j=1}^{i} r_j^{b_j}s_j^{1-b_j}} $
-%$({r_1^{b_1}}\cdot{}G,\ldots,{r_1^{b_1}\cdots{}r_\ell^{b_\ell}}\cdot{}G)$
+$\iprf(x_1,\ldots,x_\ell)$: output a vector $\vec{v}$ of length $\ell$ where $v_i = g^{\prod_{j=1}^{i} (a_jx_j+b_j(1-x_j))}.$
 
 \todo{Show that this is a PRF, add leftover hash lemma}
 
@@ -31,7 +30,8 @@ S holds $y_0$ and $y_1$, and $R$ obliviously retrieves $y_b$ from $S$.
 \item $R$ recovers $\iprf$ output vector $v$ by calculating $v_i = C_i \cdot \prod_{j=1}^{i} z_j$
 \end{itemize}
 
-{\bf Corectness:} For all $1 \leq i \leq \ell$ we have
+
+{\bf Correctness:} For all $1 \leq i \leq \ell$ we have
 \begin{equation}
 \begin{aligned}
 v_i &= C_i \cdot \prod_{j=1}^{i} z_i \\
@@ -44,7 +44,6 @@ v_i &= C_i \cdot \prod_{j=1}^{i} z_i \\
 \todo{Show that this is an OPRF. And show that the iterative evaluation is still secure.}
 
 
-
 \section{Difference to structured encryption}
 \begin{itemize}
 \item Different adversary model
@@ -52,6 +51,8 @@ v_i &= C_i \cdot \prod_{j=1}^{i} z_i \\
 \item Token length?!
 \item the original PRF is mentioned by Naor and Reingold (Section 6.3), but details on how to use OT is mentioned by \url{https://www.iacr.org/archive/tcc2005/3378_304/3378_304.pdf}.  
 \end{itemize}
+
+
 
 \ignore{
 * Note that our iOPRF can be evaluated ``interactively'',  i.e., the receiver runs OTs adaptively
