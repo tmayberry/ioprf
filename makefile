@@ -1,7 +1,7 @@
 all: idea.pdf rfid.pdf ioprf-proof.pdf rfid-proof.pdf main.pdf
 
 
-main.pdf: main.tex def.tex construction.tex macros.tex ioprf.tex main.bib
+main.pdf: main.tex def.tex construction.tex macros.tex ioprf.tex main.bib applications.tex rf.tex
 	rubber -d main
 
 idea.pdf: idea.tex macros.tex def.tex

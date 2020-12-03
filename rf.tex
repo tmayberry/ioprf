@@ -1,3 +1,4 @@
+\subsection{RFID}
 We support a total of $N$ tags in the system. Each tag uniquely
 corresponds to a leaf of a height $\ell$ (binary) key tree. To
 identify a tag, a reader (a simple device which can query the tag and
@@ -16,19 +17,19 @@ even fabricate new tags, too.
 The database knows a secret key $K$ and populates a binary key tree
 $T$ as follows. First, nodes in this key tree are indexed by bit
 strings following the intuitive notation that the left child (``0'')
-of some node indexed by bit string $\beta_1\ldots\beta_i$ is index by
-$\beta_1\ldots\beta_i0$, and the right child (``1'') is indexed by
-$\beta_1\ldots\beta_i1$. By convention, the root is indexed by
+of some node indexed by bit string $\gamma_1\ldots\gamma_i$ is index by
+$\gamma_1\ldots\gamma_i0$, and the right child (``1'') is indexed by
+$\gamma_1\ldots\gamma_i1$. By convention, the root is indexed by
 empty bit string $\epsilon$.
 
 Root node $\epsilon$ stores random key
 $K_{\epsilon}\getr\{0,1\}^\lambda$.  The left child of the root stores
 key $K_0=\ioprf_K(0)$, and the right child stores key
-$K_1=\ioprf_K(1)$. For a node $\beta_1\ldots\beta_i$,
+$K_1=\ioprf_K(1)$. For a node $\gamma_1\ldots\gamma_i$,
 the left child stores key
-$K_{\beta_1\ldots\beta_i0}=\ioprf_K(\beta_1\ldots\beta_i0)$, and its
+$K_{\gamma_1\ldots\gamma_i0}=\ioprf_K(\gamma_1\ldots\gamma_i0)$, and its
 right child stores key
-$K_{\beta_1\ldots\beta_i1}=\ioprf_K(\beta_1\ldots\beta_i1)$.
+$K_{\gamma_1\ldots\gamma_i1}=\ioprf_K(\gamma_1\ldots\gamma_i1)$.
 
 During authentication of tag $x$, the database will run
 $\ioprf_K(\cdot)$ as the sender, and the reader will be the receiver
