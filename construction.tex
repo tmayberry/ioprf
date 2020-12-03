@@ -3,9 +3,9 @@
 Let $\G$ be a group of prime order $p$ where the DDH assumption holds,
 and $g$ is a random generator of $\G$.
 
-Initialization: choose a key $K=(\vec{{a}},\vec{b})$ by sampling
+Initialization: choose a key $K=(\vec{{\alpha}},\vec{\beta})$ by sampling
 $\ell$ pairs of random scalars
-${\alpha_{i}}\getr\Z_q,{\beta_{i}}\getr\Z_p.$
+${\alpha_{i}}\getr\Z_p,{\beta_{i}}\getr\Z_p.$
 
 $\iprf(x_1,\ldots,x_\ell)$: output a vector $\vec{v}$ of length $\ell$ where $v_i = g^{\prod_{j=1}^{i} (\alpha_jx_j+\beta_j(1-x_j))}.$
 
