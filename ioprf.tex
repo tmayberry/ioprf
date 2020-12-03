@@ -24,10 +24,10 @@ a generator of $\G$.  To open $\com_{g}(m)$, $(m,r)$ is revealed.
 
 \subsubsection{$\proto$ Initialization}
 The sender in $\proto$ knows the $\iprf$'s secret key
-$K=(a_1,\ldots,a_\ell,b_1,\ldots,b_\ell)$ as before. For some input
+$K=(\alpha_1,\ldots,\alpha_\ell,\beta_1,\ldots,\beta_\ell)$ as before. For some input
 string $x=(x_1,\ldots{},x_\ell)$, we define the output of $\proto$ for
 the receiver as
-$\iprf_K(x)=g_2^{\prod_{i=1}^{\ell}(a_ix_i+b_i(1-x_i))}$.
+$\iprf_K(x)=g_2^{\prod_{i=1}^{\ell}(\alpha_ix_i+\beta_i(1-x_i))}$.
 
 
 The receiver computes $V_0 \leftarrow\enc_{pk,g_2}(1)$ and
@@ -35,7 +35,7 @@ $D_0\leftarrow\enc_{pk,g_3}(1)$, sends them to the sender and proves
 that these are encryptions of $1$ with respect to bases $g_2$ and
 $g_3$ (see below for details). The sender computes Pedersen
 commitments
-$(\com_{g_2}(a_1),\ldots,\com_{g_2}(a_\ell),\com_{g_2}(b_1),\ldots,\com_{g_2}(b_\ell))$,
+$(\com_{g_2}(\alpha_1),\ldots,\com_{g_2}(\alpha_\ell),\com_{g_2}(\beta_1),\ldots,\com_{g_2}(\beta_\ell))$,
 sends them to the receiver, and proves knowledge of plaintexts in ZK
 (see below).
 
@@ -44,11 +44,11 @@ In round $i\in\{1,\ldots,\ell\}$, for sender's input bit $x_i$:
 \begin{enumerate}
 \item {\bf Shuffling:}
 \begin{enumerate}
-\item   For input bit $x_i$, the receiver computes
-  Pedersen commitment $\com_{g_2}(x_i)$ and proves knowledge of $x_i$
-  (see below). Similarly, the receiver computes $\com_{g_2}(1-x_i)$
-  and proves knowledge of $1-x_i$. Finally, the receiver proves that
-  the sum of plaintexts behind $\com_{g_2}(x_i)$ and
+\item For input bit $x_i$, the receiver computes Pedersen commitment
+  $\com_{g_2}(x_i)$ and proves that $x_i\in\{0,1\}$ (see
+  below). Similarly, the receiver computes $\com_{g_2}(1-x_i)$ and
+  proves knowledge of $(1-x_i)$ (see below). Finally, the receiver
+  proves that the sum of plaintexts behind $\com_{g_2}(x_i)$ and
   $\com_{g_2}(1-x_i)$ equals $1$ (see below).
 
 
@@ -77,8 +77,8 @@ In round $i\in\{1,\ldots,\ell\}$, for sender's input bit $x_i$:
 
 \item {\bf PRF:} The sender computes Elgamal ciphertexts
   \begin{align*}
-&X_i=(T_i[0]^{a_i},T_i[1]^{a_i})
-\\&Y_i=(U_i[0]^{b_i},U_i[1]^{b_i}),
+&X_i=(T_i[0]^{\alpha_i},T_i[1]^{\alpha_i})
+\\&Y_i=(U_i[0]^{\beta_i},U_i[1]^{\beta_i}),
   \end{align*}
 sends $(X_i,Y_i)$ to the receiver and proves correct exponentiation
 (multiplication of plaintexts) in ZK (see below).
@@ -162,19 +162,19 @@ the last message of the regular protocol.
 In the CRS model, this technique allows a simulator $\myS$ to learn
 $e$ before sending the first message of the three-move
 protocol. Before interacting with the verifier, $\myS$ chooses
-$x\getr\Z_p$ and places $g'=g_1^x$ on the CRS. Parties agree that $P$'s
-commitment has to be using a Pedersen $\com_g(\cdot)$ commitment,
-where $g$ is from the CRS. The commitment of $\myS$ at the beginning
-is then just a commitment to a random $r$. As soon as $\myS$ has
-received $e$, they can fake the last message of the three-move
-protocol and open the initial commitment accordingly.
-(\fixme{This} idea is
-described by \citet{crs}.
+$\rho\getr\Z_p$ and places $g'=g_1^\rho$ on the CRS. Parties agree
+that $P$'s commitment has to be using a Pedersen $\com_g(\cdot)$
+commitment, where $g$ is from the CRS. The commitment of $\myS$ at the
+beginning is then just a commitment to some arbitrary $r$. As soon as
+$\myS$ has received $e$, they can fake the last message of the
+three-move protocol and open the initial commitment accordingly.  See
+\citet{crs} for details.
 
 Observe that witness extraction and zero knowledge can be combined in
-the natural way: first, $P$ sends $g=g^\rho$ to $V$ who replies with
-$\com_g(e)$, then $P$ sends commitment $\com_{g'}(r)$, where $g'$ is
-from the CRS, then $V$ opens $\com_g(e)$, and finally $P$ opens
+the natural way: first, $P$ sends $g=g_1^{\rho_1}$ to $V$ who replies
+with $\com_g(e)$, then $P$ sends commitment $\com_{g'}(r)$, where $g'$
+is from the CRS ($g'=g_1^{\rho_2}$, $\rho_2$ known by $\myS$ in the
+proof), then $V$ opens $\com_g(e)$, and finally $P$ opens
 $\com_{g'}(r)$ and sends the last message of the three-move protocol.
 
 \subsubsection{ZK Proofs for Exponents}

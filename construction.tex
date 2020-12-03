@@ -5,9 +5,9 @@ and $g$ is a random generator of $\G$.
 
 Initialization: choose a key $K=(\vec{{a}},\vec{b})$ by sampling
 $\ell$ pairs of random scalars
-${a_{i}}\getr\Z_q,{b_{i}}\getr\Z_p.$
+${\alpha_{i}}\getr\Z_q,{\beta_{i}}\getr\Z_p.$
 
-$\iprf(x_1,\ldots,x_\ell)$: output a vector $\vec{v}$ of length $\ell$ where $v_i = g^{\prod_{j=1}^{i} (a_jx_j+b_j(1-x_j))}.$
+$\iprf(x_1,\ldots,x_\ell)$: output a vector $\vec{v}$ of length $\ell$ where $v_i = g^{\prod_{j=1}^{i} (\alpha_jx_j+\beta_j(1-x_j))}.$
 
 \todo{Show that this is a PRF, add leftover hash lemma}
 
@@ -17,21 +17,21 @@ $\iprf(x_1,\ldots,x_\ell)$: output a vector $\vec{v}$ of length $\ell$ where $v_
 \subsection{OT-based $\proto$ Construction}
 
 The $\iprf$ above can be computed as an oblivious PRF between a sender $S$ and a receiver $R$.  In this protocol,
-the receiver $R$ has an array of bits $(b_1, \ldots, b_\ell)$ and wishes to compute $\iprf(b_1, \ldots, b_\ell)$ using
+the receiver $R$ has an array of bits $(x_1, \ldots, x_\ell)$ and wishes to compute $\iprf(x_1, \ldots, x_\ell)$ using
 the key $K$ possessed by $S$.
 
 Let $\ot(b, y_0, y_1)$ denote a secure 1-out-of-2 oblivious transfer protocol between $R$ and $S$ where
-S holds $y_0$ and $y_1$, and $R$ obliviously retrieves $y_b$ from $S$.  
+$S$ holds $y_0$ and $y_1$, $R$ holds $b\in\{0,1\}$, and $R$ obliviously retrieves $y_b$ from $S$.  The OT-based version of $\proto$ works as follows.
 
 \begin{itemize}
-\item $S$ generates $\ell$ random scalars $a_i\getr\Z^*_q$
-\item For each $1 \leq i \leq \ell$, $R$ and $S$ execute $\ot(b_i, a_ir_i, a_is_i)$ and stores the result as $z_i$
-\item $S$ sends to $R$ the vector $\vec{C}$ where $\forall 1 \leq i \leq \ell$, $C_i =  G \cdot \frac{1}{\prod_{j=1}^{i} a_j}$
+\item $S$ generates $\ell$ random scalars $r_i\getr\Z_p$
+\item For each $1 \leq i \leq \ell$, $R$ and $S$ execute $\ot(x_i, r_i\alpha_i, r_i\beta_i)$ and stores the result as $z_i$
+\item $S$ sends to $R$ the vector $\vec{C}$ where $\forall 1 \leq i \leq \ell$, $C_i =  G \cdot \frac{1}{\prod_{j=1}^{i} r_j}$
 \item $R$ recovers $\iprf$ output vector $v$ by calculating $v_i = C_i \cdot \prod_{j=1}^{i} z_j$
 \end{itemize}
 
 
-{\bf Correctness:} For all $1 \leq i \leq \ell$ we have
+{\bf Correctness:} \todo{update notation} For all $1 \leq i \leq \ell$ we have
 \begin{equation}
 \begin{aligned}
 v_i &= C_i \cdot \prod_{j=1}^{i} z_i \\
