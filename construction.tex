@@ -1,0 +1,89 @@
+\section{Construction}
+\subsection{$\iprf$ Construction}
+Let $p$ be the order of some DDH group in which we operate (e.g., points of
+an elliptic curve with point addition), and $g$ is a random generator.
+
+Initialization: choose a key $K=(\vec{{a}},\vec{b})$ by sampling
+$\ell$ pairs of random scalars
+${a_{i}}\getr\Z_q,{b_{i}}\getr\Z_p.$
+
+$\iprf(x_1,\ldots,x_\ell)$: output a vector $\vec{v}$ of length $\ell$ where $v_i = g^{\prod_{j=1}^{i} r_j^{b_j}s_j^{1-b_j}} $
+%$({r_1^{b_1}}\cdot{}G,\ldots,{r_1^{b_1}\cdots{}r_\ell^{b_\ell}}\cdot{}G)$
+
+\todo{Show that this is a PRF, add leftover hash lemma}
+
+
+\input{ioprf}
+
+\subsection{OT-based $\proto$ Construction}
+
+The $\iprf$ above can be computed as an oblivious PRF between a sender $S$ and a receiver $R$.  In this protocol,
+the receiver $R$ has an array of bits $(b_1, \ldots, b_\ell)$ and wishes to compute $\iprf(b_1, \ldots, b_\ell)$ using
+the key $K$ possessed by $S$.
+
+Let $\ot(b, y_0, y_1)$ denote a secure 1-out-of-2 oblivious transfer protocol between $R$ and $S$ where
+S holds $y_0$ and $y_1$, and $R$ obliviously retrieves $y_b$ from $S$.  
+
+\begin{itemize}
+\item $S$ generates $\ell$ random scalars $a_i\getr\Z^*_q$
+\item For each $1 \leq i \leq \ell$, $R$ and $S$ execute $\ot(b_i, a_ir_i, a_is_i)$ and stores the result as $z_i$
+\item $S$ sends to $R$ the vector $\vec{C}$ where $\forall 1 \leq i \leq \ell$, $C_i =  G \cdot \frac{1}{\prod_{j=1}^{i} a_j}$
+\item $R$ recovers $\iprf$ output vector $v$ by calculating $v_i = C_i \cdot \prod_{j=1}^{i} z_j$
+\end{itemize}
+
+{\bf Corectness:} For all $1 \leq i \leq \ell$ we have
+\begin{equation}
+\begin{aligned}
+v_i &= C_i \cdot \prod_{j=1}^{i} z_i \\
+&= G \cdot \frac{1}{\prod_{j=1}^{i} a_j} \cdot \prod_{j=1}^{i} z_j \\
+&= G \cdot \frac{1}{\prod_{j=1}^{i} a_j} \cdot \prod_{j=1}^{i} (a_jr_j)^{b_j}(a_js_j)^{1-b_j} a_j \\
+&= G \cdot \prod_{j=1}^{i} r_j^{b_j}s_j^{1-b_j}
+\end{aligned}
+\end{equation}
+
+\todo{Show that this is an OPRF. And show that the iterative evaluation is still secure.}
+
+
+
+\section{Difference to structured encryption}
+\begin{itemize}
+\item Different adversary model
+\item Matrix queries and labeled data queries, neighbor queries and adjacency queries on graphs, are trivial.
+\item Token length?!
+\item the original PRF is mentioned by Naor and Reingold (Section 6.3), but details on how to use OT is mentioned by \url{https://www.iacr.org/archive/tcc2005/3378_304/3378_304.pdf}.  
+\end{itemize}
+
+\ignore{
+* Note that our iOPRF can be evaluated ``interactively'',  i.e., the receiver runs OTs adaptively
+
+Motivation:
+
+* One could just replace the PRF in structured encryption (Figure 2 /
+Section 5) with an OPRF, but this is not sufficient: the adversary
+could ``flip-flop'' inside the graph, but we want that they can only
+follow paths.
+
+
+Apps:
+* Graphs: https://robobees.seas.harvard.edu/files/privacytools/files/grecs.pdf
+and https://par.nsf.gov/servlets/purl/10042572 and http://www.vldb.org/pvldb/vol11/p420-sahu.pdf
+
+* Similar as with structured encryption (web graphs, graphs, matrices)
+
+* What about running SQL queries https://eprint.iacr.org/2016/453.pdf
+
+* We also allow for ``controlled disclosure'', e.g., the server
+reveals one internal node, the root of some subtree, and the client
+can then go on and make queries on that subtree. 
+
+https://www.cis.upenn.edu/~mkearns/papers/nwlocal.pdf
+Jump and crawl algorithms for analyzing social networks
+
+* Microsoft Azure Marketplace: allow a cloud application to analyze your data.
+** Data provider does not want to reveal whole data set, but only ``subtree''
+** Cloud Application does not want to leak details about their techniques 
+*** Compromise between no security and fully-homomorphic encryption or MPC
+
+* HITS and PageRank: algorithms to analyze properties of an intranet, local sub-tree of the intranet
+
+}
