@@ -69,16 +69,16 @@ In round $i\in\{1,\ldots,\ell\}$, for sender's input bit $x_i$:
   encryption of $0$).  See below for technical details.
 
    Both parties can now compute
-    \begin{align*}&R_i=(c_i[0]\cdot{}d'_i[0],c_i[1]\cdot{}d'_i[1])
-    \\&S_i=(c'_i[0]\cdot{}d_i[0],c'_i[1]\cdot{}d_i[1]).
+    \begin{align*}&T_i=(c_i[0]\cdot{}d'_i[0],c_i[1]\cdot{}d'_i[1])
+    \\&U_i=(c'_i[0]\cdot{}d_i[0],c'_i[1]\cdot{}d_i[1]).
     \end{align*}
    
   \end{enumerate}
 
 \item {\bf PRF:} The sender computes Elgamal ciphertexts
   \begin{align*}
-&X_i=(R_i[0]^{a_i},R_i[1]^{a_i})
-\\&Y_i=(S_i[0]^{b_i},S_i[1]^{b_i}),
+&X_i=(T_i[0]^{a_i},T_i[1]^{a_i})
+\\&Y_i=(U_i[0]^{b_i},U_i[1]^{b_i}),
   \end{align*}
 sends $(X_i,Y_i)$ to the receiver and proves correct exponentiation
 (multiplication of plaintexts) in ZK (see below).
@@ -100,8 +100,8 @@ sends $(X_i,Y_i)$ to the receiver and proves correct exponentiation
   
 \end{enumerate}
 
-After $\ell$ rounds, the receiver computes
-$\ioprf_K(x)=\frac{V_\ell[1]}{V_{\ell}[0]^{sk}}$.
+After $\ell$ rounds, the receiver computes output
+$\iprf_K(x)=\frac{V_\ell[1]}{V_{\ell}[0]^{sk}}$.
 
 
 \subsection{Security Analysis}
@@ -118,7 +118,7 @@ $\ioprf_K(x)=\frac{V_\ell[1]}{V_{\ell}[0]^{sk}}$.
 \paragraph{Witness Extraction for Pedersen Commitments}
 Pedersen commitments are trapdoor commitments which means that a party
 knowing a trapdoor $t$ can open a commitment $\com_g(\cdot)$ to any
-plaintext they want (equivocal).  We use this property for witness
+plaintext they want (equivocable).  We use this property for witness
 extraction in three-move ZK proofs as follows.
 
 Before starting the actual ZK proof by the first message from the
@@ -169,8 +169,7 @@ is then just a commitment to a random $r$. As soon as $\myS$ has
 received $e$, they can fake the last message of the three-move
 protocol and open the initial commitment accordingly.
 (\fixme{This} idea is
-described in
-\url{https://www.iacr.org/archive/eurocrypt2000/1807/18070424-new.pdf}.)
+described by \citet{crs}.
 
 Observe that witness extraction and zero knowledge can be combined in
 the natural way: first, $P$ sends $g=g^\rho$ to $V$ who replies with
@@ -178,7 +177,8 @@ $\com_g(e)$, then $P$ sends commitment $\com_{g'}(r)$, where $g'$ is
 from the CRS, then $V$ opens $\com_g(e)$, and finally $P$ opens
 $\com_{g'}(r)$ and sends the last message of the three-move protocol.
 
-\subsubsection{Proof of Knowledge of Pedersen Plaintext}
+\subsubsection{ZK Proofs for Exponents}
+\paragraph{Proof for Knowledge of Plaintext}
 For $\com_{g}(m)=g_1^r\cdot{}g^m$,  prover $P$ can prove that they know
 $m$.
 
@@ -192,14 +192,13 @@ $m$.
 \end{enumerate}
 
 
-\subsubsection{ZK Proofs for Exponents}
-\paragraph{DLOG equivalence/DDH tuple/Proof of Encryption of $0$}
+\paragraph{Proof of DLOG Equivalence/DDH tuple/Proof of Encryption of $0$}
 You can prove that tuple $(a=g_1,b=g_1^r,c=g_1^x,d=g_1^{xr})$ is a DDH
 tuple, i.e., you show that $\log_{a}{b}=\log_c{d}$.
 
 \begin{enumerate}
 \item $P$ sends $(t_1=a^{\rho},t_2=c^{\rho})$ for $\rho\getr\Z_p$ to $V$.
-  \item $V$ sends $e\getr\Z_p$ to $V$.
+  \item $V$ sends $e\getr\Z_p$ to $P$.
   \item $P$ sends $s=\rho+e\cdot{}r$ to $V$.
     \item $V$ accepts if $a^s=b^e\cdot{}t_1$ and $c^s=d^e\cdot{}t_2$.
 \end{enumerate}
@@ -209,7 +208,7 @@ $c=(c[0],c[1])=(g_1^r,pk^r\cdot{}g)\leftarrow\enc_{pk,g}(0)$ is an
 encryption of $0$ (with respect to base $g$), as $(g_1,c[0],pk,c[1])$
 is a DDH tuple.
 
-\paragraph{Plaintext Equivalence}
+\paragraph{Proof of Plaintext Equivalence}
 Let $c_1=(c_1[0],c_1[1],)=(g_1^{r_1},pk^{r_1}\cdot{}g^m)$ and
 $c_2=(c_2[0],c_2[1],)=(g_1^{r_2},pk^{r_2}\cdot{}g^m)$ be two
 encryptions from $\enc_{pk,g}(m)$. To prove plaintext equivalence of
@@ -221,8 +220,34 @@ respect to base $g$, a simple trick for the prover is to compute
 another encryption $c_2$ of $m$ with respect to base $g$, show
 plaintext equivalence, and then open randomness of $c_2$.
 
-\subsubsection{Arithmetics with Pedersen Commitments}
-We can do simple arithmetics on Pedersen Commitments.
+
+\paragraph{Proof of Plaintext Bit}
+For a commitment $\com_g(x_i)$, prover $P$ can prove that
+$x_i\in\{0,1\}$, i.e., a bit. This is an application of the
+\emph{one-out-of-two} (OR) technique~\cite{ooot}. Essentially, $P$
+proves that $\com_g(x_i)=g_1^{r}\cdot{}g=c_1$ or
+$\com_g(x_i)=g_1^{r'}=c_2$ by proving that they know an $r$ or $r'$
+matching $c_1$ or $c_2$. The trick is that $P$ chooses $e_1$ and $e_2$
+such that, for the verifier's challenge $e$, we have
+$e=e_1+e_2$. Prover $P$ proves knowledge of $r$ for $c_1$ using
+challenge $e_1$ and knowledge of $r'$ for $c_2$ using challenge
+$e_2$. Thus, $P$ can choose either $e_1$ or $e_2$ before sending their
+first message of the ZK proof and cheat in one proof. Without loss of
+generality, let $x_i=1$, so $P$ will cheat for the proof of
+$c_2$. This works as follows.
+
+\begin{enumerate}
+\item $P$ sends $t_1=g_1^\rho\cdot{}g$ and
+  $t_2=c_2^{-e_2}\cdot{}g_1^{\rho'}$, for $\rho,\rho'\getr\Z_p$, to
+  $V$.
+\item $V$ sends $e\getr\Z_p$ to $P$.
+  \item $P$ sends $e_1,e_2,s_1=\rho+e_1\cdot{}r$, and $s_2=\rho'$ to $V$.
+
+\item $V$ checks $e\sr{}e_1+e_2$, $g_1^{s_1}\cdot{}g^{e+1}\sr{}c_1^e\cdot{}t_1$ and $g_1^{s_2}\sr{}c_2^e\cdot{}t_2$.
+\end{enumerate}
+
+\subsubsection{Proofs for Arithmetic with Pedersen Commitments}
+We can do simple arithmetic on Pedersen Commitments.
 \begin{itemize}
 \item Addition: given $\com_g(a)$ and $\com_g(b)$, everybody can
   compute and thus verify commitment
@@ -318,8 +343,10 @@ We can do simple arithmetics on Pedersen Commitments.
 \item $P$ proves that $\com_{g}(1)$ is a commitment to $1$ (see
   above).
   \end{enumerate}
-\item \fixme{Missing: proof of either 0 or 1.}
 \end{itemize}
+
+
+
 
 \ignore{
 \newpage
