@@ -4,6 +4,8 @@ NOTE: for one-sided security, we use the OT-based solution.
 \todo{Add description that PRF outputs must be hashed to become real
   output of the PRF. This is necessary for the leftover hash lemma.}
 
+
+\fixme{This is still the old ``broken'' definition. Needs to be updated. What's important: an HMAC is also an iPRF, but our goal is that we can essentially query PRF while making sure that the queries are prefixes of each other. We also have delegation. Start with not having one function, but $\ell$ functions?}
 \begin{definition}[$\iprf$]
   Consider function family
   $f_K(x_1,\ldots,x_\ell):\{0,1\}^{\lambda\cdot\ell}\times\{0,1\}^{\ell}\rightarrow{}(v_1,\ldots,v_\ell)\in\{0,1\}^{\lambda\cdot\ell}$. For
