@@ -225,13 +225,12 @@ entry with $r$ already exists in $T$. If yes, then $\myS$ returns
 $g_r$ to the caller. If not, $\myS$ chooses $\rho_r\getr\Z_p$, stores
 $(r,\rho_r,g_r=g_1^{\rho_r})$ in $T$, and returns $g_r$ to the caller.
 
-So, before $\myS$ sending any commitment, $V$ starts by sending
+So, before $\myS$ sends any commitment, $V$ starts by sending
 $r\getr\Z_p$, and $\myS$'s commitment will be computed with respect to
-some $g_r$ where $\myS$ knows trapdoor $\rho_r$.
-
-Thus, instead of commitment $\com_{g'}(t)$, $\myS$ commits at the
-beginning to some arbitrary $r'$ by sending $\com_{g_r=H(r)}(r')$. As
-soon as $\myS$ has received $e$, they can fake  last message $s$ of the
+some $g_r$ where $\myS$ knows trapdoor $\rho_r$.  Instead of
+commitment $\com_{g'}(t)$, $\myS$ then commits at the beginning to
+some arbitrary $r'$ by sending $\com_{g_r=H(r)}(r')$. As soon as
+$\myS$ has received $e$, they can fake last message $s$ of the
 three-move protocol and open the initial commitment accordingly.  See
 \citet{crs} for details.
 
