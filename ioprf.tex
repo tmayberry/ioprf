@@ -164,9 +164,9 @@ $\mathcal{M}'$ outputs the same as $\mathcal{M}$.  If  $\mathcal{M}'$ is interac
   using a generic transformation introduced below, too.}
 
 \paragraph{Witness Extraction for Pedersen Commitments}
-Recall that a three-move ZK proof comprises messages $(a,e,z)$, where
-first message $a$ is a commitment from $P$ sent to $V$, $e$ is $V$'s
-challenge sent to $P$, and $z$ is the final message sent from $P$ to
+Recall that a three-move ZK proof comprises messages $(t,e,s)$, where
+first message $t$ is a commitment from $P$ sent to $V$, $e$ is $V$'s
+challenge sent to $P$, and $s$ is the final message sent from $P$ to
 $V$.
 
 Pedersen commitments are trapdoor commitments which means that a party
@@ -187,9 +187,9 @@ prover to the verifier, we send the following two messages:
 The ZK proof then continues as usual with the difference that $V$
 opens $e$ as their challenge together with randomness $r$ used to
 compute the commitment, and $P$ verifies whether $(e,r)$ match
-$\com_g(e)$.  After $P$ has sent their final message $z$, $P$ also
+$\com_g(e)$.  After $P$ has sent final message $s$, $P$ also
 reveals $\rho$ to $V$. Only if both is correct, the last ZK proof
-message $z$ matches $P$'s commitment $a$ and challenge $e$, and $\rho$
+message $s$ matches $P$'s commitment $t$ and challenge $e$, and $\rho$
 matches $g=g_1^\rho$, $V$ accepts.
 
 This setup enables a simulator $\myS$ to extract the witness from
@@ -206,17 +206,17 @@ obvious. We will show an example later.
 \paragraph{Zero Knowledge (instead of Honest-Verifier ZK)}
 To ease readability, all ZK proofs here are described in their
 honest-verifier ZK version. To make these proofs zero-knowledge
-instead, we replace first message $a$ of the regular three-move
-protocol by a Pedersen commitment $\com_{g_r}(a)$ from prover $P$ to
-$a$. Here, the commitment uses generator $g_r=H(r)$ for a random $r$
+instead, we replace first message $t$ of the regular three-move
+protocol by a Pedersen commitment $\com_{g_r}(t)$ from prover
+$P$. Here, the commitment uses generator $g_r=H(r)$ for a random $r$
 chosen by $V$. The protocol then continues with $V$ sending their
 challenge $e$, and finally $P$ sending last message $z$ of the regular
-protocol together with opening commitment $\com_{g_r}(a)$. Verifier $V$
-accepts, if the commitment matches and $z$ of the regular protocol
+protocol together with opening commitment $\com_{g_r}(t)$. Verifier
+$V$ accepts, if the commitment matches and $s$ of the regular protocol
 matches $e$.
 
 In the Random-Oracle model, this technique allows a simulator $\myS$
-to learn $e$ before sending first message $a$ of the three-move
+to learn $e$ before sending first message $t$ of the three-move
 protocol.  More specifically, $\myS$ sets up a random oracle $H$ to
 map input strings to elements of the DDH group as follows. $\myS$ sets
 up an initially empty table $T$ which will store tuples
@@ -229,17 +229,17 @@ So, before $\myS$ sending any commitment, $V$ starts by sending
 $r\getr\Z_p$, and $\myS$'s commitment will be computed with respect to
 some $g_r$ where $\myS$ knows trapdoor $\rho_r$.
 
-Thus, instead of commitment $\com_{g'}(a)$, $\myS$ commits at the
+Thus, instead of commitment $\com_{g'}(t)$, $\myS$ commits at the
 beginning to some arbitrary $r'$ by sending $\com_{g_r=H(r)}(r')$. As
-soon as $\myS$ has received $e$, they can fake the last message of the
+soon as $\myS$ has received $e$, they can fake  last message $s$ of the
 three-move protocol and open the initial commitment accordingly.  See
 \citet{crs} for details.
 
 Observe that witness extraction and zero knowledge can be combined in
 the natural way: first, $P$ sends $g=g_1^{\rho_1}$ to $V$ who replies
 with $\com_g(e)$ and $r\getr\Z_p$. Then, $P$ sends commitment
-$\com_{H(r)}(a)$, and $V$ opens $\com_g(e)$.  Finally $P$ opens
-$\com_{H(r)}(a)$ to reveal $a$, and sends last message $z$ of the
+$\com_{H(r)}(t)$, and $V$ opens $\com_g(e)$.  Finally $P$ opens
+$\com_{H(r)}(t)$ to reveal $t$, and sends last message $s$ of the
 three-move protocol.
 
 \subsubsection{ZK Proofs for Exponents}
