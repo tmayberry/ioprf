@@ -164,12 +164,17 @@ $\mathcal{M}'$ outputs the same as $\mathcal{M}$.  If  $\mathcal{M}'$ is interac
   using a generic transformation introduced below, too.}
 
 \paragraph{Witness Extraction for Pedersen Commitments}
+Recall that a three-move ZK proof comprises messages $(a,e,z)$, where
+first message $a$ is a commitment from $P$ sent to $V$, $e$ is $V$'s
+challenge sent to $P$, and $z$ is the final message sent from $P$ to
+$V$.
+
 Pedersen commitments are trapdoor commitments which means that a party
-knowing a trapdoor $t$ can open a commitment $\com_g(\cdot)$ to any
+knowing a trapdoor $\rho$ can open a commitment $\com_g(\cdot)$ to any
 plaintext they want (equivocable).  We use this property for witness
 extraction in three-move ZK proofs as follows.
 
-Before starting the actual ZK proof by the first message from the
+Before starting the actual ZK proof by the first message $a$ from the
 prover to the verifier, we send the following two messages:
 \begin{enumerate}
 \item Prover $P$ sends to verifier $V$: $g=g_1^\rho$ for random
@@ -182,9 +187,10 @@ prover to the verifier, we send the following two messages:
 The ZK proof then continues as usual with the difference that $V$
 opens $e$ as their challenge together with randomness $r$ used to
 compute the commitment, and $P$ verifies whether $(e,r)$ match
-$\com_g(e)$.  After $P$ has sent their final message, $P$ also reveals
-$\rho$ to $V$. Only if both is correct, the last ZK proof message
-matches  challenge $e$, and $\rho$ matches $g=g_1^\rho$, $V$ accepts.
+$\com_g(e)$.  After $P$ has sent their final message $z$, $P$ also
+reveals $\rho$ to $V$. Only if both is correct, the last ZK proof
+message $z$ matches $P$'s commitment $a$ and challenge $e$, and $\rho$
+matches $g=g_1^\rho$, $V$ accepts.
 
 This setup enables a simulator $\myS$ to extract the witness from
 $P$. After receiving trapdoor $\rho$ from $V$, $\myS$ rewinds $P$ until
@@ -198,32 +204,43 @@ execution depend on the exact three-move ZK proof, but are typically
 obvious. We will show an example later.
 
 \paragraph{Zero Knowledge (instead of Honest-Verifier ZK)}
-To ease readability, all  ZK proofs here are described in their
+To ease readability, all ZK proofs here are described in their
 honest-verifier ZK version. To make these proofs zero-knowledge
-instead, we replace the first message of the regular three-move protocol by a
-Pedersen commitment from prover $P$ to the first message. The protocol
-then continues with $V$ sending their challenge $e$, and finally $P$
-sending the last message of the regular protocol together with opening
-the commitment. Verifier $V$ accepts, if the commitment matches and
-the last message of the regular protocol.
+instead, we replace first message $a$ of the regular three-move
+protocol by a Pedersen commitment $\com_{g_r}(a)$ from prover $P$ to
+$a$. Here, the commitment uses generator $g_r=H(r)$ for a random $r$
+chosen by $V$. The protocol then continues with $V$ sending their
+challenge $e$, and finally $P$ sending last message $z$ of the regular
+protocol together with opening commitment $\com_{g_r}(a)$. Verifier $V$
+accepts, if the commitment matches and $z$ of the regular protocol
+matches $e$.
 
-In the CRS model, this technique allows a simulator $\myS$ to learn
-$e$ before sending the first message of the three-move
-protocol. Before interacting with the verifier, $\myS$ chooses
-$\rho\getr\Z_p$ and places $g'=g_1^\rho$ on the CRS. Parties agree
-that $P$'s commitment has to be using a Pedersen $\com_g(\cdot)$
-commitment, where $g$ is from the CRS. The commitment of $\myS$ at the
-beginning is then just a commitment to some arbitrary $r$. As soon as
-$\myS$ has received $e$, they can fake the last message of the
+In the Random-Oracle model, this technique allows a simulator $\myS$
+to learn $e$ before sending first message $a$ of the three-move
+protocol.  More specifically, $\myS$ sets up a random oracle $H$ to
+map input strings to elements of the DDH group as follows. $\myS$ sets
+up an initially empty table $T$ which will store tuples
+$(r,\rho_r,g_r)$. For a query $H(r)$, $\myS$ will look up whether an
+entry with $r$ already exists in $T$. If yes, then $\myS$ returns
+$g_r$ to the caller. If not, $\myS$ chooses $\rho_r\getr\Z_p$, stores
+$(r,\rho_r,g_r=g_1^{\rho_r})$ in $T$, and returns $g_r$ to the caller.
+
+So, before $\myS$ sending any commitment, $V$ starts by sending
+$r\getr\Z_p$, and $\myS$'s commitment will be computed with respect to
+some $g_r$ where $\myS$ knows trapdoor $\rho_r$.
+
+Thus, instead of commitment $\com_{g'}(a)$, $\myS$ commits at the
+beginning to some arbitrary $r'$ by sending $\com_{g_r=H(r)}(r')$. As
+soon as $\myS$ has received $e$, they can fake the last message of the
 three-move protocol and open the initial commitment accordingly.  See
 \citet{crs} for details.
 
 Observe that witness extraction and zero knowledge can be combined in
 the natural way: first, $P$ sends $g=g_1^{\rho_1}$ to $V$ who replies
-with $\com_g(e)$, then $P$ sends commitment $\com_{g'}(r)$, where $g'$
-is from the CRS ($g'=g_1^{\rho_2}$, $\rho_2$ known by $\myS$ in the
-proof), then $V$ opens $\com_g(e)$, and finally $P$ opens
-$\com_{g'}(r)$ and sends the last message of the three-move protocol.
+with $\com_g(e)$ and $r\getr\Z_p$. Then, $P$ sends commitment
+$\com_{H(r)}(a)$, and $V$ opens $\com_g(e)$.  Finally $P$ opens
+$\com_{H(r)}(a)$ to reveal $a$, and sends last message $z$ of the
+three-move protocol.
 
 \subsubsection{ZK Proofs for Exponents}
 \paragraph{Proof for Knowledge of Plaintext}
