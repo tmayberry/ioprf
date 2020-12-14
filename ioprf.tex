@@ -23,9 +23,9 @@ a generator of $\G$.  To open $\com_{g}(m)$, $(m,r)$ is revealed.
 \subsubsection{$\proto$ Initialization}
 The sender in $\proto$ knows the $\iprf$'s secret key
 $K=(\alpha_1,\ldots,\alpha_\ell,\beta_1,\ldots,\beta_\ell)$ as before. For some input
-string $x=(x_1,\ldots{},x_\ell)$, we define the output of $\proto$ for
+string $x=(x_1\ldots{}x_\ell)$, we define the output of $\proto$ for
 the receiver as
-$\iprf_K(x)=g_2^{\prod_{i=1}^{\ell}(\alpha_ix_i+\beta_i(1-x_i))}$.
+$\iprf_K(x)=g_2^{\prod_{i=1}^{\ell}(\alpha_i{}x_i+\beta_i(1-x_i))}$.
 
 The receiver computes $V_0 \leftarrow\enc_{pk}(1)$ and
 $D_0\leftarrow\enc_{pk}(0)$, sends them to the sender and proves that
@@ -104,48 +104,48 @@ $\iprf_K(x)=\frac{V_\ell[1]}{V_{\ell}[0]^{sk}}$.
 \subsubsection{Dual-iPRF is still a PRF}
 
 \begin{construction} 
-Define the function ensemble $F = \{F_n\}_{n\in N}$.  For every $n$, a key of a function $F_n$ is a tuple, $\langle P,Q,g,\vec{a}\rangle$, 
-where $P$ is an $n$-bit prime, $Q$ a prime divisor of $P-1$, $g$ an element of order $Q$ in $\mathbb{Z}_{p}^*$ and $\vec{a}=\langle 
-a_0,a_1, \ldots , a_n \rangle$ a uniformly random sequence of $n+1$ elements of $\mathbb{Z}_Q$.  For any $n$-bit input, $x=x_1 x_2 \ldots x_n$, the 
-function $f_{P,Q,g,\vec{a}}$ is defined by:
- $$f_{P,Q,g,\vec{a}}(x) = (g^{a_0})^{\prod_{x_i=1}a_i}$$
+Define the function ensemble $F = \{F_n\}_{n\in N}$.  For every $n$, a key of a function $F_n$ is a tuple, $\langle P,Q,g,\vec{\alpha}\rangle$, 
+where $P$ is an $n$-bit prime, $Q$ a prime divisor of $P-1$, $g$ an element of order $Q$ in $\mathbb{Z}_{p}^*$ and $\vec{\alpha}=\langle 
+\alpha_0,\alpha_1, \ldots , \alpha_n \rangle$ a uniformly random sequence of $n+1$ elements of $\mathbb{Z}_Q$.  For any $n$-bit input, $x=x_1 x_2 \ldots x_n$, the 
+function $f_{P,Q,g,\vec{\alpha}}$ is defined by:
+ $$f_{P,Q,g,\vec{\alpha}}(x) = (g^{\alpha_0})^{\prod_{x_i=1}\alpha_i}$$
 \end{construction}
 
 \begin{theorem}
 \label{theorem:naor}
-If the DDH-Assumption holds, then for every probabilistic polynomial-time oracle machine $\mathcal{M}$, every constant $\alpha > 0$, and for all byt a finite number of $n$'s
-$$| Pr[\mathcal{M}^{f_{P,Q,g,\vec{a}}}(P,Q,g)=1] - Pr[\mathcal{M}^{R_{P,Q,g}}(P,Q,g) = 1]| < \frac{1}{n^\alpha} $$
-where in the first probability, $f_{P,Q,g,\vec{a}}$ is distributed according to $F_n$ and in the second probability the distribution of $R_{P,Q,g}$ is uniformly chosen in the set of functions with the domain $\{0,1\}^n$ and range $\langle g\rangle$.
+If the DDH-Assumption holds, then for every probabilistic polynomial-time oracle machine $\mathcal{M}$, every constant $\gamma > 0$, and for all but a finite number of $n$'s
+$$| Pr[\mathcal{M}^{f_{P,Q,g,\vec{\alpha}}}(P,Q,g)=1] - Pr[\mathcal{M}^{R_{P,Q,g}}(P,Q,g) = 1]| < \frac{1}{n^\gamma} $$
+where in the first probability, $f_{P,Q,g,\vec{\alpha}}$ is distributed according to $F_n$, and in the second probability the distribution of $R_{P,Q,g}$ is uniformly chosen in the set of functions with the domain $\{0,1\}^n$ and range $\langle g\rangle$.
 \end{theorem}
 
 \begin{construction}
 \label{const:newprf}
-Define the function ensemble $F' = \{F'_n\}_{n\in N}$.  For every $n$, a key of a function $F'_n$ is a tuple, $\langle P,Q,g,\vec{a},\vec{b}\rangle$, 
-where $P$ is an $n$-bit prime, $Q$ a prime divisor of $P-1$, $g$ an element of order $Q$ in $\mathbb{Z}_{p}^*$ and $\vec{a}=\langle 
-a_0,a_1, \ldots , a_n \rangle$ and $\vec{b}=\langle 
-b_0,b_1, \ldots ,b_n \rangle$, uniformly random sequences of $n+1$ elements of $\mathbb{Z}_Q$.  For any $n$-bit input, $x=x_1 x_2 \ldots x_n$, the 
+Define the function ensemble $F' = \{F'_n\}_{n\in N}$.  For every $n$, a key of a function $F'_n$ is a tuple, $\langle P,Q,g,\vec{\alpha},\vec{\beta}\rangle$, 
+where $P$ is an $n$-bit prime, $Q$ a prime divisor of $P-1$, $g$ an element of order $Q$ in $\mathbb{Z}_{p}^*$ and $\vec{\alpha}=\langle 
+\alpha_0,\alpha_1, \ldots , \alpha_n \rangle$ and $\vec{\beta}=\langle 
+\beta_0,\beta_1, \ldots ,\beta_n \rangle$, uniformly random sequences of $n+1$ elements of $\mathbb{Z}_Q$.  For any $n$-bit input, $x=x_1 x_2 \ldots x_n$, the 
 function $f'_{P,Q,g,\vec{a},\vec{b}}$ is defined by:
- $$f'_{P,Q,g,\vec{a},\vec{b}}(x) = (g^{a_0})^{\prod_{x_i=1}a_i \prod_{x_i=0}b_i}$$
+ $$f'_{P,Q,g,\vec{\alpha},\vec{\beta}}(x) = (g^{\alpha_0})^{\prod_{x_i=1}\alpha_i \prod_{x_i=0}\beta_i}$$
  \end{construction}
  
 \begin{theorem}
 \label{theorem:newprf}
 
-If the DDH-Assumption holds, then for every probabilistic polynomial-time oracle machine $\mathcal{M}$, every constant $\alpha > 0$, and for all byt a finite number of $n$'s
+If the DDH-Assumption holds, then for every probabilistic polynomial-time oracle machine $\mathcal{M}$, every constant $\gamma > 0$, and for all byt a finite number of $n$'s
 
-$$| Pr[\mathcal{M}^{f'_{P,Q,g,\vec{a}}}(P,Q,g)=1] - Pr[\mathcal{M}^{R_{P,Q,g}}(P,Q,g) = 1]| < \frac{1}{n^\alpha} $$
+$$| Pr[\mathcal{M}^{f'_{P,Q,g,\vec{\alpha},\vec{\beta}}}(P,Q,g)=1] - Pr[\mathcal{M}^{R_{P,Q,g}}(P,Q,g) = 1]| < \frac{1}{n^\gamma} $$
 
-where in the first probability, $f'_{P,Q,g,\vec{a}}$ is distributed according to $F'_n$ and in the second probability the distribution of $R_{P,Q,g}$ is uniformly chosen in the set of functions with the domain $\{0,1\}^n$ and range $\langle g\rangle$.
+where in the first probability, $f'_{P,Q,g,\vec{a},\vec{\beta}}$ is distributed according to $F'_n$, and in the second probability the distribution of $R_{P,Q,g}$ is uniformly chosen in the set of functions with the domain $\{0,1\}^n$ and range $\langle g\rangle$.
 \end{theorem}
 
 \begin{proof}
 We prove this by reduction, showing that if $\mathcal{M}$ exists that can distinguish between $f'$ and a random function, then we can build $\mathcal{M}'$ that can distinguish between $f$ and a random function.
 
-First, assume that $\mathcal{M}$ exists that can violate the inequality from Theorem \ref{theorem:newprf}.  We create $\mathcal{M'}$ as follows.  First, $\mathcal{M}'$ creates and stores a uniformly random vector $\vec{b}$ as in the Construction \ref{const:newprf}.  $\mathcal{M}'$ then runs $\mathcal{M}$ as a subroutine.  Each time $\mathcal{M}$ queries the oracle for an evaluation on input $y$, $\mathcal{M}'$ does the following:
+First, assume that $\mathcal{M}$ exists that can violate the inequality from Theorem \ref{theorem:newprf}.  We create $\mathcal{M'}$ as follows.  First, $\mathcal{M}'$ creates and stores a uniformly random vector $\vec{\beta}$ as in Construction~\ref{const:newprf}.  $\mathcal{M}'$ then runs $\mathcal{M}$ as a subroutine.  Each time $\mathcal{M}$ queries the oracle for an evaluation on input $y$, $\mathcal{M}'$ does the following:
 
 \begin{enumerate}
 \item Query his own oracle for $z = f(y)$
-\item Calculate $z' = z^{\prod_{y_i = 0} b_i}$
+\item Calculate $z' = z^{\prod_{y_i = 0} \beta_i}$
 \item Returns $z'$ to $\mathcal{M}$
 \end{enumerate}
 
