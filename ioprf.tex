@@ -4,16 +4,14 @@ NOTE: for one-sided security, we use the OT-based solution.
 
 
 \subsubsection{Preliminaries}
-Let there be three generators $g_1,g_2,g_3$ of prime order $p$ DDH
-group $\G$. Nobody knows the discrete log of one generator
-$g_i\in\{g_1,g_2,g_3\}$ to the basis of another generator
-$g_{j\neq{}i}$. \fixme{They can come from the CRS.}
+Let there be two generators $g_1,g_2$ of prime order $p$ DDH group
+$\G$. Nobody knows the discrete log of one generator $g_i$ to the
+basis of another generator $g_{j\neq{}i}$.
 
 \paragraph{Elgamal Encryption}
 We will use additive Elgamal encryption with private keys $sk\in\Z_p$
-and public keys $pk=g_1^{sk}$. For either $g=g_2$ or $g=g_3$, the
-ciphertext $c$ to encrypt $m\in\Z_p$ is
-$c=(c[0],c[1])=(g_1^r,pk^r\cdot{}g^m)\leftarrow\enc_{pk,g}(m)$, where
+and public keys $pk=g_1^{sk}$. Ciphertext $c$ to encrypt $m\in\Z_p$ is
+$c=(c[0],c[1])=(g_1^r,pk^r\cdot{}g_2^m)\leftarrow\enc_{pk}(m)$, where
 $r\getr\Z_p$.
 
 \paragraph{Pedersen Commitments}
@@ -29,12 +27,10 @@ string $x=(x_1,\ldots{},x_\ell)$, we define the output of $\proto$ for
 the receiver as
 $\iprf_K(x)=g_2^{\prod_{i=1}^{\ell}(\alpha_ix_i+\beta_i(1-x_i))}$.
 
-
-The receiver computes $V_0 \leftarrow\enc_{pk,g_2}(1)$ and
-$D_0\leftarrow\enc_{pk,g_3}(1)$, sends them to the sender and proves
-that these are encryptions of $1$ with respect to bases $g_2$ and
-$g_3$ (see below for details). The sender computes Pedersen
-commitments
+The receiver computes $V_0 \leftarrow\enc_{pk}(1)$ and
+$D_0\leftarrow\enc_{pk}(1)$, sends them to the sender and proves that
+these are encryptions of $1$ (see below for details). The sender
+computes Pedersen commitments
 $(\com_{g_2}(\alpha_1),\ldots,\com_{g_2}(\alpha_\ell),\com_{g_2}(\beta_1),\ldots,\com_{g_2}(\beta_\ell))$,
 sends them to the receiver, and proves knowledge of plaintexts in ZK
 (see below).
@@ -268,14 +264,13 @@ tuple, i.e., you show that $\log_{a}{b}=\log_c{d}$.
 \end{enumerate}
 
 Observe that this technique also proves that an encryption
-$c=(c[0],c[1])=(g_1^r,pk^r\cdot{}g)\leftarrow\enc_{pk,g}(0)$ is an
-encryption of $0$ (with respect to base $g$), as $(g_1,c[0],pk,c[1])$
-is a DDH tuple.
+$c=(c[0],c[1])=(g_1^r,pk^r)\leftarrow\enc_{pk}(0)$ is an encryption of
+$0$, as $(g_1,c[0],pk,c[1])$ is a DDH tuple.
 
 \paragraph{Proof of Plaintext Equivalence}
 Let $c_1=(c_1[0],c_1[1],)=(g_1^{r_1},pk^{r_1}\cdot{}g^m)$ and
 $c_2=(c_2[0],c_2[1],)=(g_1^{r_2},pk^{r_2}\cdot{}g^m)$ be two
-encryptions from $\enc_{pk,g}(m)$. To prove plaintext equivalence of
+encryptions from $\enc_{pk}(m)$. To prove plaintext equivalence of
 these two ciphertexts, the prover shows that
 $(g_1,\frac{c_1[0]}{c_2[0]},pk,\frac{c_1[1]}{c_2[1]})$ is a DDH tuple.
 
