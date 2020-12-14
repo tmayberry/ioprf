@@ -1,5 +1,7 @@
-\usepackage{xfrac,amsmath,amsthm,amssymb,parskip,enumitem,url}
+\usepackage{xfrac,amsmath,amsthm,amssymb,enumitem,url}
 \usepackage[numbers,sort&compress]{natbib}
+\usepackage[linesnumbered]{algorithm2e}
+
 
 \newtheorem{definition}{Definition}
 \newtheorem{construction}{Construction}
@@ -18,9 +20,9 @@
 \newcommand{\myO}[0]{\mathcal{O}}
 \newcommand{\ioprf}[0]{\mathsf{i}\mathsf{OPRF}}
 \newcommand{\iprf}[0]{\mathsf{i}\mathsf{PRF}}
+\newcommand{\fioprf}[0]{\mathcal{F}_{\mathsf{i}\mathsf{OPRF}}}
 \newcommand{\ot}[0]{\mathsf{OT}}
 \newcommand{\proto}[0]{{\pi_{\ioprf}}}
-%\newcommand{\myS}[0]{{\mathcal{S}}}
 \newcommand{\myS}[0]{{\mathsf{Sim}}}
 \newcommand{\myF}[0]{{\mathcal{F}}}
 \newcommand{\Z}[0]{\mathbb{Z}}
@@ -51,3 +53,9 @@
   \fi%
 }
 \makeatother
+
+
+\newenvironment{functionality}[1][htb]
+  {\renewcommand{\algorithmcfname}{Functionality}% Update algorithm name
+   \begin{algorithm}[#1]%
+  }{\end{algorithm}}

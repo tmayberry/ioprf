@@ -12,6 +12,59 @@ $\iprf(x_1,\ldots,x_\ell)$: output a vector $\vec{v}$ of length $\ell$ where $v_
 \todo{Show that this is a PRF, add leftover hash lemma. Show that this is a delegatable PRF.}
 
 
+\subsubsection{Dual-PRF is still a PRF}
+
+\begin{construction} 
+Define the function ensemble $F = \{F_n\}_{n\in N}$.  For every $n$, a key of a function $F_n$ is a tuple, $\langle P,Q,g,\vec{\alpha}\rangle$, 
+where $P$ is an $n$-bit prime, $Q$ a prime divisor of $P-1$, $g$ an element of order $Q$ in $\mathbb{Z}_{p}^*$ and $\vec{\alpha}=\langle 
+\alpha_0,\alpha_1, \ldots , \alpha_n \rangle$ a uniformly random sequence of $n+1$ elements of $\mathbb{Z}_Q$.  For any $n$-bit input, $x=x_1 x_2 \ldots x_n$, the 
+function $f_{P,Q,g,\vec{\alpha}}$ is defined by:
+ $$f_{P,Q,g,\vec{\alpha}}(x) = (g^{\alpha_0})^{\prod_{x_i=1}\alpha_i}$$
+\end{construction}
+
+\begin{theorem}
+\label{theorem:naor}
+If the DDH-Assumption holds, then for every probabilistic polynomial-time oracle machine $\mathcal{M}$, every constant $\gamma > 0$, and for all but a finite number of $n$'s
+$$| Pr[\mathcal{M}^{f_{P,Q,g,\vec{\alpha}}}(P,Q,g)=1] - Pr[\mathcal{M}^{R_{P,Q,g}}(P,Q,g) = 1]| < \frac{1}{n^\gamma} $$
+where in the first probability, $f_{P,Q,g,\vec{\alpha}}$ is distributed according to $F_n$, and in the second probability the distribution of $R_{P,Q,g}$ is uniformly chosen in the set of functions with the domain $\{0,1\}^n$ and range $\langle g\rangle$.
+\end{theorem}
+
+\begin{construction}
+\label{const:newprf}
+Define the function ensemble $F' = \{F'_n\}_{n\in N}$.  For every $n$, a key of a function $F'_n$ is a tuple, $\langle P,Q,g,\vec{\alpha},\vec{\beta}\rangle$, 
+where $P$ is an $n$-bit prime, $Q$ a prime divisor of $P-1$, $g$ an element of order $Q$ in $\mathbb{Z}_{p}^*$ and $\vec{\alpha}=\langle 
+\alpha_0,\alpha_1, \ldots , \alpha_n \rangle$ and $\vec{\beta}=\langle 
+\beta_0,\beta_1, \ldots ,\beta_n \rangle$, uniformly random sequences of $n+1$ elements of $\mathbb{Z}_Q$.  For any $n$-bit input, $x=x_1 x_2 \ldots x_n$, the 
+function $f'_{P,Q,g,\vec{a},\vec{b}}$ is defined by:
+ $$f'_{P,Q,g,\vec{\alpha},\vec{\beta}}(x) = (g^{\alpha_0})^{\prod_{x_i=1}\alpha_i \prod_{x_i=0}\beta_i}$$
+ \end{construction}
+ 
+\begin{theorem}
+\label{theorem:newprf}
+
+If the DDH-Assumption holds, then for every probabilistic polynomial-time oracle machine $\mathcal{M}$, every constant $\gamma > 0$, and for all byt a finite number of $n$'s
+
+$$| Pr[\mathcal{M}^{f'_{P,Q,g,\vec{\alpha},\vec{\beta}}}(P,Q,g)=1] - Pr[\mathcal{M}^{R_{P,Q,g}}(P,Q,g) = 1]| < \frac{1}{n^\gamma} $$
+
+where in the first probability, $f'_{P,Q,g,\vec{a},\vec{\beta}}$ is distributed according to $F'_n$, and in the second probability the distribution of $R_{P,Q,g}$ is uniformly chosen in the set of functions with the domain $\{0,1\}^n$ and range $\langle g\rangle$.
+\end{theorem}
+
+\begin{proof}
+We prove this by reduction, showing that if $\mathcal{M}$ exists that can distinguish between $f'$ and a random function, then we can build $\mathcal{M}'$ that can distinguish between $f$ and a random function.
+
+First, assume that $\mathcal{M}$ exists that can violate the inequality from Theorem \ref{theorem:newprf}.  We create $\mathcal{M'}$ as follows.  First, $\mathcal{M}'$ creates and stores a uniformly random vector $\vec{\beta}$ as in Construction~\ref{const:newprf}.  $\mathcal{M}'$ then runs $\mathcal{M}$ as a subroutine.  Each time $\mathcal{M}$ queries the oracle for an evaluation on input $y$, $\mathcal{M}'$ does the following:
+
+\begin{enumerate}
+\item Query his own oracle for $z = f(y)$
+\item Calculate $z' = z^{\prod_{y_i = 0} \beta_i}$
+\item Returns $z'$ to $\mathcal{M}$
+\end{enumerate}
+
+$\mathcal{M}'$ outputs the same as $\mathcal{M}$.  If  $\mathcal{M}'$ is interacting with the function $f$, then the responses he gives to $\mathcal{M}$ will be identical to the real function $f'$, due to him being able to add in the extra $b$ components to the result.  If $\mathcal{M}'$ is interacting with a random function, then the responses he gives will be distributed identically to a random function.  Therefore, if $\mathcal{M}$ has a distinguishing advantage, so will $\mathcal{M}'$.
+\end{proof}
+
+
+
 \input{ioprf}
 
 \subsection{OT-based $\proto$ Construction}

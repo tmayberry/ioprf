@@ -5,14 +5,18 @@ NOTE: for one-sided security, we use the OT-based solution.
   output of the PRF. This is necessary for the leftover hash lemma.}
 
 
-\fixme{This is still the old ``broken'' definition. Needs to be updated. What's important: an HMAC is also an iPRF, but our goal is that we can essentially query PRF while making sure that the queries are prefixes of each other. We also have delegation. Start with not having one function, but $\ell$ functions?}
-\begin{definition}[$\iprf$]
+\fixme{An HMAC is also an iPRF, but our goal is that we can
+  essentially query PRF while making sure that the queries are
+  prefixes of each other. We also have delegation. }
+
+\begin{definition}[$\iprf$]\label{defiprf}
   Consider function family
   $f_K(x_1\ldots{}x_\ell):\{0,1\}^{\lambda\cdot\ell}\times\{0,1\}^{\ell}\rightarrow{}(v_1,\ldots,v_\ell)\in\{0,1\}^{\lambda\cdot\ell}$. For
   a randomly chosen key $K$, range $V_\lambda=(v_1,\ldots,v_\ell)$ is
   a family of random variables (a probability ensemble) of bit strings
   of length $\ell\cdot\lambda$. We call function $f_K$ an iterated
-  pseudo-random function family $(\iprf_K)$ \emph{iff} for all
+  pseudo-random function family $(\iprf_K)$ \emph{iff}
+  for all
   adversaries $\A$ and for all $(x_1\ldots{}x_\ell)\in\{0,1\}^\ell$
   there exists a negligible function $\epsilon$ such that for
   sufficiently large $\lambda$
@@ -21,39 +25,64 @@ NOTE: for one-sided security, we use the OT-based solution.
   where $U_\lambda$ is the random variable describing uniformly random
   bit strings of length $\lambda$. The probabilities are taken over
   the random coins of $\A$ and $K$.
-
 \end{definition}
 
+Observe that this definition implies that each individual $v_i$ is
+distributed like the output of a pseudo-random function. Also note
+that, following Definition~\ref{defiprf}, $\iprf$s are not too
+surprising, and there are simple constructions to build an
+$\iprf$. For example, one could use a PRF supporting variable length
+inputs such as HMAC and iteratively evaluate it on inputs
+$x_1,\ldots,x_\ell$. The new and interesting property in our context
+is an functionality (and real-world constructions) which allow to
+efficiently evaluate $\iprf$s in an oblivious fashion.
+
+\begin{figure}[tb]
+\RestyleAlgo{boxed}
+\LinesNumbered
+\begin{functionality}[H]
+$S\rightarrow{}\fioprf$: $K$\;
+\For{$i=1$ {\bf to} {$\ell$} }{
+  $R\rightarrow{}\fioprf:x_i$\;
+  $\fioprf\rightarrow{}R: v_i$ such that $(v_1,\ldots,v_\ell)=\iprf_K(x_1\ldots{}x_\ell)$\;
+}
+\end{functionality}
+\caption{Functionality $\fioprf$\label{idealioprf}}
+\end{figure}
+
 \begin{definition}[$\proto$]
-  Let $\iprf_K$ be an iterated pseudo-random function family.  An
-  iterated \emph{oblivious} pseudo-random function is a probabilistic
-  protocol $\proto$ between a sender $S$ with input key
-  $K\in\{0,1\}^{\lambda\cdot\ell}$ and receiver $R$ with input bit string
-  $x=(x_1\ldots{}x_\ell)\in\{0,1\}^{\ell}$ with the following
-  properties.
+  An iterated \emph{oblivious} pseudo-random function is an
+  $\ell$-round probabilistic protocol $\proto$ between a sender $S$
+  with input key $K\in\{0,1\}^{\lambda\cdot\ell}$ and receiver $R$
+  with input bit string $x=(x_1\ldots{}x_\ell)\in\{0,1\}^{\ell}$ with
+  the following properties.
 
   \begin{itemize}
    
-\item Protocol $\proto$ realizes the ideal functionality $\iprf$: on
-  input $K$ from $S$ and $x$ from $R$, it outputs
-  $(v_1,\ldots,v_\ell)=\iprf_K(x),|v_i|=\lambda$, to
-  $R$ and nothing to $S$.
+  \item Protocol $\proto$ realizes the ideal functionality $\fioprf$
+    shown in Figure~\ref{idealioprf}. After $\ell$ rounds, $R$ has
+    received $(v_1,\ldots,v_\ell)=\iprf_K(x),|v_i|=\lambda$ from
+    $\fioprf$, where $\iprf_K$ is an iterated pseudo-random function
+    family. Sender $S$ receives nothing from $\fioprf$.
   
-\item For all adversaries $\A$ in the real world, there exists a
-  simulator $\myS_R$ in the ideal world such that $R$'s view
-  $\mathsf{REAL}_{\proto,\A,R}(x,K)$ in the real world is
-  computationally indistinguishable from $R$'s view
-  $\mathsf{IDEAL}_{\iprf,\myS_R(x)}(x,K)$ in
-  the ideal world.
+  \item For all adversaries $\A$ in the real world, there exists a
+    simulator $\myS_R$ in the ideal world such that $R$'s view
+    $\mathsf{REAL}_{\proto,\A,R}(x,K)$ in the real world is
+    computationally indistinguishable from $R$'s view
+    $\mathsf{IDEAL}_{\fioprf,\myS_R(x)}(x,K)$ in the ideal world.
 
-\item
-   For all adversaries $\A$ in the real world, there exists a
-  simulator $\myS_S$ in the ideal world such that $S$'s view
-  $\mathsf{REAL}_{\proto,\A,S}(K)$ in the real world is
-  computationally indistinguishable from $S$'s view
-  $\mathsf{IDEAL}_{\iprf,\myS_S}(K)$ in
-  the ideal world.  
+  \item For all adversaries $\A$ in the real world, there exists a
+    simulator $\myS_S$ in the ideal world such that $S$'s view
+    $\mathsf{REAL}_{\proto,\A,S}(K)$ in the real world is
+    computationally indistinguishable from $S$'s view
+    $\mathsf{IDEAL}_{\fioprf,\myS_S}(K)$ in the ideal world.
 \end{itemize}
 \end{definition}
+
+The crucial property of $\fioprf$ in contrast to standard $\oprf$s is
+that $R$ can oblivious evaluate a PRF a total of $\ell$ times, but not
+on arbitrary inputs. In each round $i$, $R$ submits input $x_i$, but
+the PRF will be evaluated using $R$'s previous input
+$x_1\ldots{}x_{i-1}$ as a prefix.
 
 \todo{Introduce delegatable PRFs}
