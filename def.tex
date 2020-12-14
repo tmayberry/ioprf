@@ -8,12 +8,12 @@ NOTE: for one-sided security, we use the OT-based solution.
 \fixme{This is still the old ``broken'' definition. Needs to be updated. What's important: an HMAC is also an iPRF, but our goal is that we can essentially query PRF while making sure that the queries are prefixes of each other. We also have delegation. Start with not having one function, but $\ell$ functions?}
 \begin{definition}[$\iprf$]
   Consider function family
-  $f_K(x_1,\ldots,x_\ell):\{0,1\}^{\lambda\cdot\ell}\times\{0,1\}^{\ell}\rightarrow{}(v_1,\ldots,v_\ell)\in\{0,1\}^{\lambda\cdot\ell}$. For
+  $f_K(x_1\ldots{}x_\ell):\{0,1\}^{\lambda\cdot\ell}\times\{0,1\}^{\ell}\rightarrow{}(v_1,\ldots,v_\ell)\in\{0,1\}^{\lambda\cdot\ell}$. For
   a randomly chosen key $K$, range $V_\lambda=(v_1,\ldots,v_\ell)$ is
   a family of random variables (a probability ensemble) of bit strings
   of length $\ell\cdot\lambda$. We call function $f_K$ an iterated
   pseudo-random function family $(\iprf_K)$ \emph{iff} for all
-  adversaries $\A$ and for all $(x_1,\ldots,x_\ell)\in\{0,1\}^\ell$
+  adversaries $\A$ and for all $(x_1\ldots{}x_\ell)\in\{0,1\}^\ell$
   there exists a negligible function $\epsilon$ such that for
   sufficiently large $\lambda$
 \begin{align*}\forall{}i\in\{1,\ldots,\ell\}:|&Pr[(v_1,\ldots,v_\ell)\leftarrow{}V_\lambda:\A(v_1,\ldots,v_i)=1]-\\&Pr[(v_1,\ldots,v_\ell)\leftarrow{}V_\lambda,u\leftarrow{}U_\lambda:\A(v_1,\ldots,v_{i-1},u)=1]|\\&=\epsilon(\lambda),
@@ -29,29 +29,29 @@ NOTE: for one-sided security, we use the OT-based solution.
   iterated \emph{oblivious} pseudo-random function is a probabilistic
   protocol $\proto$ between a sender $S$ with input key
   $K\in\{0,1\}^{\lambda\cdot\ell}$ and receiver $R$ with input bit string
-  $(x_1,\ldots,x_\ell)\in\{0,1\}^{\ell}$ with the following
+  $x=(x_1\ldots{}x_\ell)\in\{0,1\}^{\ell}$ with the following
   properties.
 
   \begin{itemize}
    
 \item Protocol $\proto$ realizes the ideal functionality $\iprf$: on
-  input $K$ from $S$ and $(x_1,\ldots,x_\ell)$ from $R$, it outputs
-  $(v_1,\ldots,v_\ell)=\iprf_K(x_1,\ldots,x_\ell),|v_i|=\lambda$, to
+  input $K$ from $S$ and $x$ from $R$, it outputs
+  $(v_1,\ldots,v_\ell)=\iprf_K(x),|v_i|=\lambda$, to
   $R$ and nothing to $S$.
   
 \item For all adversaries $\A$ in the real world, there exists a
   simulator $\myS_R$ in the ideal world such that $R$'s view
-  $\mathsf{REAL}_{\proto,\A,R}(x_1,\ldots,x_\ell,K)$ in the real world is
+  $\mathsf{REAL}_{\proto,\A,R}(x,K)$ in the real world is
   computationally indistinguishable from $R$'s view
-  $\mathsf{IDEAL}_{\iprf,\myS_R(x_1,\ldots,x_\ell)}(x_1,\ldots,x_\ell,K)$ in
+  $\mathsf{IDEAL}_{\iprf,\myS_R(x)}(x,K)$ in
   the ideal world.
 
 \item
    For all adversaries $\A$ in the real world, there exists a
   simulator $\myS_S$ in the ideal world such that $S$'s view
-  $\mathsf{REAL}_{\proto,\A,S}(b_1,\ldots,b_\ell,K)$ in the real world is
+  $\mathsf{REAL}_{\proto,\A,S}(K)$ in the real world is
   computationally indistinguishable from $S$'s view
-  $\mathsf{IDEAL}_{\iprf,\myS_S}(b_1,\ldots,b_\ell,K)$ in
+  $\mathsf{IDEAL}_{\iprf,\myS_S}(K)$ in
   the ideal world.  
 \end{itemize}
 \end{definition}
