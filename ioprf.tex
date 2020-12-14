@@ -28,9 +28,9 @@ the receiver as
 $\iprf_K(x)=g_2^{\prod_{i=1}^{\ell}(\alpha_ix_i+\beta_i(1-x_i))}$.
 
 The receiver computes $V_0 \leftarrow\enc_{pk}(1)$ and
-$D_0\leftarrow\enc_{pk}(1)$, sends them to the sender and proves that
-these are encryptions of $1$ (see below for details). The sender
-computes Pedersen commitments
+$D_0\leftarrow\enc_{pk}(0)$, sends them to the sender and proves that
+these are encryptions of $1$ and $0$ (see below for details). The
+sender computes Pedersen commitments
 $(\com_{g_2}(\alpha_1),\ldots,\com_{g_2}(\alpha_\ell),\com_{g_2}(\beta_1),\ldots,\com_{g_2}(\beta_\ell))$,
 sends them to the receiver, and proves knowledge of plaintexts in ZK
 (see below).
