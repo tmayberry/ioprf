@@ -29,8 +29,8 @@ $\iprf_K(x)=g_2^{\prod_{i=1}^{\ell}(\alpha_i{}x_i+\beta_i(1-x_i))}$.
 
 The receiver computes $V_0 \leftarrow\enc_{pk}(1)$ and
 $D_0\leftarrow\enc_{pk}(0)$, sends them to the sender and proves that
-these are encryptions of $1$ and $0$ (see below for details). The
-sender computes Pedersen commitments
+these are encryptions of $1$ and $0$ (see \S\ref{enc_one},
+\S\ref{enc_zero}). The sender computes Pedersen commitments
 $(\com_{g_2}(\alpha_1),\ldots,\com_{g_2}(\alpha_\ell),\com_{g_2}(\beta_1),\ldots,\com_{g_2}(\beta_\ell))$,
 sends them to the receiver, and proves knowledge of plaintexts in ZK
 (see below).
@@ -102,14 +102,13 @@ $\iprf_K(x)=\frac{V_\ell[1]}{V_{\ell}[0]^{sk}}$.
 
 \subsection{Security Analysis}
  
-\subsubsection{Proof}
 \todo{We prove in the hybrid model and make use of several ZK hybrids
   introduced below. Description is HVZK for ease of reading, but we
   convert to malicious verifier using CRS model introduced below,
   too. For ease of reading, we present ZK proofs, but convert to ZKPoK
   using a generic transformation introduced below, too.}
 
-\paragraph{Witness Extraction for Pedersen Commitments}
+\subsubsection{Witness Extraction for Pedersen Commitments}
 Recall that a three-move ZK proof comprises messages $(t,e,s)$, where
 first message $t$ is a commitment from $P$ sent to $V$, $e$ is $V$'s
 challenge sent to $P$, and $s$ is the final message sent from $P$ to
@@ -149,7 +148,7 @@ the witness of the ZK proof. Details on which $e$ to send in each
 execution depend on the exact three-move ZK proof, but are typically
 obvious. We will show an example later.
 
-\paragraph{Zero Knowledge (instead of Honest-Verifier ZK)}
+\subsubsection{Zero Knowledge (instead of Honest-Verifier ZK)}
 To ease readability, all ZK proofs here are described in their
 honest-verifier ZK version. To make these proofs zero-knowledge
 instead, we replace first message $t$ of the regular three-move
@@ -187,6 +186,41 @@ $\com_{H(r)}(t)$, and $V$ opens $\com_g(e)$.  Finally $P$ opens
 $\com_{H(r)}(t)$ to reveal $t$, and sends last message $s$ of the
 three-move protocol.
 
+
+\subsubsection{Proof of Encryption of $1$}
+\label{enc_one}
+The proof that Elgamal ciphertext
+$c=(c[0],c[1])=(g^r_1,pk^r\cdot{}g_2)$ is indeed an encryption of $1$
+works as follows.
+
+\begin{enumerate}
+\item $P$ sends $t=()$
+\end{enumerate}
+
+
+\subsubsection{Proof of Encryption of $0$}
+\label{enc_zero}
+\fixme{also Proof of DLOG Equivalence/DDH tuple/ --- otherwise change introductory text}
+
+You can prove that tuple $(u_1=g_1,u_2=g_1^r,u_3=g_1^x,u_4=g_1^{xr})$ is a DDH
+tuple, i.e., you show that $\log_{u_1}{u_2}=\log_{u_3}{u_4}$.
+
+\begin{enumerate}
+\item $P$ sends $(t_1=u_1^{\rho},t_2=u_3^{\rho})$ for $\rho\getr\Z_p$ to $V$.
+  \item $V$ sends $e\getr\Z_p$ to $P$.
+  \item $P$ sends $s=\rho+e\cdot{}r$ to $V$.
+    \item $V$ accepts if $u_1^s=u_2^e\cdot{}t_1$ and $u_3^s=u_4^e\cdot{}t_2$.
+\end{enumerate}
+
+Observe that this technique also proves that an encryption
+$c=(c[0],c[1])=(g_1^r,pk^r)\leftarrow\enc_{pk}(0)$ is an encryption of
+$0$, as $(g_1,c[0],pk,c[1])$ is a DDH tuple.
+
+
+
+
+\section{Old ZK Tools}
+
 \subsubsection{ZK Proofs for Exponents}
 \paragraph{Proof for Knowledge of Plaintext}
 For $\com_{g}(m)=g_1^r\cdot{}g^m$,  prover $P$ can prove that they know
@@ -202,20 +236,6 @@ $m$.
 \end{enumerate}
 
 
-\paragraph{Proof of DLOG Equivalence/DDH tuple/Proof of Encryption of $0$}
-You can prove that tuple $(a=g_1,b=g_1^r,c=g_1^x,d=g_1^{xr})$ is a DDH
-tuple, i.e., you show that $\log_{a}{b}=\log_c{d}$.
-
-\begin{enumerate}
-\item $P$ sends $(t_1=a^{\rho},t_2=c^{\rho})$ for $\rho\getr\Z_p$ to $V$.
-  \item $V$ sends $e\getr\Z_p$ to $P$.
-  \item $P$ sends $s=\rho+e\cdot{}r$ to $V$.
-    \item $V$ accepts if $a^s=b^e\cdot{}t_1$ and $c^s=d^e\cdot{}t_2$.
-\end{enumerate}
-
-Observe that this technique also proves that an encryption
-$c=(c[0],c[1])=(g_1^r,pk^r)\leftarrow\enc_{pk}(0)$ is an encryption of
-$0$, as $(g_1,c[0],pk,c[1])$ is a DDH tuple.
 
 \paragraph{Proof of Plaintext Equivalence}
 Let $c_1=(c_1[0],c_1[1],)=(g_1^{r_1},pk^{r_1}\cdot{}g^m)$ and
