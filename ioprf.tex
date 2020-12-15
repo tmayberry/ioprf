@@ -6,7 +6,7 @@ NOTE: for one-sided security, we use the OT-based solution.
 \subsubsection{Preliminaries}
 Let there be two generators $g_1,g_2$ of prime order $p$ DDH group
 $\G$. Nobody knows the discrete log of one generator $g_i$ to the
-basis of another generator $g_{j\neq{}i}$.
+basis of the other generator $g_{j\neq{}i}$.
 
 \paragraph{Elgamal Encryption}
 We will use additive Elgamal encryption with private keys $sk\in\Z_p$
@@ -17,7 +17,7 @@ $r\getr\Z_p$.
 \paragraph{Pedersen Commitments}
 A Pedersen commitment $\com_{g}(m)\in\G$ to message $m\in\Z_p$ is defined as
 $\com_{g}(m)=g_1^r\cdot{}g^m$, where $r\getr\Z_p$, and $g\neq{}g_1$ is
-a generator of $\G$.  To open $\com_{g}(m)$, $(m,r)$ is revealed.
+a generator of $\G$.  To open $\com_{g}(m)$, reveal $(m,r)$.
 
 
 \subsubsection{$\proto$ Initialization}
