@@ -7,7 +7,7 @@ NOTE: for one-sided security, we use the OT-based solution.
   inputs $x=(x_1\ldots{}x_\ell)\in\{0,1\}^\ell$, an iterated
   pseudo-random function family $\iprf_{K}(x)$ is a sequence of
   function families
-  $(f^1_{K_1}(x_{1}),\ldots,f^\ell_{K_1,\ldots,K_\ell}(x_{1}\ldots{}x_{\ell}))$,
+  $\iprf_K(x)=(f^1_{K_1}(x_{1}),\ldots,f^\ell_{K_1,\ldots,K_\ell}(x_{1}\ldots{}x_{\ell}))$,
   where each
   $f^i_{K_1,\ldots,K_i}(x_{1}\ldots{}x_{i}):\{0,1\}^{i\cdot\lambda}\times\{0,1\}^{i}\rightarrow{}v_i\in\{0,1\}^\lambda$
   is a pseudo-random function family with key $(K_1,\ldots,K_i)$ from $K$ and
@@ -18,7 +18,7 @@ NOTE: for one-sided security, we use the OT-based solution.
 An implication of Definition~\ref{defiprf} is that probability
 ensemble (family of random variables)
 $V_\lambda=(v_1,\ldots,v_\ell)=\iprf_K(x)\in\{0,1\}^{\ell\cdot\lambda}$
-is computationally indistinguishable from the probability ensemble
+is computationally indistinguishable from probability ensemble
 $U_\lambda$ describing uniformly random bit strings of length
 $\lambda$.
 
