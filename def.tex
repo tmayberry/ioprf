@@ -5,7 +5,6 @@ NOTE: for one-sided security, we use the OT-based solution.
   output of the PRF. This is necessary for the leftover hash lemma.}
 
 
-
 \begin{definition}[$\iprf$]\label{defiprf}
   For keys $K=(K_1,\ldots,K_\ell)\in\{0,1\}^{\ell\cdot\lambda}$ and
   inputs $x=(x_1\ldots{}x_\ell)\in\{0,1\}^\ell$, an iterated
@@ -19,14 +18,16 @@ NOTE: for one-sided security, we use the OT-based solution.
 \end{definition}
 
 \paragraph{Remarks}
-An implication of Definition~\ref{defiprf} is that random variable
+An implication of Definition~\ref{defiprf} is that probability
+ensemble (family of random variables)
 $V_\lambda=(v_1,\ldots,v_\ell)=\iprf_K(x)\in\{0,1\}^{\ell\cdot\lambda}$
-is computationally indistinguishable from random the variable
-$U_\lambda$ of uniform bit strings of length $\lambda$.
+is computationally indistinguishable from the probability ensemble
+$U_\lambda$ describing uniformly random bit strings of length
+$\lambda$.
 
-A simple construction for an $\iprf$ is based on
-variable length PRFs such as HMAC an a collision resistant hash
-function $H$. For example, consider
+A simple real-world construction for an $\iprf$ is based on variable
+length PRFs, such as HMAC, and a collision resistant hash function
+$H$. For example, consider
 $\iprf_K(x)=(\hmac_{H(K_1)}(x_1),\ldots,\hmac_{H(K_1||\ldots||K_\ell)}(x_1\ldots{}x_\ell))$.
 
 
