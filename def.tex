@@ -5,37 +5,30 @@ NOTE: for one-sided security, we use the OT-based solution.
   output of the PRF. This is necessary for the leftover hash lemma.}
 
 
-\fixme{An HMAC is also an iPRF, but our goal is that we can
-  essentially query PRF while making sure that the queries are
-  prefixes of each other. We also have delegation. }
 
 \begin{definition}[$\iprf$]\label{defiprf}
-  Consider function family
-  $f_K(x_1\ldots{}x_\ell):\{0,1\}^{\lambda\cdot\ell}\times\{0,1\}^{\ell}\rightarrow{}(v_1,\ldots,v_\ell)\in\{0,1\}^{\lambda\cdot\ell}$. For
-  a randomly chosen key $K$, range $V_\lambda=(v_1,\ldots,v_\ell)$ is
-  a family of random variables (a probability ensemble) of bit strings
-  of length $\ell\cdot\lambda$. We call function $f_K$ an iterated
-  pseudo-random function family $(\iprf_K)$ \emph{iff}
-  for all
-  adversaries $\A$ and for all $(x_1\ldots{}x_\ell)\in\{0,1\}^\ell$
-  there exists a negligible function $\epsilon$ such that for
-  sufficiently large $\lambda$
-\begin{align*}\forall{}i\in\{1,\ldots,\ell\}:|&Pr[(v_1,\ldots,v_\ell)\leftarrow{}V_\lambda:\A(v_1,\ldots,v_i)=1]-\\&Pr[(v_1,\ldots,v_\ell)\leftarrow{}V_\lambda,u\leftarrow{}U_\lambda:\A(v_1,\ldots,v_{i-1},u)=1]|\\&=\epsilon(\lambda),
-  \end{align*}
-  where $U_\lambda$ is the random variable describing uniformly random
-  bit strings of length $\lambda$. The probabilities are taken over
-  the random coins of $\A$ and $K$.
+  For keys $K=(K_1,\ldots,K_\ell)\in\{0,1\}^{\ell\cdot\lambda}$ and
+  inputs $x=(x_1\ldots{}x_\ell)\in\{0,1\}^\ell$, an iterated
+  pseudo-random function family $\iprf_{K}(x)$ is a sequence of
+  function families
+  $(f^1_{K_1}(x_{1}),\ldots,f^\ell_{K_1,\ldots,K_\ell}(x_{1}\ldots{}x_{\ell}))$,
+  where each
+  $f^i_{K_1,\ldots,K_i}(x_{1}\ldots{}x_{i}):\{0,1\}^{i\cdot\lambda}\times\{0,1\}^{i}\rightarrow{}v_i\in\{0,1\}^\lambda$
+  is a pseudo-random function family with keys $(K_1,\ldots,K_i)$ from $K$ and
+  inputs $(x_1\ldots{}x_i)$ from $x$.
 \end{definition}
 
-Observe that this definition implies that each individual $v_i$ is
-distributed like the output of a pseudo-random function. Also note
-that, following Definition~\ref{defiprf}, $\iprf$s are not too
-surprising, and there are simple constructions to build an
-$\iprf$. For example, one could use a PRF supporting variable length
-inputs such as HMAC and iteratively evaluate it on inputs
-$x_1,\ldots,x_\ell$. The new and interesting property in our context
-is an functionality (and real-world constructions) which allow to
-efficiently evaluate $\iprf$s in an oblivious fashion.
+\paragraph{Remarks}
+An implication of Definition~\ref{defiprf} is that random variable
+$V_\lambda=(v_1,\ldots,v_\ell)=\iprf_K(x)\in\{0,1\}^{\ell\cdot\lambda}$
+is computationally indistinguishable from random the variable
+$U_\lambda$ of uniform bit strings of length $\lambda$.
+
+A simple construction for an $\iprf$ is based on
+variable length PRFs such as HMAC an a collision resistant hash
+function $H$. For example, consider
+$\iprf_K(x)=(\hmac_{H(K_1)}(x_1),\ldots,\hmac_{H(K_1||\ldots||K_\ell)}(x_1\ldots{}x_\ell))$.
+
 
 \begin{figure}[tb]
 \RestyleAlgo{boxed}
