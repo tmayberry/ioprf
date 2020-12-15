@@ -1,9 +1,6 @@
 \section{$\ioprf$ Background}
 NOTE: for one-sided security, we use the OT-based solution.
 
-\todo{Add description that PRF outputs must be hashed to become real
-  output of the PRF. This is necessary for the leftover hash lemma.}
-
 
 \begin{definition}[$\iprf$]\label{defiprf}
   For keys $K=(K_1,\ldots,K_\ell)\in\{0,1\}^{\ell\cdot\lambda}$ and
@@ -13,8 +10,8 @@ NOTE: for one-sided security, we use the OT-based solution.
   $(f^1_{K_1}(x_{1}),\ldots,f^\ell_{K_1,\ldots,K_\ell}(x_{1}\ldots{}x_{\ell}))$,
   where each
   $f^i_{K_1,\ldots,K_i}(x_{1}\ldots{}x_{i}):\{0,1\}^{i\cdot\lambda}\times\{0,1\}^{i}\rightarrow{}v_i\in\{0,1\}^\lambda$
-  is a pseudo-random function family with keys $(K_1,\ldots,K_i)$ from $K$ and
-  inputs $(x_1\ldots{}x_i)$ from $x$.
+  is a pseudo-random function family with key $(K_1,\ldots,K_i)$ from $K$ and
+  input $(x_1\ldots{}x_i)$ from $x$.
 \end{definition}
 
 \paragraph{Remarks}
@@ -35,29 +32,28 @@ $\iprf_K(x)=(\hmac_{H(K_1)}(x_1),\ldots,\hmac_{H(K_1||\ldots||K_\ell)}(x_1\ldots
 \RestyleAlgo{boxed}
 \LinesNumbered
 \begin{functionality}[H]
-$S\rightarrow{}\fioprf$: $K$\;
-\For{$i=1$ {\bf to} {$\ell$} }{
-  $R\rightarrow{}\fioprf:x_i$\;
-  $\fioprf\rightarrow{}R: v_i$ such that $(v_1,\ldots,v_\ell)=\iprf_K(x_1\ldots{}x_\ell)$\;
-}
+  \tcp{Let $\iprf$ be an iterated pseudo-random function family}
+  $S\rightarrow{}\fioprf$: $K$\; \For{$i=1$ {\bf to} {$\ell$} }{
+    $R\rightarrow{}\fioprf:x_i$\; $\fioprf\rightarrow{}R: v_i$ such
+    that $(v_1,\ldots,v_\ell)=\iprf_K(x_1\ldots{}x_\ell)$\; }
 \end{functionality}
 \caption{Functionality $\fioprf$\label{idealioprf}}
 \end{figure}
 
 \begin{definition}[$\proto$]
-  An iterated \emph{oblivious} pseudo-random function is an
-  $\ell$-round probabilistic protocol $\proto$ between a sender $S$
-  with input key $K\in\{0,1\}^{\lambda\cdot\ell}$ and receiver $R$
-  with input bit string $x=(x_1\ldots{}x_\ell)\in\{0,1\}^{\ell}$ with
-  the following properties.
+  Let $\iprf_K$ be an iterated pseudo-random function family.  An
+  iterated \emph{oblivious} pseudo-random function is an $\ell$-round
+  probabilistic protocol $\proto$ between a sender $S$ with input key
+  $K\in\{0,1\}^{\lambda\cdot\ell}$ and receiver $R$ with input bit
+  string $x=(x_1\ldots{}x_\ell)\in\{0,1\}^{\ell}$ with the following
+  properties.
 
   \begin{itemize}
    
   \item Protocol $\proto$ realizes the ideal functionality $\fioprf$
     shown in Figure~\ref{idealioprf}. After $\ell$ rounds, $R$ has
     received $(v_1,\ldots,v_\ell)=\iprf_K(x),|v_i|=\lambda$ from
-    $\fioprf$, where $\iprf_K$ is an iterated pseudo-random function
-    family. Sender $S$ receives nothing from $\fioprf$.
+    $\fioprf$. Sender $S$ receives nothing from $\fioprf$.
   
   \item For all adversaries $\A$ in the real world, there exists a
     simulator $\myS_R$ in the ideal world such that $R$'s view

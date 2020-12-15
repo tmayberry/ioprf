@@ -1,4 +1,18 @@
 \section{Constructions}
+We present new constructions for both $\iprf$ and $\ioprf$.  To ease
+readability, we omit an important technicality in the description and
+proofs: our $\iprf$ and $\ioprf$ construction do not output
+pseudo-random bit strings of length $\lambda$, but pseudo-random
+elements of DDH group $\G$. Yet, converting elements to bit strings
+follows from a standard application of the leftover hash
+lemma~\cite{leftover}. So in the following, assume that
+$|\G|\ge{}2^\lambda$, and each party implicitly hashes the output of
+$\iprf$ and $\ioprf$ using any pairwise independent family of hash
+functions.
+
+
+
+
 \subsection{$\iprf$ Construction}
 Let $\G$ be a group of prime order $p$ where the DDH assumption holds,
 and $g$ is a random generator of $\G$.
@@ -9,7 +23,7 @@ ${\alpha_{i}},{\beta_{i}}\getr\Z_p.$
 
 $\iprf(x_1,\ldots,x_\ell)$: output a vector $\vec{v}$ of length $\ell$ where $v_i = g^{\prod_{j=1}^{i} (\alpha_jx_j+\beta_j(1-x_j))}.$
 
-\todo{Show that this is a PRF, add leftover hash lemma. Show that this is a delegatable PRF.}
+\todo{Show that this is a delegatable PRF.}
 
 
 \subsubsection{Dual-PRF is still a PRF}
