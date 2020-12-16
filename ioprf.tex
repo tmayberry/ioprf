@@ -124,10 +124,10 @@ Before starting the actual ZK proof by the first message $a$ from the
 prover to the verifier, we send the following two messages:
 \begin{enumerate}
 \item Prover $P$ sends to verifier $V$: $g=g_1^\rho$ for random
-  $\rho\getr\Z_p$. Verifier $V$ will use this $g$ for the computation
-  of their commitment.
-  \item $V$ computes and sends back commitment $\com_g(e)$ for their
-    challenge $e\in\Z_p$.
+  $\rho\getr\Z_p$. 
+  \item Verifier $V$ will use this $g$ for the computation of the
+    commitment to challenge $e$.  That is, $V$ computes and sends back
+    commitment $\com_g(e)$ for their challenge $e\in\Z_p$.
 \end{enumerate}
 
 The ZK proof then continues as usual with the difference that $V$
@@ -150,6 +150,9 @@ execution depend on the exact three-move ZK proof, but are typically
 obvious. We will show an example later.
 
 \subsubsection{Zero Knowledge (instead of Honest-Verifier ZK)}
+\fixme{We cannot use Fiat-Shamir transform and replace $e$, as we
+  Pedersen commitments for witness extraction.}
+
 To ease readability, all ZK proofs here are described in their
 honest-verifier ZK version. To make these proofs zero-knowledge
 instead, we replace first message $t$ of the regular three-move
