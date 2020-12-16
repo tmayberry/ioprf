@@ -1,7 +1,26 @@
-\section{$\ioprf$ Background}
+\section{Background}
+\subsection{\citeauthor{prf} PRF}
+\begin{construction}[from~\cite{prf}] 
+Define the function ensemble $F = \{F_n\}_{n\in N}$.  For every $n$, a key of a function $F_n$ is a tuple, $\langle P,Q,g,\vec{\alpha}\rangle$, 
+where $P$ is an $n$-bit prime, $Q$ a prime divisor of $P-1$, $g$ an element of order $Q$ in $\mathbb{Z}_{p}^*$ and $\vec{\alpha}=\langle 
+\alpha_0,\alpha_1, \ldots , \alpha_n \rangle$ a uniformly random sequence of $n+1$ elements of $\mathbb{Z}_Q$.  For any $n$-bit input, $x=x_1 x_2 \ldots x_n$, the 
+function $f_{P,Q,g,\vec{\alpha}}$ is defined by:
+ $$f_{P,Q,g,\vec{\alpha}}(x) = (g^{\alpha_0})^{\prod_{x_i=1}\alpha_i}$$
+\end{construction}
+
+\begin{theorem}[Theorem~4.1 of~\cite{prf}]
+\label{theorem:naor}
+If the DDH-Assumption holds, then for every probabilistic polynomial-time oracle machine $\mathcal{M}$, every constant $\gamma > 0$, and for all but a finite number of $n$'s
+$$| Pr[\mathcal{M}^{f_{P,Q,g,\vec{\alpha}}}(P,Q,g)=1] - Pr[\mathcal{M}^{R_{P,Q,g}}(P,Q,g) = 1]| < \frac{1}{n^\gamma} $$
+where in the first probability, $f_{P,Q,g,\vec{\alpha}}$ is distributed according to $F_n$, and in the second probability the distribution of $R_{P,Q,g}$ is uniformly chosen in the set of functions with the domain $\{0,1\}^n$ and range $\langle g\rangle$.
+\end{theorem}
+
+
+\fixme{Show that the Naor Reingold/FIPR05 OPRF is not an iterated PRF}
+
 NOTE: for one-sided security, we use the OT-based solution.
 
-
+\subsection{$\iprf$ and $\ioprf$ Definition}
 \begin{definition}[$\iprf$]\label{defiprf}
   For keys $K=(K_1,\ldots,K_\ell)\in\{0,1\}^{\ell\cdot\lambda}$ and
   inputs $x=(x_1\ldots{}x_\ell)\in\{0,1\}^\ell$, an iterated
