@@ -1,6 +1,3 @@
-all: main.pdf
-
-
-main.pdf: 
-	rubber -d main
+all:
+	rubber -df main.tex
 
