@@ -29,8 +29,7 @@ $\iprf_K(x)=g_2^{\prod_{i=1}^{\ell}(\alpha_i{}x_i+\beta_i(1-x_i))}$.
 
 The receiver computes $V_0 \leftarrow\enc_{pk}(1)$ and
 $D_0\leftarrow\enc_{pk}(0)$, sends them to the sender and proves that
-these are encryptions of $1$ and $0$ (see \S\ref{enc_one},
-\S\ref{enc_zero}). The sender computes Pedersen commitments
+these are encryptions of $1$ and $0$ (see \S\ref{poe}). The sender computes Pedersen commitments
 $(\com_{g_2}(\alpha_1),\ldots,\com_{g_2}(\alpha_\ell),\com_{g_2}(\beta_1),\ldots,\com_{g_2}(\beta_\ell))$,
 sends them to the receiver, and proves knowledge of plaintexts in ZK
 (see below).
@@ -187,23 +186,15 @@ $\com_{H(r)}(t)$ to reveal $t$, and sends last message $s$ of the
 three-move protocol.
 
 
-\subsubsection{Proof of Encryption of $1$}
-\label{enc_one}
-The proof that Elgamal ciphertext
-$c=(c[0],c[1])=(g^r_1,pk^r\cdot{}g_2)$ is indeed an encryption of $1$
-works as follows.
+\subsubsection{Proof of Encryption/Commitment to $m$}
+\label{poe}
 
-\begin{enumerate}
-\item $P$ sends $t=()$
-\end{enumerate}
-
-
-\subsubsection{Proof of Encryption of $0$}
-\label{enc_zero}
-\fixme{also Proof of DLOG Equivalence/DDH tuple/ --- otherwise change introductory text}
-
-You can prove that tuple $(u_1=g_1,u_2=g_1^r,u_3=g_1^x,u_4=g_1^{xr})$ is a DDH
-tuple, i.e., you show that $\log_{u_1}{u_2}=\log_{u_3}{u_4}$.
+To prove that an encryption
+$c=(c[0],c[1])=(g_1^r,pk^r)\leftarrow\enc_{pk}(0)$ is an encryption of
+$m=0$, $P$ proves that $(g_1,c[0],pk,c[1])$ is a DDH tuple.  You can
+prove that tuple
+$(u_1=g_1,u_2=g_1^r,u_3=g_1^{sk},u_4=g_1^{sk\cdot{}r})$ is a DDH tuple
+as follows.
 
 \begin{enumerate}
 \item $P$ sends $(t_1=u_1^{\rho},t_2=u_3^{\rho})$ for $\rho\getr\Z_p$ to $V$.
@@ -212,9 +203,19 @@ tuple, i.e., you show that $\log_{u_1}{u_2}=\log_{u_3}{u_4}$.
     \item $V$ accepts if $u_1^s=u_2^e\cdot{}t_1$ and $u_3^s=u_4^e\cdot{}t_2$.
 \end{enumerate}
 
-Observe that this technique also proves that an encryption
-$c=(c[0],c[1])=(g_1^r,pk^r)\leftarrow\enc_{pk}(0)$ is an encryption of
-$0$, as $(g_1,c[0],pk,c[1])$ is a DDH tuple.
+This proof has several interesting properties. Besides showing that a
+tuple is a DDH tuple, it also shows DLOG equivalence, i.e.,
+$\log_{u_1}{u_2}=\log_{u_3}{u_4}$. Also, instead of showing that come
+ciphertext encrypts $m=0$, it can be easily generalized to show
+encryption of arbitrary $m$, by setting $c'[1]=\frac{c[1]}{g_2^m}$ and
+running the proof for ciphertext $(c[0],c'[1])$.
+
+Finally, observe that Pedersen commitments are essentially just the
+right-hand side $c[1]$ of an Elgamal ciphertext. Thus, to prove a
+Pedersen commitment $\com_g(m)$ to $m$, parties divide $\com_g(m)$ by
+$g^m$ and run a Schnorr proof for $r$ used in the commitment ($P$
+sends $t=g_1^\rho$, $V$ sends $e$, $P$ sends $s=\rho+e\cdot{}r$, and $V$
+accepts if $g_1^s\sr\frac{\com_g(m)^e}{g^m}\cdot{}t$.)
 
 
 
