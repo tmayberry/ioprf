@@ -29,10 +29,11 @@ $\iprf_K(x)=g_2^{\prod_{i=1}^{\ell}(\alpha_i{}x_i+\beta_i(1-x_i))}$.
 
 The receiver computes $V_0 \leftarrow\enc_{pk}(1)$ and
 $D_0\leftarrow\enc_{pk}(0)$, sends them to the sender and proves that
-these are encryptions of $1$ and $0$ (see \S\ref{poe}). The sender computes Pedersen commitments
+these are encryptions of $1$ and $0$ (see \S\ref{poe} below). The
+sender computes Pedersen commitments
 $(\com_{g_2}(\alpha_1),\ldots,\com_{g_2}(\alpha_\ell),\com_{g_2}(\beta_1),\ldots,\com_{g_2}(\beta_\ell))$,
 sends them to the receiver, and proves knowledge of plaintexts in ZK
-(see below).
+(see \S\ref{pokop}).
 
 \subsubsection{$\proto$ Iterative Processing in $\ell$ Rounds}
 In round $i\in\{1,\ldots,\ell\}$, for sender's input bit $x_i$:
@@ -41,10 +42,11 @@ In round $i\in\{1,\ldots,\ell\}$, for sender's input bit $x_i$:
 \begin{enumerate}
 \item For input bit $x_i$, the receiver computes Pedersen commitment
   $\com_{g_2}(x_i)$ and proves that $x_i\in\{0,1\}$ (see
-  below). Similarly, the receiver computes $\com_{g_2}(1-x_i)$ and
-  proves knowledge of $(1-x_i)$ (see below). Finally, the receiver
-  proves that the sum of plaintexts behind $\com_{g_2}(x_i)$ and
-  $\com_{g_2}(1-x_i)$ equals $1$ (see below).
+  \S\ref{pobit}). Similarly, the receiver computes $\com_{g_2}(1-x_i)$
+  and proves that $(1-x_i)\in\{0,1\}$ (see \S\ref{pobit}). Finally,
+  the receiver proves that the sum of plaintexts behind
+  $\com_{g_2}(x_i)$ and $\com_{g_2}(1-x_i)$ equals $1$ (see
+  \S\ref{pkseo}).
 
 
 \item  The receiver chooses $r,r',r'',r'''\getr\Z_p$ and computes Elgamal ciphertexts
@@ -61,7 +63,7 @@ In round $i\in\{1,\ldots,\ell\}$, for sender's input bit $x_i$:
   exponentiation with $x_i$ (or $1-x_i$) from $\com_{g_2}(x_i)$ (or
   $\com_{g_2}(1-x_i)$), and multiplication with a random power of
   $g_1$ and $pk$, i.e., re-randomization (homomorphic addition of
-  encryption of $0$).  See below for technical details.
+  encryption of $0$).  See \S\ref{pshuffle} below for details.
 
    Both parties can now compute
     \begin{align*}&T_i=(c_i[0]\cdot{}d'_i[0],c_i[1]\cdot{}d'_i[1])
@@ -76,7 +78,7 @@ In round $i\in\{1,\ldots,\ell\}$, for sender's input bit $x_i$:
 \\&Y_i=(U_i[0]^{\beta_i},U_i[1]^{\beta_i}),
   \end{align*}
 sends $(X_i,Y_i)$ to the receiver and proves correct exponentiation
-(multiplication of plaintexts) in ZK (see below).
+(multiplication of plaintexts) in ZK (see \S\ref{pomult}).
 
 \item {\bf Shuffling back:}
   For $r,r',r'',r'''\getr\Z_p$, the receiver computes
@@ -87,7 +89,7 @@ sends $(X_i,Y_i)$ to the receiver and proves correct exponentiation
    \\Q'_i&=(g_1^{r'''}\cdot{}Y_i[0]^{1-x_i},pk^{r'''}\cdot{}Y_i[1]^{1-x_i})
   \end{align*} 
   and sends $(P_i,P'_i,Q_i,Q'_i)$ together with ZK proofs of correct
-  computation (see below) to the sender.
+  computation (see \S\ref{poshuffle}) to the sender.
 
   Both sender and receiver compute
   $V_i=(P_i[0]\cdot{}Q'_i[0],P_i[1]\cdot{}Q'_i[1])$ and
@@ -218,12 +220,8 @@ sends $t=g_1^\rho$, $V$ sends $e$, $P$ sends $s=\rho+e\cdot{}r$, and $V$
 accepts if $g_1^s\sr\frac{\com_g(m)^e}{g^m}\cdot{}t$.)
 
 
-
-
-\section{Old ZK Tools}
-
-\subsubsection{ZK Proofs for Exponents}
-\paragraph{Proof for Knowledge of Plaintext}
+\subsubsection{Proof for Knowledge of Plaintext}
+\label{pokop}
 For $\com_{g}(m)=g_1^r\cdot{}g^m$,  prover $P$ can prove that they know
 $m$.
 
@@ -236,22 +234,8 @@ $m$.
     \item $V$ checks whether $g_1^{s_1}\cdot{}g^{s_2}\sr\com_{g}(m)^e\cdot{}t$.
 \end{enumerate}
 
-
-
-\paragraph{Proof of Plaintext Equivalence}
-Let $c_1=(c_1[0],c_1[1],)=(g_1^{r_1},pk^{r_1}\cdot{}g^m)$ and
-$c_2=(c_2[0],c_2[1],)=(g_1^{r_2},pk^{r_2}\cdot{}g^m)$ be two
-encryptions from $\enc_{pk}(m)$. To prove plaintext equivalence of
-these two ciphertexts, the prover shows that
-$(g_1,\frac{c_1[0]}{c_2[0]},pk,\frac{c_1[1]}{c_2[1]})$ is a DDH tuple.
-
-To prove that some ciphertext $c_1$ encrypts a plaintext $m$ with
-respect to base $g$, a simple trick for the prover is to compute
-another encryption $c_2$ of $m$ with respect to base $g$, show
-plaintext equivalence, and then open randomness of $c_2$.
-
-
-\paragraph{Proof of Plaintext Bit}
+\subsubsection{Proof of Plaintext Bit}
+\label{pobit}
 For a commitment $\com_g(x_i)$, prover $P$ can prove that
 $x_i\in\{0,1\}$, i.e., a bit. This is an application of the
 \emph{one-out-of-two} (OR) technique~\cite{ooot}. Essentially, $P$
@@ -275,6 +259,86 @@ $c_2$. This works as follows.
 
 \item $V$ checks $e\sr{}e_1+e_2$, $g_1^{s_1}\cdot{}g^{e+1}\sr{}c_1^e\cdot{}t_1$ and $g_1^{s_2}\sr{}c_2^e\cdot{}t_2$.
 \end{enumerate}
+
+
+
+\subsubsection{Proof of Sum of Plaintexts equals $1$}
+\label{pkseo}
+For commitments $\com_{g}(x)=g_1^r\cdot{}g^x$ and
+$\com_{g}(1-x)=g_1^{r'}\cdot{}g^{1-x}$, $P$ can show that the sum of
+plaintexts equals $1$.
+
+  \begin{enumerate}
+  \item $P$ and $V$ compute
+    $\com_{g}(1)=\com_{g}(x)\cdot{}\com_{g}(1-x)=g_1^{r+r'}\cdot{}g$.
+\item $P$ proves that $\com_{g}(1)$ is a commitment to $1$ (see
+  above).
+  \end{enumerate}
+
+
+  \subsubsection{Proof of correct Shuffle and Re-Encryption}
+\label{pshuffle}
+  You can
+      efficiently prove correctness of arithmetic operations. For
+      example, the following proves correctness of exponentiation of
+      two elements $(A,B)$ from group $\G$ with a committed value $x$
+      and multiplying $A$ by $g_1^{r'}$ and $B$ by $pk^{r'}$. So, you
+      can prove correct scalar multiplication of an Elgamal ciphertext
+      by a previously committed $x$ and subsequent re-randomization of
+      the result (addition of Elgamal encryption of $0$).
+
+      Specifically, given two group elements $(A,B)$ and commitment
+      $\com_g(x) =g_1^{r}\cdot{}g^x$, prove correctness that
+      $(C=g_1^{r'}\cdot{}A^x,D=pk^{r'}\cdot{}B^x)$ are the result of
+      exponentiation with $x$ and multiplying with $g^{r'}$ and
+      $pk^{r'}$, $r'\getr\Z_p$, known to the prover.
+
+\begin{enumerate}
+  \item $P$ sends $t_1=g_1^{\rho_1}\cdot{}A^{\rho_2},t_2=pk^{\rho_1}\cdot{}B^{\rho_2},t_3=g_1^{\rho_3}\cdot{}g^{\rho_2}$ to $V$.
+  \item $V$ sends $e\getr\Z_p$ to $P$.
+    \item $P$ sends $s_1=\rho_1+e\cdot{}r'$, $s_2=\rho_2+e\cdot{}x$,
+      and $s_3=\rho_3+e\cdot{}r$ to $V$.
+\item $V$ check whether $g_1^{s_1}\cdot{}A^{s_2}\sr{}C^e\cdot{}t_1$,
+  $pk^{s_1}\cdot{}B^{s_2}\sr{}D^e\cdot{}t_2$, and
+  $g_1^{s_3}\cdot{}g^{s_2}\sr{}\com_g(x)^e\cdot{}t_3$.
+\end{enumerate}
+
+
+\subsubsection{Proof of Multiplication with Group Elements}.
+\label{pomult}
+Given two elements $(A,B)$ of our DDH group, such as an Elgamal
+ciphertext tuple, a party can commit to a value $x$ with $\com_g(x)
+=g_1^r\cdot{}g^x$ and prove that $(C=A^x,D=B^x)$ are the result of
+exponentiation with $x$.
+
+\begin{enumerate}
+      \item $P$ sends $t_1=A^{\rho_1},t_2=B^{\rho_1},
+        t_3=g_1^{\rho_2}\cdot{}g^{\rho_1}$, for randomly chosen
+        $\rho_i\getr\Z_p$, to $V$.
+
+      \item $V$ sends challenge $e\getr\Z_p$.
+
+      \item $P$ sends $s_1=\rho_1+e\cdot{}x,s_2=\rho_2+e\cdot{}r$.
+        \item $V$ checks $A^{s_1}\sr{}C^e\cdot{}t_1$,
+          $B^{s_1}\sr{}D^e\cdot{}t_2$, and
+          $g_1^{s_2}\cdot{}g^{s_1}\sr{}\com_g(x)^e\cdot{}t_3$.
+          
+      \end{enumerate}   
+
+\ignore{
+\section{Old ZK Tools}
+\subsubsection{ZK Proofs for Exponents}
+\paragraph{Proof of Plaintext Equivalence}
+Let $c_1=(c_1[0],c_1[1],)=(g_1^{r_1},pk^{r_1}\cdot{}g^m)$ and
+$c_2=(c_2[0],c_2[1],)=(g_1^{r_2},pk^{r_2}\cdot{}g^m)$ be two
+encryptions from $\enc_{pk}(m)$. To prove plaintext equivalence of
+these two ciphertexts, the prover shows that
+$(g_1,\frac{c_1[0]}{c_2[0]},pk,\frac{c_1[1]}{c_2[1]})$ is a DDH tuple.
+
+To prove that some ciphertext $c_1$ encrypts a plaintext $m$ with
+respect to base $g$, a simple trick for the prover is to compute
+another encryption $c_2$ of $m$ with respect to base $g$, show
+plaintext equivalence, and then open randomness of $c_2$.
 
 \subsubsection{Proofs for Arithmetic with Pedersen Commitments}
 We can do simple arithmetic on Pedersen Commitments.
@@ -320,60 +384,8 @@ We can do simple arithmetic on Pedersen Commitments.
         \end{align*}
 \end{enumerate}
 
-  \item Multiplication with group elements: given two elements $(A,B)$
-    of our DDH group, such as an Elgamal ciphertext tuple, a party can
-    commit to a value $x$ with $\com_g(x) =g_1^r\cdot{}g^x$ and prove
-    that $(C=A^x,D=B^x)$ are the result of exponentiation with $x$.
-    \begin{enumerate}
-      \item $P$ sends $t_1=A^{\rho_1},t_2=B^{\rho_1},
-        t_3=g_1^{\rho_2}\cdot{}g^{\rho_1}$, for randomly chosen
-        $\rho_i\getr\Z_p$, to $V$.
-
-      \item $V$ sends challenge $e\getr\Z_p$.
-
-      \item $P$ sends $s_1=\rho_1+e\cdot{}x,s_2=\rho_2+e\cdot{}r$.
-        \item $V$ checks $A^{s_1}\sr{}C^e\cdot{}t_1$,
-          $B^{s_1}\sr{}D^e\cdot{}t_2$, and
-          $g_1^{s_2}\cdot{}g^{s_1}\sr{}\com_g(x)^e\cdot{}t_3$.
-          
-      \end{enumerate}   
-
-    \item Simple combinations: you can efficiently combine arithmetic
-      operations. For example, the following proves correctness of
-      exponentiation of two group elements with a committed value $x$
-      and multiplying one by $g_1^{r'}$ and $pk^{r'}$. So, you can
-      prove correct scalar multiplication of an Elgamal ciphertext by
-      a previously committed $x$ and subsequent re-randomization of
-      the result (addition of Elgamal encryption of $0$).
-
-      Given two group elements $(A,B)$ and commitment
-      $\com_g(x) =g_1^{r}\cdot{}g^x$, prove correctness that
-      $(C=g_1^{r'}\cdot{}A^x,D=pk^{r'}\cdot{}B^x)$ are the result of
-      exponentiation with $x$ and multiplying with $g^{r'}$ and
-      $pk^{r'}$, $r'\getr\Z_p$, known to the prover.
-
-\begin{enumerate}
-  \item $P$ sends $t_1=g_1^{\rho_1}\cdot{}A^{\rho_2},t_2=pk^{\rho_1}\cdot{}B^{\rho_2},t_3=g_1^{\rho_3}\cdot{}g^{\rho_2}$ to $V$.
-  \item $V$ sends $e\getr\Z_p$ to $P$.
-    \item $P$ sends $s_1=\rho_1+e\cdot{}r'$, $s_2=\rho_2+e\cdot{}x$,
-      and $s_3=\rho_3+e\cdot{}r$ to $V$.
-\item $V$ check whether $g_1^{s_1}\cdot{}A^{s_2}\sr{}C^e\cdot{}t_1$,
-  $pk^{s_1}\cdot{}B^{s_2}\sr{}D^e\cdot{}t_2$, and
-  $g_1^{s_3}\cdot{}g^{s_2}\sr{}\com_g(x)^e\cdot{}t_3$.
-\end{enumerate}
-
-\item Sum of plaintexts equals $1$: for commitments
-  $\com_{g}(x)=g_1^r\cdot{}g^x$ and
-  $\com_{g}(1-x)=g_1^{r'}\cdot{}g^{1-x}$, the prover can show that the sum of
-  plaintexts equals $1$.
-
-  \begin{enumerate}
-  \item $P$ and $V$ compute
-    $\com_{g}(1)=\com_{g}(x)\cdot{}\com_{g}(1-x)=g_1^{r+r'}\cdot{}g$.
-\item $P$ proves that $\com_{g}(1)$ is a commitment to $1$ (see
-  above).
-  \end{enumerate}
 \end{itemize}
+}%ignore
 
 
 
