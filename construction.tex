@@ -11,19 +11,13 @@ $\iprf$ and $\ioprf$ using any pairwise independent family of hash
 functions.
 
 
-
 \subsection{$\iprf$ Construction}
-Let $\G$ be a group of prime order $p$ where the DDH assumption holds,
-and $g$ is a random generator of $\G$.
-
 Initialization: choose a key $K=(\vec{{\alpha}},\vec{\beta})$ by sampling
 $\ell$ pairs of random scalars
 ${\alpha_{i}},{\beta_{i}}\getr\Z_p.$
-
 $\iprf(x_1,\ldots,x_\ell)$: output a vector $\vec{v}$ of length $\ell$ where $v_i = g^{\prod_{j=1}^{i} (\alpha_jx_j+\beta_j(1-x_j))}.$
 
-\todo{Show that this is a delegatable PRF.}
-
+\label{sec:newprf}
 \begin{construction}
 \label{const:newprf}
 Define the function ensemble $F' = \{F'_n\}_{n\in N}$.  For every $n$, a key of a function $F'_n$ is a tuple, $\langle P,Q,g,\vec{\alpha},\vec{\beta}\rangle$, 
@@ -33,6 +27,9 @@ where $P$ is an $n$-bit prime, $Q$ a prime divisor of $P-1$, $g$ an element of o
 function $f'_{P,Q,g,\vec{a},\vec{b}}$ is defined by:
  $$f'_{P,Q,g,\vec{\alpha},\vec{\beta}}(x) = (g^{\alpha_0})^{\prod_{x_i=1}\alpha_i \prod_{x_i=0}\beta_i}$$
  \end{construction}
+
+\todo{Show that this is a delegatable PRF.}
+
  
 \begin{theorem}
 \label{theorem:newprf}

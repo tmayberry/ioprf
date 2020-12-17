@@ -1,6 +1,15 @@
 \section{Background}
-\subsection{\citeauthor{prf} PRF}
-\begin{construction}[from~\cite{prf}] 
+\subsection{PRFs and OPRFs}
+While there exist several different PRFs~\cite{chaum,prf,dodis} and
+OPRFs~\cite{oprf,stan,chase,koles,boneh,kia}, our exposition
+introduces the DH-based candidates by \citet{prf} and \citet{oprf}, as
+our construction are build on their main idea.
+
+Let $\G$ be a group of prime order $p$ where the DDH assumption holds,
+and $g$ is a random generator of $\G$.
+
+
+\begin{construction}[from~\cite{prf}] \label{nrprf}
 Define the function ensemble $F = \{F_n\}_{n\in N}$.  For every $n$, a key of a function $F_n$ is a tuple, $\langle P,Q,g,\vec{\alpha}\rangle$, 
 where $P$ is an $n$-bit prime, $Q$ a prime divisor of $P-1$, $g$ an element of order $Q$ in $\mathbb{Z}_{p}^*$ and $\vec{\alpha}=\langle 
 \alpha_0,\alpha_1, \ldots , \alpha_n \rangle$ a uniformly random sequence of $n+1$ elements of $\mathbb{Z}_Q$.  For any $n$-bit input, $x=x_1 x_2 \ldots x_n$, the 
@@ -15,12 +24,35 @@ $$| Pr[\mathcal{M}^{f_{P,Q,g,\vec{\alpha}}}(P,Q,g)=1] - Pr[\mathcal{M}^{R_{P,Q,g
 where in the first probability, $f_{P,Q,g,\vec{\alpha}}$ is distributed according to $F_n$, and in the second probability the distribution of $R_{P,Q,g}$ is uniformly chosen in the set of functions with the domain $\{0,1\}^n$ and range $\langle g\rangle$.
 \end{theorem}
 
+\begin{construction}[from~\cite{oprf}]
+\label{ot-oprf}
+  During initialization, sender $S$ chooses key
+  $K=(\alpha_0,\ldots,\alpha_\ell)$ by randomly sampling $\ell+1$
+  scalars $\alpha_i\getr\Z_p$.
 
-\fixme{Show that the Naor Reingold/FIPR05 OPRF is not an iterated PRF}
+  To evaluate receiver $R$'s input $x=(x_1\ldots{}x_\ell)$, parties perform the following steps.
+  \begin{enumerate}
+  \item $S$ randomly selects $(r_1,\ldots,r_\ell),r_i\getr\Z_p$.
+  \item $S$ and $R$ engage in $\ell$ rounds of $\binom{2}{1}$-OT. In round
+    $i$, the server's input to OT is $(a_i,a_i\cdot{}r_i)$, and the
+    receiver's input is $x_i$. So, depending on $x_i$, the receiver gets either $z_i=r_i$ or $z_i=r_i\cdot{}\alpha_i$.
+  \item $S$ sends $\hat{g}=g^{\frac{1}{\prod_{i=1}^{\ell}r_i}}$ to $R$.
+    \item $R$ outputs $\text{OPRF}_K(x)=\hat{g}^{\prod^{\ell}_{i=1}z_i}$.
+    
+    \end{enumerate}
+\end{construction}
+
+\citet{oprf} present a sketch for a proof of
+Construction~\ref{ot-oprf}. Essentially, this OPRF assembles the
+\citeauthor{prf} function $F_K$ on input $x$ in $\ell$ rounds.  So, if
+the DDH assumptions holds, and if the underlying OT is secure and
+neither leaks $r_i$ and $r_i\cdot\alpha_i$ at the same time, then
+Construction~\ref{ot-oprf} is a secure OPRF (in the semi-honest
+model).
 
 NOTE: for one-sided security, we use the OT-based solution.
 
-\subsection{$\iprf$ and $\ioprf$ Definition}
+\subsection{New $\iprf$ and $\ioprf$ Definition}
 \begin{definition}[$\iprf$]\label{defiprf}
   For keys $K=(K_1,\ldots,K_\ell)\in\{0,1\}^{\ell\cdot\lambda}$ and
   inputs $x=(x_1\ldots{}x_\ell)\in\{0,1\}^\ell$, an iterated
@@ -29,22 +61,46 @@ NOTE: for one-sided security, we use the OT-based solution.
   $\iprf_K(x)=(f^1_{K_1}(x_{1}),\ldots,f^\ell_{K_1,\ldots,K_\ell}(x_{1}\ldots{}x_{\ell}))$,
   where each
   $f^i_{K_1,\ldots,K_i}(x_{1}\ldots{}x_{i}):\{0,1\}^{i\cdot\lambda}\times\{0,1\}^{i}\rightarrow{}v_i\in\{0,1\}^\lambda$
-  is a pseudo-random function family with key $(K_1,\ldots,K_i)$ from $K$ and
-  input $(x_1\ldots{}x_i)$ from $x$.
+  is a pseudo-random function family with key $(K_1,\ldots,K_i)$ from
+  $K$ and input $(x_1\ldots{}x_i)$ from $x$. Probability ensemble
+  (family of random variables)
+  $V_\lambda=v_1||\ldots||v_\ell$
+  is computationally indistinguishable from probability ensemble
+  $U_{\lambda,\ell}$ describing uniformly random bit strings of length
+  $\lambda\cdot\ell$.
+
 \end{definition}
 
-\paragraph{Remarks}
-An implication of Definition~\ref{defiprf} is that probability
-ensemble (family of random variables)
-$V_\lambda=(v_1,\ldots,v_\ell)=\iprf_K(x)\in\{0,1\}^{\ell\cdot\lambda}$
-is computationally indistinguishable from probability ensemble
-$U_\lambda$ describing uniformly random bit strings of length
-$\lambda$.
 
-A simple real-world construction for an $\iprf$ is based on variable
-length PRFs, such as HMAC, and a collision resistant hash function
-$H$. For example, consider
+Observe that the \citeauthor{prf} PRF $F_K$ from
+Construction~\ref{nrprf} is not an $\iprf$ and cannot be converted
+into an $\iprf$ in a straightforward manner. First, to support
+$\lambda\cdot\ell$ outputs, $\lambda$ for each input bit $x_i$, you
+might try and create an $\iprf$ out of
+$(F_{K_1}(x_1),\ldots,F_{K_1,\ldots,K_\ell}(x_1\ldots{}x_\ell))$,
+where $K_1=\alpha_1,\ldots,K_\ell=\alpha_\ell$.  However, this is in
+fact not an $\iprf$, as exemplified by inputs like
+$x=(10\ldots{}0)$. There
+$F_{K_1}(1)=F_{K_1,K_2}(10)=\ldots=F_{K_1,\ldots,K_\ell}(10\ldots{}0)$,
+so the output repeats starting from the $2^\text{nd}$ invocation of
+$F$. In general, any input $x=\mathsf{PREFIX}||0\ldots{}0$ ending with
+a sequence of zeros will evaluate to the same bit string as input's
+$\mathsf{PREFIX}$, making the total $\lambda\cdot\ell$ bit output
+trivially distinguishable from $U_{\lambda,\ell}$.
+
+A simple real-world construction for an $\iprf$ could be based on
+variable input length PRFs, such as HMAC, and a collision resistant
+hash function $H$. For example, consider
 $\iprf_K(x)=(\hmac_{H(K_1)}(x_1),\ldots,\hmac_{H(K_1||\ldots||K_\ell)}(x_1\ldots{}x_\ell))$.
+While this HMAC-based construction (and potentially others) might be
+conceptually simple, we dismiss it, as our new
+Construction~\ref{const:newprf} in Section~$\S$\ref{sec:newprf} has
+several advantages.  Construction~\ref{const:newprf} is based on the
+\citeauthor{prf} PRF $F_K$ which allows an elegant, yet formal
+security reduction from DDH to our construction. In addition, its key
+advantage is, however, that you can use it as a building block to
+construct an $\ioprf$ with delegation and verifiability as we will see
+below.
 
 
 \begin{figure}[tb]
@@ -70,8 +126,10 @@ $\iprf_K(x)=(\hmac_{H(K_1)}(x_1),\ldots,\hmac_{H(K_1||\ldots||K_\ell)}(x_1\ldots
   \begin{itemize}
    
   \item Protocol $\proto$ realizes the ideal functionality $\fioprf$
-    shown in Figure~\ref{idealioprf}. After $\ell$ rounds, $R$ has
-    received $(v_1,\ldots,v_\ell)=\iprf_K(x),|v_i|=\lambda$, from
+    shown in Figure~\ref{idealioprf}. This is a reactive functionality
+    allowing queries from $R$ in a total of $\ell$ rounds.  After
+    $\ell$ rounds, $R$ has received
+    $(v_1,\ldots,v_\ell)=\iprf_K(x),|v_i|=\lambda$, from
     $\fioprf$. Sender $S$ receives nothing from $\fioprf$.
   
   \item For all adversaries $\A$ in the real world, there exists a
@@ -94,4 +152,12 @@ on arbitrary inputs. In each round $i$, $R$ submits input $x_i$, but
 the PRF will be evaluated using $R$'s previous input
 $x_1\ldots{}x_{i-1}$ as a prefix.
 
-\todo{Introduce delegatable PRFs}
+
+\fixme{Show that the Naor Reingold/FIPR05 OPRF is not an iterated PRF}
+
+
+\subsubsection{Delegation}
+\cite{delegate}
+
+\subsubsection{Verifiability}
+\cite{kia}
