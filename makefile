@@ -1,4 +1,4 @@
 all:	main.pdf
 
-main.pdf: *.tex
+main.pdf: *.tex *.bib
 	rubber -df main.tex

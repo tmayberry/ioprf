@@ -21,7 +21,7 @@ function $f_{P,Q,g,\vec{\alpha}}$ is defined by:
 \label{theorem:naor}
 If the DDH-Assumption holds, then for every probabilistic polynomial-time oracle machine $\mathcal{M}$, every constant $\gamma > 0$, and for all but a finite number of $n$'s
 $$| Pr[\mathcal{M}^{f_{P,Q,g,\vec{\alpha}}}(P,Q,g)=1] - Pr[\mathcal{M}^{R_{P,Q,g}}(P,Q,g) = 1]| < \frac{1}{n^\gamma} $$
-where in the first probability, $f_{P,Q,g,\vec{\alpha}}$ is distributed according to $F_n$, and in the second probability the distribution of $R_{P,Q,g}$ is uniformly chosen in the set of functions with the domain $\{0,1\}^n$ and range $\langle g\rangle$.
+where in the first probability, $f_{P,Q,g,\vec{\alpha}}$ is distributed according to $F_n$, and in the second probability the distribution of $R_{P,Q,g}$ is uniformly chosen in the set of functions with the domain $\{0,1\}^n$ and image $\langle g\rangle$.
 \end{theorem}
 
 \begin{construction}[OPRF$_K(x)$ from~\cite{oprf}]
@@ -55,18 +55,19 @@ NOTE: for one-sided security, we use the OT-based solution.
 \subsection{New $\iprf$ and $\ioprf$ Definition}
 \begin{definition}[$\iprf$]\label{defiprf}
   For inputs $x=(x_1\ldots{}x_\ell)\in\{0,1\}^\ell$ and randomly
-  chosen keys $K=(K_1,\ldots,K_\ell)\in\{0,1\}^{\ell\cdot\lambda}$,
-  consider sequence $f_K(x)$ of function families
+  chosen keys $K=(K_1,\ldots,K_\ell)\in\{0,1\}^{\ell\cdot\lambda}$, an
+  iterated pseudo-random function family $\iprf_K$ is a sequence
+  $f_K(x)$ of function families
   $f_K(x)=(f^1_{K_1}(x_{1}),\ldots,f^\ell_{K_1,\ldots,K_\ell}(x_{1}\ldots{}x_{\ell}))$,
   where each
   $f^i_{K_1,\ldots,K_i}(x_{1}\ldots{}x_{i}):\{0,1\}^{i\cdot\lambda}\times\{0,1\}^{i}\rightarrow{}\{0,1\}^\lambda$
   is a pseudo-random function family with key $(K_1,\ldots,K_i)$ from
-  $K$ and input $(x_1\ldots{}x_i)$ from $x$. Range
+  $K$ and input $(x_1\ldots{}x_i)$ from $x$. Concatenated output
   $V_\lambda=v_1||\ldots||v_\ell,v_i=f^i_{K_1,\ldots,K_i}(x_1\ldots{}x_i)$
   is a family of random variables (a probability ensemble) of bit
   strings of length $\ell\cdot\lambda$.
 
-  We call $f_K(x)$ an an iterated pseudo-random function family
+\ignore{ We call $f_K(x)$ an iterated pseudo-random function family
   $\iprf_K$ \emph{iff} for all PPT adversaries $\A$, all
   $(x_1,\ldots,x_\ell)\in\{0,1\}^\ell$, and randomly chosen $K$ there
   exists a negligible function $\epsilon$ such that for sufficiently
@@ -75,7 +76,7 @@ NOTE: for one-sided security, we use the OT-based solution.
   \end{align*}
   where $U_\lambda$ is the random variable describing uniformly random
   bit strings of length $\lambda$. The probabilities are taken over
-  the random coins of $\A$ and $K$.
+  the random coins of $\A$ and $K$.}
 \end{definition}
 
 Definition~\ref{defiprf} implies that each probability ensemble
@@ -85,9 +86,10 @@ uniformly random bit strings of length $\lambda$. However, probability
 ensemble $V_\lambda=v_1||\ldots||v_\ell$ is \emph{not}
 indistinguishable from ensemble $U_{\lambda,\ell}$ of uniformly random
 bit strings of length $\lambda\cdot\ell$. Instead, if any two inputs
-$x$ and $x'$ share the same prefix of length $i$, then the first
-$i\cdot\lambda$ bits of $\iprf(x)$ will equal those of $\iprf(x')$.
-\fixme{This is the important property we need to traverse a tree...}
+$x$ and $x'$ share the same prefix of length $i$, then the first $i$
+outputs $(v_1,\ldots,v_i)$ of $\iprf(x)$ will equal those of
+$\iprf(x')$.  \fixme{This is the important property we need to
+  traverse a tree blabla...}
 
 Observe that the \citeauthor{prf} PRF $F_K$ from
 Construction~\ref{nrprf} is not an $\iprf$ and cannot easily be
@@ -165,17 +167,54 @@ below.
 
 The crucial difference of $\ioprf$s in contrast to regular
 $\oprf$s~\cite{oprf,stan,chase,koles,boneh,kia} is that at the end of
-the protocol execution, $R$ has received $\ell$ PRF values $v_i$, one
-for each input bit.
-
-
-
-
-\fixme{Show that the Naor Reingold/FIPR05 OPRF is not an iterated PRF}
-
+the protocol execution, $R$ has received not one but $\ell$ PRF values
+$v_i$ with $(v_1,\ldots,v_\ell)=\iprf(x)$. So, for two inputs $x$ and
+$x'$ sharing the same $i$ bit prefix, values $v_1,\ldots,v_i$ will be
+the same. Against a fully-malicious adversary, this cannot easily be
+accomplished with regular OPRFs, e.g., by running $\ell$ instances of
+the OPRF. One would have to somehow force receiver $R$ to link the
+input to the $i^\text{th}$ instance of the OPRF to the
+$(i-1)^\text{th}$.
 
 \subsubsection{Delegation}
-\cite{delegate}
+Informally, a PRF $F$ with domain $\D$ is delegatable, if for some
+subset $D'\subset\D$ you can (efficiently) compute a sub-key $K'$ from
+key $K$ and another PRF $F'$ from $F$, such that $F'_{K'}$ equals
+$F_K$ on all $x\in\D$, but is random everywhere else. There exists a
+rich theory on delegatable PRFs, see \citet{delegate} for details.
+
+In the context of $\iprf$s, we are particularly interested in
+delegating PRF computation for strings $x=(x_1\ldots{}x_\ell)$ sharing
+the same fixed prefix. That is, a party knowing key $K$ specifies a
+prefix $x^*=(x^*_1\ldots{}x^*_i)$, computes $K'$ and $\iprf'$, and
+gives $(\iprf',K')$ to another party. This party is then capable to
+evaluate bit strings $x$ having the same prefix $x^*$.
+
+\begin{definition}
+  Let $\iprf$ be an iterated pseudo-random function on length $\ell$
+  bit input strings with random key $K$.  We call an $\iprf$
+  \emph{delegatable}, \emph{iff}
+  \begin{enumerate}
+    \item
+  There exists a PPT transformation
+  algorithm $T$, which on input $(\iprf,K,x^*_1\ldots{}x^*_i)$ outputs
+  $(\iprf',K')$, where
+  $\iprf':\{0,1\}^{\lambda\cdot(\ell-i)}\times\{0,1\}^{\ell-i}\rightarrow{}\{0,1\}^{\lambda\cdot(\ell-i)}$
+  and
+    $\forall{}x'=(x'_1\ldots{}x'_{\ell-i}):\iprf'_{K'}(x')=\iprf_{K}(x^*_1\ldots{}x^*_ix'_1\ldots{}x'_{\ell-i})$.
+  \item For all PPT adversaries $\A$ and randomly chosen $K$,
+    there exists a negligible function $\epsilon$ such that for
+    sufficiently large $\lambda$ we have
+
+    \begin{align*}
+      &\forall{}x=(x_1\ldots{}x_\ell),x_1\ldots{}x_i\neq{}x^*_1\ldots{}x^*_i:\\&|Pr[\hat{K}=(\hat{K}_1,\ldots,\hat{K}_\ell)\getr\{0,1\}^{\lambda\cdot\ell},(v_1,\ldots,v_\ell)=\iprf_K(x),\\&(\hat{v}_1,\ldots,\hat{v}_\ell)=\iprf_{\hat{K}}(x):\A(\iprf',K',(\hat{v}_1,\ldots,\hat{v}_i,v_{i+1},\ldots,v_\ell))]\\-&Pr[\A(\iprf',K',v_1,\ldots,v_\ell)=1]|=\epsilon(\lambda).
+\end{align*}
+    \end{enumerate}
+  \end{definition}
+
+
+
+   \todo{efficiency}
 
 \subsubsection{Verifiability}
 \cite{kia}
