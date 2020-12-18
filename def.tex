@@ -9,7 +9,7 @@ Let $\G$ be a group of prime order $p$ where the DDH assumption holds,
 and $g$ is a random generator of $\G$.
 
 
-\begin{construction}[from~\cite{prf}] \label{nrprf}
+\begin{construction}[PRF$_K(x)$ from~\cite{prf}] \label{nrprf}
 Define the function ensemble $F = \{F_n\}_{n\in N}$.  For every $n$, a key of a function $F_n$ is a tuple, $\langle P,Q,g,\vec{\alpha}\rangle$, 
 where $P$ is an $n$-bit prime, $Q$ a prime divisor of $P-1$, $g$ an element of order $Q$ in $\mathbb{Z}_{p}^*$ and $\vec{\alpha}=\langle 
 \alpha_0,\alpha_1, \ldots , \alpha_n \rangle$ a uniformly random sequence of $n+1$ elements of $\mathbb{Z}_Q$.  For any $n$-bit input, $x=x_1 x_2 \ldots x_n$, the 
@@ -24,7 +24,7 @@ $$| Pr[\mathcal{M}^{f_{P,Q,g,\vec{\alpha}}}(P,Q,g)=1] - Pr[\mathcal{M}^{R_{P,Q,g
 where in the first probability, $f_{P,Q,g,\vec{\alpha}}$ is distributed according to $F_n$, and in the second probability the distribution of $R_{P,Q,g}$ is uniformly chosen in the set of functions with the domain $\{0,1\}^n$ and range $\langle g\rangle$.
 \end{theorem}
 
-\begin{construction}[from~\cite{oprf}]
+\begin{construction}[OPRF$_K(x)$ from~\cite{oprf}]
 \label{ot-oprf}
   During initialization, sender $S$ chooses key
   $K=(\alpha_0,\ldots,\alpha_\ell)$ by randomly sampling $\ell+1$
@@ -54,29 +54,46 @@ NOTE: for one-sided security, we use the OT-based solution.
 
 \subsection{New $\iprf$ and $\ioprf$ Definition}
 \begin{definition}[$\iprf$]\label{defiprf}
-  For keys $K=(K_1,\ldots,K_\ell)\in\{0,1\}^{\ell\cdot\lambda}$ and
-  inputs $x=(x_1\ldots{}x_\ell)\in\{0,1\}^\ell$, an iterated
-  pseudo-random function family $\iprf_{K}(x)$ is a sequence of
-  function families
-  $\iprf_K(x)=(f^1_{K_1}(x_{1}),\ldots,f^\ell_{K_1,\ldots,K_\ell}(x_{1}\ldots{}x_{\ell}))$,
+  For inputs $x=(x_1\ldots{}x_\ell)\in\{0,1\}^\ell$ and randomly
+  chosen keys $K=(K_1,\ldots,K_\ell)\in\{0,1\}^{\ell\cdot\lambda}$,
+  consider sequence $f_K(x)$ of function families
+  $f_K(x)=(f^1_{K_1}(x_{1}),\ldots,f^\ell_{K_1,\ldots,K_\ell}(x_{1}\ldots{}x_{\ell}))$,
   where each
-  $f^i_{K_1,\ldots,K_i}(x_{1}\ldots{}x_{i}):\{0,1\}^{i\cdot\lambda}\times\{0,1\}^{i}\rightarrow{}v_i\in\{0,1\}^\lambda$
+  $f^i_{K_1,\ldots,K_i}(x_{1}\ldots{}x_{i}):\{0,1\}^{i\cdot\lambda}\times\{0,1\}^{i}\rightarrow{}\{0,1\}^\lambda$
   is a pseudo-random function family with key $(K_1,\ldots,K_i)$ from
-  $K$ and input $(x_1\ldots{}x_i)$ from $x$. Probability ensemble
-  (family of random variables)
-  $V_\lambda=v_1||\ldots||v_\ell$
-  is computationally indistinguishable from probability ensemble
-  $U_{\lambda,\ell}$ describing uniformly random bit strings of length
-  $\lambda\cdot\ell$.
+  $K$ and input $(x_1\ldots{}x_i)$ from $x$. Range
+  $V_\lambda=v_1||\ldots||v_\ell,v_i=f^i_{K_1,\ldots,K_i}(x_1\ldots{}x_i)$
+  is a family of random variables (a probability ensemble) of bit
+  strings of length $\ell\cdot\lambda$.
 
+  We call $f_K(x)$ an an iterated pseudo-random function family
+  $\iprf_K$ \emph{iff} for all PPT adversaries $\A$, all
+  $(x_1,\ldots,x_\ell)\in\{0,1\}^\ell$, and randomly chosen $K$ there
+  exists a negligible function $\epsilon$ such that for sufficiently
+  large $\lambda$
+\begin{align*}\forall{}i\in\{1,\ldots,\ell\}:|&Pr[(v_1,\ldots,v_\ell)\leftarrow{}V_\lambda:\A(v_1,\ldots,v_i)=1]-\\&Pr[(v_1,\ldots,v_\ell)\leftarrow{}V_\lambda,u\leftarrow{}U_\lambda:\A(v_1,\ldots,v_{i-1},u)=1]|\\&=\epsilon(\lambda),
+  \end{align*}
+  where $U_\lambda$ is the random variable describing uniformly random
+  bit strings of length $\lambda$. The probabilities are taken over
+  the random coins of $\A$ and $K$.
 \end{definition}
 
+Definition~\ref{defiprf} implies that each probability ensemble
+$v_i=\{(v_i)_\lambda\}_{\lambda\in\N}$ of length $\lambda$ bit strings
+is computationally indistinguishable from an ensemble $u_i$ describing
+uniformly random bit strings of length $\lambda$. However, probability
+ensemble $V_\lambda=v_1||\ldots||v_\ell$ is \emph{not}
+indistinguishable from ensemble $U_{\lambda,\ell}$ of uniformly random
+bit strings of length $\lambda\cdot\ell$. Instead, if any two inputs
+$x$ and $x'$ share the same prefix of length $i$, then the first
+$i\cdot\lambda$ bits of $\iprf(x)$ will equal those of $\iprf(x')$.
+\fixme{This is the important property we need to traverse a tree...}
 
 Observe that the \citeauthor{prf} PRF $F_K$ from
-Construction~\ref{nrprf} is not an $\iprf$ and cannot be converted
-into an $\iprf$ in a straightforward manner. First, to support
-$\lambda\cdot\ell$ outputs, $\lambda$ for each input bit $x_i$, you
-might try and create an $\iprf$ out of
+Construction~\ref{nrprf} is not an $\iprf$ and cannot easily be
+converted into an $\iprf$. First, to support $\lambda\cdot\ell$
+outputs, $\lambda$ for each input bit $x_i$, one might try and create
+an $\iprf$ out of
 $(F_{K_1}(x_1),\ldots,F_{K_1,\ldots,K_\ell}(x_1\ldots{}x_\ell))$,
 where $K_1=\alpha_1,\ldots,K_\ell=\alpha_\ell$.  However, this is in
 fact not an $\iprf$, as exemplified by inputs like
@@ -146,11 +163,12 @@ below.
 \end{itemize}
 \end{definition}
 
-The crucial property of $\fioprf$ in contrast to standard $\oprf$s is
-that $R$ can oblivious evaluate a PRF a total of $\ell$ times, but not
-on arbitrary inputs. In each round $i$, $R$ submits input $x_i$, but
-the PRF will be evaluated using $R$'s previous input
-$x_1\ldots{}x_{i-1}$ as a prefix.
+The crucial difference of $\ioprf$s in contrast to regular
+$\oprf$s~\cite{oprf,stan,chase,koles,boneh,kia} is that at the end of
+the protocol execution, $R$ has received $\ell$ PRF values $v_i$, one
+for each input bit.
+
+
 
 
 \fixme{Show that the Naor Reingold/FIPR05 OPRF is not an iterated PRF}
