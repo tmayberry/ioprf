@@ -199,7 +199,7 @@ $c=(c[0],c[1])=(g_1^r,pk^r)\leftarrow\enc_{pk}(0)$ is an encryption of
 $m=0$, $P$ proves that $(g_1,c[0],pk,c[1])$ is a DDH tuple.  You can
 prove that tuple
 $(u_1=g_1,u_2=g_1^r,u_3=g_1^{sk},u_4=g_1^{sk\cdot{}r})$ is a DDH tuple
-as follows.
+using the \citet{cp92} protocol as follows.
 
 \begin{enumerate}
 \item $P$ sends $(t_1=u_1^{\rho},t_2=u_3^{\rho})$ for $\rho\getr\Z_p$ to $V$.
@@ -208,12 +208,13 @@ as follows.
     \item $V$ accepts if $u_1^s=u_2^e\cdot{}t_1$ and $u_3^s=u_4^e\cdot{}t_2$.
 \end{enumerate}
 
-This proof has several interesting properties. Besides showing that a
-tuple is a DDH tuple, it also shows DLOG equivalence, i.e.,
-$\log_{u_1}{u_2}=\log_{u_3}{u_4}$. Also, instead of showing that come
-ciphertext encrypts $m=0$, it can be easily generalized to show
-encryption of arbitrary $m$, by setting $c'[1]=\frac{c[1]}{g_2^m}$ and
-running the proof for ciphertext $(c[0],c'[1])$.
+This proof has an important property.\ignore{ Besides showing that a
+  tuple is a DDH tuple, it also shows DLOG equivalence, i.e.,
+  $\log_{u_1}{u_2}=\log_{u_3}{u_4}$.} Instead of showing that some
+ciphertext encrypts $m=0$, we can easily generalize it to show
+encryption of arbitrary $m$. Specifically, we set
+$c'[1]=\frac{c[1]}{g_2^m}$ and run the proof for new Elgamal
+ciphertext $(c[0],c'[1])$.
 
 Finally, observe that Pedersen commitments are essentially just the
 right-hand side $c[1]$ of an Elgamal ciphertext. Thus, to prove a
