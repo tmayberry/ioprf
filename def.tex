@@ -114,12 +114,12 @@ $\iprf_K(x)=(\hmac_{H(K_1)}(x_1),\ldots,\hmac_{H(K_1||\ldots||K_\ell)}(x_1\ldots
 While this HMAC-based construction (and potentially others) might be
 conceptually simple, we dismiss it, as our new
 Construction~\ref{const:newprf} in Section~$\S$\ref{sec:newprf} has
-several advantages.  Construction~\ref{const:newprf} is based on the
-\citeauthor{prf} PRF $F_K$ which allows an elegant, yet formal
-security reduction from DDH to our construction. In addition, its key
-advantage is, however, that you can use it as a building block to
-construct an $\ioprf$ with delegation and verifiability as we will see
-below.
+several advantages.  First, construction~\ref{const:newprf} is loosely
+based on the \citeauthor{prf} PRF $F_K$ which allows an elegant, yet
+formal security reduction from DDH to our construction. In addition,
+its key advantage is that you can use it as a building block to
+construct an $\ioprf$ which moreover supports delegation and
+verifiability as we will see below.
 
 
 \begin{figure}[tb]
@@ -176,6 +176,21 @@ the OPRF. One would have to somehow force receiver $R$ to link the
 input to the $i^\text{th}$ instance of the OPRF to the
 $(i-1)^\text{th}$.
 
+\subsubsection{Verifiability}
+An important aspect of OPRFs is that of \emph{verifiablity}, see
+\citet{kia} for technical details. Essentially, verifiablity implies
+that $S$ proves to $R$ that $R$'s output $(v_1,\ldots,v_\ell$ has been
+computed correctly. Towards providing malicious security,
+verifiability is especially important when the $\ioprf$ is run
+multiple times, and $S$ could cheat by using different keys for
+different protocol runs.
+
+We refer to \cite{kia} for a treatment with more formal definitions.
+For our constructions, we are going to simply prove that $R$'s output
+has been correctly computed by using a key which $S$ has been
+committed to before.
+
+
 \subsubsection{Delegation}
 Informally, a PRF $F$ with domain $\D$ is delegatable, if for some
 subset $D'\subset\D$ you can (efficiently) compute a sub-key $K'$ from
@@ -184,13 +199,18 @@ $F_K$ on all $x\in\D$, but is random everywhere else. There exists a
 rich theory on delegatable PRFs, see \citet{delegate} for details.
 
 In the context of $\iprf$s, we are particularly interested in
-delegating PRF computation for strings $x=(x_1\ldots{}x_\ell)$ sharing
-the same fixed prefix. That is, a party knowing key $K$ specifies a
-prefix $x^*=(x^*_1\ldots{}x^*_i)$, computes $K'$ and $\iprf'$, and
-gives $(\iprf',K')$ to another party. This party is then capable to
-evaluate bit strings $x$ having the same prefix $x^*$.
+delegating iterated PRF computation for strings
+$x=(x_1\ldots{}x_\ell)$ sharing the same fixed prefix. That is, a
+party $P_1$ knowing key $K$ specifies a prefix
+$x^*=(x^*_1\ldots{}x^*_i)$, computes $K'$ and $\iprf'$, and gives
+$(\iprf',K')$ to party $P_2$. Party $P_2$ is then capable of computing
+$\iprf_K(x)$ for all bit strings $x$ having the same prefix $x^*$. At
+the same time, knowledge of $K'$ does not help $P_2$ in
+distinguishing bit strings $x$ with different prefixes from from the
+output of $\iprf_{\hat{K}}(x)$ for any other random key $\hat{K}$.  We
+formalize this intuition in Definition~\ref{def:del}.
 
-\begin{definition}
+\begin{definition} \label{def:del}
   Let $\iprf$ be an iterated pseudo-random function on length $\ell$
   bit input strings with random key $K$.  We call an $\iprf$
   \emph{delegatable}, \emph{iff}
@@ -212,9 +232,29 @@ evaluate bit strings $x$ having the same prefix $x^*$.
     \end{enumerate}
   \end{definition}
 
+\paragraph{Discussion}
+
+Note that knowledge of $K'$ and the first $i$ values of the output
+$(v_i,\ldots,v_i)$ of $\iprf_K(x)$ does permit $P_2$ to enumerte all
+suffixes of strings $x$ which share the same length $i$ prefix as
+$x$. At first, this property might look like a severe restriction to
+the value of this type of delegation, but we will show in
+Section~\ref{sec:applications} that it has still interesting
+real-world applications.
+
+We implicitly require non-triviality (bandwidth
+efficiency~\cite{delegate}) of delegation. For example, $P_1$ could
+delegate the capability to evaluate all strings with prefix $x^*$ by
+simply computing $\iprf_K(x)$ for all strings $x$ with prefix $x^*$
+and sending the output to $P_2$. So, tuple $(\iprf',K')$ should be
+smaller in size than the concatenation of all strings with prefix
+$x^*$.
+
+Finally, we point out that delegation can be extended from $\iprf$s to
+$\ioprf$s in the natural way. If $P_1$ gives $(\iprf',K')$ to $P_2$,
+then $P_2$ is also able to run a 2-party protocol with another party
+$P_3$, where $P_3$ correctly receives
+$\ioprf'_{K'}(x')=\iprf'_{K'}(x')$ for input $x'$ with prefix $x^*$
+while $P_2$ learns nothing about $x'$.
 
 
-   \todo{efficiency}
-
-\subsubsection{Verifiability}
-\cite{kia}
