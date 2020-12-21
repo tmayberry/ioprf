@@ -34,7 +34,7 @@ where in the first probability, $f_{P,Q,g,\vec{\alpha}}$ is distributed accordin
   \begin{enumerate}
   \item $S$ randomly selects $(r_1,\ldots,r_\ell),r_i\getr\Z_p$.
   \item $S$ and $R$ engage in $\ell$ rounds of $\binom{2}{1}$-OT. In round
-    $i$, the server's input to OT is $(a_i,a_i\cdot{}r_i)$, and the
+    $i$, the server's input to OT is $(r_i,r_i\cdot\alpha_i)$, and the
     receiver's input is $x_i$. So, depending on $x_i$, the receiver gets either $z_i=r_i$ or $z_i=r_i\cdot{}\alpha_i$.
   \item $S$ sends $\hat{g}=g^{\frac{1}{\prod_{i=1}^{\ell}r_i}}$ to $R$.
     \item $R$ outputs $\text{OPRF}_K(x)=\hat{g}^{\prod^{\ell}_{i=1}z_i}$.
@@ -177,19 +177,25 @@ input to the $i^\text{th}$ instance of the OPRF to the
 $(i-1)^\text{th}$.
 
 \subsubsection{Verifiability}
-An important aspect of OPRFs is that of \emph{verifiablity}, see
-\citet{kia} for technical details. Essentially, verifiablity implies
-that $S$ proves to $R$ that $R$'s output $(v_1,\ldots,v_\ell$ has been
-computed correctly. Towards providing malicious security,
-verifiability is especially important when the $\ioprf$ is run
-multiple times, and $S$ could cheat by using different keys for
-different protocol runs.
+An important aspect of OPRFs which we also require for $\ioprf$s is
+that of \emph{verifiablity}, see \citet{kia} for technical
+details. Essentially, verifiablity implies that $S$ proves to $R$ that
+$R$'s output $(v_1,\ldots,v_\ell$ has been computed correctly. Towards
+providing malicious security, verifiability is especially important
+when the $\ioprf$ is run multiple times, and $S$ could cheat by using
+different keys for different protocol runs.
 
-We refer to \cite{kia} for a treatment with more formal definitions.
-For our constructions, we are going to simply prove that $R$'s output
-has been correctly computed by using a key which $S$ has been
-committed to before.
+We refer to \cite{kia} for a treatment with more formal definitions in
+the context of OPRFs which also hold for $\ioprf$s.  For our
+constructions, we are going to simply prove that $R$'s output has been
+correctly computed by using a key which $S$ has been committed to
+before.
 
+Observe that the original OPRF from Construction~\ref{ot-oprf} is not
+maliciously secure and thus does not offer verifiablity. Even if OT as
+a building block would be secure against a malicious adversary, it is
+unclear how to verify that the sender has used the same key $K$ for
+different OPRF protocol runs.
 
 \subsubsection{Delegation}
 Informally, a PRF $F$ with domain $\D$ is delegatable, if for some
