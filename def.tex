@@ -1,15 +1,17 @@
 \section{Background}
 \subsection{PRFs and OPRFs}
-While there exist several different PRFs~\cite{chaum,prf,dodis} and
+While there exist several different
+PRFs~\cite{chaum,prf,dodis,ggm,lewko,bonehprf} and
 OPRFs~\cite{oprf,stan,chase,koles,boneh,kia}, our exposition
 introduces the DH-based candidates by \citet{prf} and \citet{oprf}, as
-our construction are build on their main idea.
+our constructions are build on their main idea.
 
-Let $\myG$ be a group of prime order $p$ where the DDH assumption holds,
-and $g$ is a random generator of $\myG$.
+Let $\myG$ be a group of prime order $p$ where the DDH assumption
+holds, and $g$ is a random generator of $\myG$. For a security
+parameter $\lambda$, we set $|p|=\lambda$.
 
 
-\begin{construction}[PRF$_K(x)$ from~\cite{prf}] \label{nrprf}
+\begin{construction}[PRF from~\cite{prf}] \label{nrprf}
 Define the function ensemble $F = \{F_n\}_{n\in N}$.  For every $n$, a key of a function $F_n$ is a tuple, $\langle P,Q,g,\vec{\alpha}\rangle$, 
 where $P$ is an $n$-bit prime, $Q$ a prime divisor of $P-1$, $g$ an element of order $Q$ in $\mathbb{Z}_{p}^*$ and $\vec{\alpha}=\langle 
 \alpha_0,\alpha_1, \ldots , \alpha_n \rangle$ a uniformly random sequence of $n+1$ elements of $\mathbb{Z}_Q$.  For any $n$-bit input, $x=x_1 x_2 \ldots x_n$, the 
@@ -53,6 +55,8 @@ model).
 NOTE: for one-sided security, we use the OT-based solution.
 
 \subsection{New $\iprf$ and $\ioprf$ Definition}
+
+\subsubsection{iPRF}
 \begin{definition}[$\iprf$]\label{defiprf}
   For inputs $x=(x_1\ldots{}x_\ell)\in\{0,1\}^\ell$ and randomly
   chosen keys $K=(K_1,\ldots,K_\ell)\in\{0,1\}^{\ell\cdot\lambda}$, an
@@ -91,6 +95,7 @@ outputs $(v_1,\ldots,v_i)$ of $\iprf(x)$ will equal those of
 $\iprf(x')$.  \fixme{This is the important property we need to
   traverse a tree blabla...}
 
+\paragraph{Strawman Constructions}
 Observe that the \citeauthor{prf} PRF $F_K$ from
 Construction~\ref{nrprf} is not an $\iprf$ and cannot easily be
 converted into an $\iprf$. First, to support $\lambda\cdot\ell$
@@ -102,26 +107,26 @@ fact not an $\iprf$, as exemplified by inputs like
 $x=(10\ldots{}0)$. There
 $F_{K_1}(1)=F_{K_1,K_2}(10)=\ldots=F_{K_1,\ldots,K_\ell}(10\ldots{}0)$,
 so the output repeats starting from the $2^\text{nd}$ invocation of
-$F$. In general, any input $x=\mathsf{PREFIX}||0\ldots{}0$ ending with
-a sequence of zeros will evaluate to the same bit string as input's
-$\mathsf{PREFIX}$, making the total $\lambda\cdot\ell$ bit output
-trivially distinguishable from $U_{\lambda,\ell}$.
+$F$. In general, for any input $x=\mathsf{PREFIX}||0\ldots{}0$ ending
+with a sequence of zeros, $F_K(x)$ will be equal to
+$F_K(\mathsf{PREFIX})$ in violation of Definition~\ref{defiprf}.
 
 A simple real-world construction for an $\iprf$ could be based on
-variable input length PRFs, such as HMAC, and a collision resistant
-hash function $H$. For example, consider
+variable input length PRFs such as HMAC and a collision resistant hash
+function $H$. For example, consider
 $\iprf_K(x)=(\hmac_{H(K_1)}(x_1),\ldots,\hmac_{H(K_1||\ldots||K_\ell)}(x_1\ldots{}x_\ell))$.
-While this HMAC-based construction (and potentially others) might be
-conceptually simple, we dismiss it, as our new
-Construction~\ref{const:newprf} in Section~$\S$\ref{sec:newprf} has
-several advantages.  First, construction~\ref{const:newprf} is loosely
-based on the \citeauthor{prf} PRF $F_K$ which allows an elegant, yet
-formal security reduction from DDH to our construction. In addition,
-its key advantage is that you can use it as a building block to
-construct an $\ioprf$ which moreover supports delegation and
-verifiability as we will see below.
+While this HMAC-based construction and probably also adoptions of
+others PRFs like PRG-based PRFs~\cite{ggm} might result in valid
+$\iprf$s, we dismiss them in favor of our new
+Construction~\ref{const:newprf} (Section $\S$\ref{sec:newprf}). This
+constructions offers several advantages: first, it builds on the
+\citeauthor{prf} PRF which allows an elegant, formal security
+reduction from DDH to our construction. More importantly, its key
+advantage is that you can use it as a building block to construct an
+$\ioprf$ which moreover supports, delegation, verifiability, and
+malicious security as we will see below.
 
-
+\subsubsection{iOPRF}
 \begin{figure}[tb]
 \RestyleAlgo{boxed}
 \LinesNumbered
@@ -171,15 +176,23 @@ verifiability as we will see below.
 The crucial difference of $\ioprf$s in contrast to regular
 $\oprf$s~\cite{oprf,stan,chase,koles,boneh,kia} is that at the end of
 the protocol execution, $R$ has received not one but $\ell$ PRF values
-$v_i$ with $(v_1,\ldots,v_\ell)=\iprf(x)$. So, for two inputs $x$ and
-$x'$ sharing the same $i$ bit prefix, values $v_1,\ldots,v_i$ will be
-the same. Against a fully-malicious adversary, this cannot easily be
-accomplished with regular OPRFs, e.g., by running $\ell$ instances of
-the OPRF. One would have to somehow force receiver $R$ to link the
-input to the $i^\text{th}$ instance of the OPRF to the
-$(i-1)^\text{th}$.
+$v_i$ with $(v_1,\ldots,v_\ell)=\iprf(x)$. For two inputs $x$ and $x'$
+with the same length $i$ bit prefix, values $v_1,\ldots,v_i$ will be
+the same. Note that receiver $R$ can specify their input adaptively
+during $\ell$ rounds. Before sending $x_i$, $R$ has learned $v_{i-1}$
+from $\fioprf$. Still, $R$ receives output strings matching an
+$\iprf$, so they cannot combine outputs from different $\ioprf$
+executions with different input. For example, knowledge of
+$\ioprf_K(10\ldots)$ and $\ioprf_K(01\ldots)$ should not allow $R$ to
+learn anything about $\ioprf_K(11\ldots)$.  Against a fully-malicious
+receiver, this cannot be accomplished easily with regular OPRFs.  One
+might try and run $\ell$ instances of the OPRF, but the challenge is
+that one would have to force $R$ to link their input during the
+$i^\text{th}$ instance of the OPRF to the $(i-1)^\text{th}$ instance.
+Our $\ioprf$ in Section~\S\ref{our-ioprf} offers a solution to this
+challenge.
 
-\subsubsection{Verifiability}
+\paragraph{Verifiability}
 An important aspect of OPRFs which we also require for $\ioprf$s is
 that of \emph{verifiablity}, see \citet{kia} for technical
 details. Essentially, verifiablity implies that $S$ proves to $R$ that
@@ -200,7 +213,7 @@ a building block would be secure against a malicious adversary, it is
 unclear how to verify that the sender has used the same key $K$ for
 different OPRF protocol runs.
 
-\subsubsection{Delegation}
+\subsubsection{Delegation for $\iprf$s and $\ioprf$s}
 Informally, a PRF $F$ with domain $\D$ is delegatable, if for some
 subset $D'\subset\D$ you can (efficiently) compute a sub-key $K'$ from
 key $K$ and another PRF $F'$ from $F$, such that $F'_{K'}$ equals
@@ -241,8 +254,10 @@ formalize this intuition in Definition~\ref{def:del}.
     \end{enumerate}
   \end{definition}
 
-\paragraph{Discussion}
+Along the same lines, a \emph{delegatable} $\ioprf$ is an $\ioprf$
+where the underlying $\iprf$ supports delegation. 
 
+\paragraph{Discussion}
 Note that knowledge of $K'$ and the first $i$ values of the output
 $(v_i,\ldots,v_i)$ of $\iprf_K(x)$ does permit $P_2$ to enumerte all
 suffixes of strings $x$ which share the same length $i$ prefix as
