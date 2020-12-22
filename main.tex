@@ -1,10 +1,37 @@
-\documentclass{article}
+\documentclass[sigconf, anonymous]{acmart}
 \input{macros}
+
+\fancyhf{} % Remove fancy page headers 
+\fancyhead[C]{Anonymous submission \#9999 to ACM CCS 2021} % TODO: replace 9999 with your paper number
+\fancyfoot[C]{\thepage}
+\setcopyright{none} % No copyright notice required for submissions
+\acmConference[Anonymous Submission to ACM CCS 2021]{ACM Conference on Computer and Communications Security}{}{}
+\acmYear{2021}
+
+\settopmatter{printacmref=false, printccs=true, printfolios=true} % We want page numbers on submissions
+
+%%\ccsPaper{9999} % TODO: replace with your paper number once obtained
 
 
 \begin{document}
 \title{Iterative Oblivious Pseudo-Random Functions and Applications}
-\author{}\date{}
+\begin{CCSXML}
+<ccs2012>
+<concept>
+<concept_id>10002978.10003029.10011703</concept_id>
+<concept_desc>Security and privacy~Usability in security and privacy</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+</ccs2012>
+\end{CCSXML}
+%\ccsdesc{Security and privacy~Use https://dl.acm.org/ccs.cfm to generate actual concepts section for your paper}
+% -- end of section to replace with generated code
+
+%\keywords{template; formatting; pickling} % TODO: replace with your keywords
+
+\input{abstract}
+
+
 \maketitle
 
 \section{ToDo}
@@ -19,7 +46,6 @@
 Advantages: fully malicious security (not HVZK!) and verifiability,
 delegation
 
-\input{abstract}
 \input{introduction}
 \input{def}
 \input{construction}
@@ -156,6 +182,7 @@ Jump and crawl algorithms for analyzing social networks
 
 
 
-\bibliographystyle{plainnat}
+%\bibliographystyle{plainnat}
+\bibliographystyle{ACM-Reference-Format}
 \bibliography{main}
 \end{document}

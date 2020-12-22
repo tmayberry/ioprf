@@ -1,10 +1,11 @@
-\usepackage{xfrac,amsmath,amsthm,amssymb,enumitem,url}
-\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xfrac,amsmath,amsthm,enumitem,url}
+%\usepackage{amssymb}
+%\usepackage[numbers,sort&compress]{natbib}
 \usepackage[linesnumbered]{algorithm2e}
 
 
-\newtheorem{definition}{Definition}
-\newtheorem{theorem}{Theorem}
+%\newtheorem{definition}{Definition}
+%\newtheorem{theorem}{Theorem}
 
 \newcounter{construction}
 \newenvironment{construction}[1][]{\refstepcounter{construction}\par\medskip
@@ -29,7 +30,7 @@
 \newcommand{\myS}[0]{{\mathsf{Sim}}}
 \newcommand{\myF}[0]{{\mathcal{F}}}
 \newcommand{\Z}[0]{\mathbb{Z}}
-\newcommand{\G}[0]{\mathbb{G}}
+\newcommand{\myG}[0]{\mathbb{G}}
 \newcommand{\Hide}[1]{}
 
 \newcommand{\prg}[0]{\mathsf{PRG}}
@@ -62,3 +63,7 @@
   {\renewcommand{\algorithmcfname}{Functionality}% Update algorithm name
    \begin{algorithm}[#1]%
   }{\end{algorithm}}
+
+\makeatletter
+\newcommand{\removelatexerror}{\let\@latex@error\@gobble}
+\makeatother

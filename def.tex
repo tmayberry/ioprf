@@ -5,8 +5,8 @@ OPRFs~\cite{oprf,stan,chase,koles,boneh,kia}, our exposition
 introduces the DH-based candidates by \citet{prf} and \citet{oprf}, as
 our construction are build on their main idea.
 
-Let $\G$ be a group of prime order $p$ where the DDH assumption holds,
-and $g$ is a random generator of $\G$.
+Let $\myG$ be a group of prime order $p$ where the DDH assumption holds,
+and $g$ is a random generator of $\myG$.
 
 
 \begin{construction}[PRF$_K(x)$ from~\cite{prf}] \label{nrprf}
@@ -125,12 +125,15 @@ verifiability as we will see below.
 \begin{figure}[tb]
 \RestyleAlgo{boxed}
 \LinesNumbered
+\begingroup
+\removelatexerror% Nullify \@latex@error
 \begin{functionality}[H]
   \tcp{Let $\iprf$ be an iterated pseudo-random function family}
   $S\rightarrow{}\fioprf$: $K$\; \For{$i=1$ {\bf to} {$\ell$} }{
     $R\rightarrow{}\fioprf:x_i$\; $\fioprf\rightarrow{}R: v_i$ such
     that $(v_1,\ldots,v_\ell)=\iprf_K(x_1\ldots{}x_\ell)$\; }
 \end{functionality}
+\endgroup
 \caption{Functionality $\fioprf$\label{idealioprf}}
 \end{figure}
 

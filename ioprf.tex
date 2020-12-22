@@ -5,7 +5,7 @@ NOTE: for one-sided security, we use the OT-based solution.
 
 \subsubsection{Preliminaries}
 Let there be two generators $g_1,g_2$ of prime order $p$ DDH group
-$\G$. Nobody knows the discrete log of one generator $g_i$ to the
+$\myG$. Nobody knows the discrete log of one generator $g_i$ to the
 basis of the other generator $g_{j\neq{}i}$.
 
 \paragraph{Elgamal Encryption}
@@ -15,9 +15,9 @@ $c=(c[0],c[1])=(g_1^r,pk^r\cdot{}g_2^m)\leftarrow\enc_{pk}(m)$, where
 $r\getr\Z_p$.
 
 \paragraph{Pedersen Commitments}
-A Pedersen commitment $\com_{g}(m)\in\G$ to message $m\in\Z_p$ is defined as
+A Pedersen commitment $\com_{g}(m)\in\myG$ to message $m\in\Z_p$ is defined as
 $\com_{g}(m)=g_1^r\cdot{}g^m$, where $r\getr\Z_p$, and $g\neq{}g_1$ is
-a generator of $\G$.  To open $\com_{g}(m)$, reveal $(m,r)$.
+a generator of $\myG$.  To open $\com_{g}(m)$, reveal $(m,r)$.
 
 
 \subsubsection{$\proto$ Initialization}
@@ -150,7 +150,7 @@ execution depend on the exact three-move ZK proof, but are typically
 obvious. We will show an example later.
 
 \subsubsection{Zero Knowledge (instead of Honest-Verifier ZK)}
-\fixme{We cannot use Fiat-Shamir transform and replace $e$, as we
+\fixme{We cannot use Fiat-Shamir transform and replace $e$, as we use
   Pedersen commitments for witness extraction.}
 
 To ease readability, all ZK proofs here are described in their
@@ -285,7 +285,7 @@ plaintexts equals $1$.
   You can
       efficiently prove correctness of arithmetic operations. For
       example, the following proves correctness of exponentiation of
-      two elements $(A,B)$ from group $\G$ with a committed value $x$
+      two elements $(A,B)$ from group $\myG$ with a committed value $x$
       and multiplying $A$ by $g_1^{r'}$ and $B$ by $pk^{r'}$. So, you
       can prove correct scalar multiplication of an Elgamal ciphertext
       by a previously committed $x$ and subsequent re-randomization of
@@ -310,7 +310,7 @@ plaintexts equals $1$.
 
 \subsubsection{Proof of Multiplication with Group Elements}
 \label{pomult}
-Given two elements $(A,B)$ of DDH group $\G$, such as an Elgamal
+Given two elements $(A,B)$ of DDH group $\myG$, such as an Elgamal
 ciphertext tuple, a party can commit to a value $x$ with $\com_g(x)
 =g_1^r\cdot{}g^x$ and prove that $(C=A^x,D=B^x)$ are the result of
 exponentiation with $x$.
