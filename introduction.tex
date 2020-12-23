@@ -14,22 +14,25 @@ owner to prepare a token to decrypt a specific part of the owner's
 data structure. Yet, data owner and client are mutually
 untrusted. That is, the client does not want to reveal which part of
 the data structure the client is interested in, e.g., which path in
-the tree, and the owner wants to prepare a token which confines the
-client to accessing only one part of the data structure. Using this
-token, the client can then fetch the part of the data structure they
-are interested in from the server and decrypt it. In case the client
-does not trust the server, the client reverts to standard techniques
-such as PIR to fetch data from the server. We will see later that this
-new setting of structured encryption with an untrusted client has
-several interesting real-world applications.
+the tree, and the owner wants to prepare a decryption token which
+confines the client to accessing only one part of the data
+structure. Using the token, the client then fetches the part of the
+data structure they are interested in from the server and decrypt
+it. In case the client does not trust the server, the client reverts
+to standard techniques such as PIR to fetch data from the server. We
+will see later that the new setting of structured encryption with an
+untrusted client has several interesting real-world applications.
 
 Yet, enabling this added functionality turns out to be technically
 challenging. The client parses the owner's data structure in an
 iterative fashion, where they can query to decrypt the next item from
-the owner's data structure after receiving the previous item. At the
-same time, the data owner wants to ensure that the client's next item
-is linked to from the previous item, and the client cannot arbitrarily
-``jump around'' in the data structure.
+the owner's data structure after receiving the previous item.  For
+example, after decrypting one node of a binary tree, the client should
+be able to query for decryption of either the left or right child
+depending on the current node's data content.  At the same time, the
+data owner wants to ensure that the client's next node is linked to
+the current node, and the client cannot arbitrarily ``jump around'' in
+the data structure.
 
 Straightforward, intuitive approaches, where data
 is encrypted using, for example, an Oblivious Pseudo-Random Function
