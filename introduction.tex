@@ -1,37 +1,38 @@
 \section{Introduction}
 Structured encryption allows a data owner to encrypt structured data,
-e.g., an XML-document or a tree, and outsource it to an untrusted
+e.g., an XML-document or data structured in a tree, and outsource it to an untrusted
 server.  They crucial property of structured encryption is that the
 data owner can later compute a token which permits the server to
-decrypt and parse some well defined part of the data structure, e.g.,
-certain elements of the XML-document or a path of the
-tree. Computation of tokens is possible despite the owner retaining
+decrypt and parse a well defined component of the data structure which is internally connected by pointers.
+Examples for connected components of a data structure might be
+elements of an XML-document or one path of a
+tree. Computation of decryption tokens is possible despite the owner retaining
 only a constant-sized key.
 
 In this paper, we introduce a twist to the standard setting of
 structured encryption. Another party, the client, can ask the data
-owner to prepare a token to decrypt a specific part of the owner's
+owner to prepare a token to decrypt a specific component of the owner's
 data structure. Yet, data owner and client are mutually
-untrusted. That is, the client does not want to reveal which part of
+untrusted. That is, the client does not want to reveal which component of
 the data structure the client is interested in, e.g., which path in
 the tree, and the owner wants to prepare a decryption token which
-confines the client to accessing only one part of the data
-structure. Using the token, the client then fetches the part of the
-data structure they are interested in from the server and decrypt
+confines the client to decrypting only data from one component of the data
+structure. Using the token, the client then fetches the component of 
+the data structure they are interested in from the server and decrypts
 it. In case the client does not trust the server, the client reverts
 to standard techniques such as PIR to fetch data from the server. We
 will see later that the new setting of structured encryption with an
 untrusted client has several interesting real-world applications.
 
 Yet, enabling this added functionality turns out to be technically
-challenging. The client parses the owner's data structure in an
-iterative fashion, where they can query to decrypt the next item from
-the owner's data structure after receiving the previous item.  For
+challenging. The client will parse the owner's data structure in an
+iterative fashion, where they can choose to decrypt the next item from
+the owner's data structure after decrypting the previous item.  For
 example, after decrypting one node of a binary tree, the client should
-be able to query for decryption of either the left or right child
+be able to query for decryption of either the left or right child,
 depending on the current node's data content.  At the same time, the
-data owner wants to ensure that the client's next node is linked to
-the current node, and the client cannot arbitrarily ``jump around'' in
+data owner wants to ensure that the client's next node is a child of
+the previous node, and the client is confined to decrypting one component and cannot arbitrarily ``jump around'' in
 the data structure.
 
 Straightforward, intuitive approaches, where data
