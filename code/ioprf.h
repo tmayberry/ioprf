@@ -3,3 +3,4 @@
 
 
 int generateParameters(EC_GROUP *group, EC_POINT *g1, EC_POINT *g2, BN_CTX *ctx);
+int generatePRFKey(BIGNUM ** p, int size, int bits);
