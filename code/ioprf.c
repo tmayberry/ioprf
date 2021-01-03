@@ -26,6 +26,7 @@ SENDERSTATE * initializeSender(int size, int bits){
 
     for(int x = 0; x < size; x++){
         (s->a)[x] = BN_new();
+        (s->b)[x] = BN_new();
         BN_rand((s->a)[x], bits, BN_RAND_TOP_ANY, BN_RAND_BOTTOM_ANY);
         BN_rand((s->b)[x], bits, BN_RAND_TOP_ANY, BN_RAND_BOTTOM_ANY);
     }
@@ -63,7 +64,7 @@ RECEIVERSTATE * initializeReceiver(DHGROUP * group, BN_CTX * ctx){
     //Initialize D to E(0)
     encryptIntEG(group, s->pk, 0, s->D1, s->D0, ctx);
 
-    return 0;
+    return s;
 }
 
 //Step 1 from the paper
@@ -250,7 +251,7 @@ int receiverStep3(DHGROUP * group, unsigned int x, RECEIVERSTATE * s, BIGNUM * X
 }
 
 //Outputs iPRF evaluation at the receiver based on current value of V
-char * receiverPRF(DHGROUP * group, RECEIVERSTATE * s, BN_CTX * ctx){
+unsigned char * receiverPRF(DHGROUP * group, RECEIVERSTATE * s, BN_CTX * ctx){
     BIGNUM * iprf = BN_new();
 
     //Reconstruct the shared key V[0]^sk
@@ -261,13 +262,13 @@ char * receiverPRF(DHGROUP * group, RECEIVERSTATE * s, BN_CTX * ctx){
     BN_mod_mul(iprf, iprf, s->V1, group->p, ctx);
 
     //Hash the BIGNUM to get PRF output as bytes
-    char * ret = hashBN(iprf);
+    unsigned char * ret = hashBN(iprf);
     BN_free(iprf);
     return ret;
 }
 
 //Hases a BIGNUM to a byte array using SHA256
-char * hashBN(BIGNUM * number){
+unsigned char * hashBN(BIGNUM * number){
     int size = BN_num_bytes(number);
     unsigned char * numbytes = malloc(size);
     unsigned char * finalbytes = malloc(32);
@@ -283,7 +284,7 @@ char * hashBN(BIGNUM * number){
 //Sender's method for computing the PRF
 //x is the PRF input, an array of integers, zeroes and ones
 //length is the length of the input array x
-char * senderPRF(DHGROUP * group, SENDERSTATE * s, int * x, int length, BN_CTX * ctx){
+unsigned char * senderPRF(DHGROUP * group, SENDERSTATE * s, int * x, int length, BN_CTX * ctx){
     //Calculate g2^\prod{b_i where x_i = 0} * \prod{a_i where x_i = 1}
     BIGNUM * iprf = BN_new();
     BN_copy(iprf, group->g2);

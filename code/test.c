@@ -59,6 +59,47 @@ void testECElGamal(){
 }
 
 
+void testOPRF(){
+    BN_CTX * ctx = BN_CTX_new();
+    DHGROUP * group = chooseGroupParameters(ctx);
+
+    RECEIVERSTATE * rs = initializeReceiver(group, ctx);
+    SENDERSTATE * ss = initializeSender(128, 2048);
+
+    receiverStep1(group, 1, rs, ctx);
+
+    BIGNUM * X0, *X1, *Y0, *Y1;
+    X0 = BN_new();
+    X1 = BN_new();
+    Y0 = BN_new();
+    Y1 = BN_new();
+
+    senderStep2(group, (ss->a)[0], (ss->b)[0], rs->T0, rs->T1, rs->U0, rs->U1, X0, X1, Y0, Y1, ctx);
+
+    receiverStep3(group, 1, rs, X0, X1, Y0, Y1, ctx);
+
+    int x[] = {1};
+
+    printf("iOPRF calculated by receiver:\n");
+
+    unsigned char * recprf = receiverPRF(group, rs, ctx);
+
+    for(int i = 0; i < 32; i++){
+        printf("%x", recprf[i]);
+    }
+    printf("\n");
+
+    printf("PRF calculated by sender:\n");
+
+    unsigned char * sendprf = senderPRF(group, ss, x, 1, ctx);
+
+    for(int i = 0; i < 32; i++){
+        printf("%x", sendprf[i]);
+    }
+    printf("\n");
+}
+
+
 int main(){
-    testElGamal();
+    testOPRF();
 }
