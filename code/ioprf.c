@@ -234,15 +234,20 @@ int receiverStep3(DHGROUP * group, unsigned int x, RECEIVERSTATE * s, BIGNUM * X
 char * receiverPRF(DHGROUP * group, RECEIVERSTATE * s, BN_CTX * ctx){
     BIGNUM * iprf = BN_new();
 
+    //Reconstruct the shared key V[0]^sk
     BN_mod_exp(iprf, s->V0, s->sk, group->p, ctx);
+    //Calculate inverse
     BN_mod_inverse(iprf,iprf, group->p, ctx);
+    //Multiply by V[1] to recover PRF value
     BN_mod_mul(iprf, iprf, s->V1, group->p, ctx);
 
+    //Hash the BIGNUM to get PRF output as bytes
     char * ret = hashBN(iprf);
     BN_free(iprf);
     return ret;
 }
 
+//Hases a BIGNUM to a byte array using SHA256
 char * hashBN(BIGNUM * number){
     int size = BN_num_bytes(number);
     unsigned char * numbytes = malloc(size);
@@ -256,6 +261,18 @@ char * hashBN(BIGNUM * number){
     return finalbytes;
 }
 
-char * senderPRF(DHGROUP * group, SENDERSTATE * s, int * x, int length){
-    return NULL;
+//Sender's method for computing the PRF
+//x is the PRF input, an array of integers, zeroes and ones
+//length is the length of the input array x
+char * senderPRF(DHGROUP * group, SENDERSTATE * s, int * x, int length, BN_CTX * ctx){
+    //Calculate g2^\prod{b_i where x_i = 0} * \prod{a_i where x_i = 1}
+    BIGNUM * iprf = BN_new();
+    BN_copy(iprf, group->g2);
+    for(int i = 0; i < length; i++){
+        if(x[i] == 1)
+            BN_mod_exp(iprf, iprf, s->a[i], group->p, ctx);
+        else
+            BN_mod_exp(iprf, iprf, s->b[i], group->p, ctx);
+    }
+    return hashBN(iprf);
 }

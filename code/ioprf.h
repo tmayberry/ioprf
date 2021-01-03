@@ -35,4 +35,4 @@ int senderStep2(DHGROUP * group, BIGNUM * alpha, BIGNUM * beta, BIGNUM * T0, BIG
 int receiverStep3(DHGROUP * group, unsigned int x, RECEIVERSTATE * state, BIGNUM * X0, BIGNUM * X1, BIGNUM * Y0, BIGNUM * Y1, BN_CTX * ctx);
 char * receiverPRF(DHGROUP * group, RECEIVERSTATE * state, BN_CTX * ctx);
 char * hashBN(BIGNUM * number);
-char * senderPRF(DHGROUP * group, SENDERSTATE * s, int * x, int length);
+char * senderPRF(DHGROUP * group, SENDERSTATE * s, int * x, int length, BN_CTX * ctx);
