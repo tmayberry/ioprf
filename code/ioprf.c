@@ -18,12 +18,19 @@ DHGROUP * chooseGroupParameters(BN_CTX * ctx){
 }
 
 //Creates size number of random BIGNUMs, each bits length long, and stores them in the vectors a and b
-int generatePRFKey(BIGNUM ** a, BIGNUM ** b, int size, int bits){
+SENDERSTATE * initializeSender(int size, int bits){
+    SENDERSTATE * s = malloc(sizeof(SENDERSTATE));
+
+    s->a = calloc(size, sizeof(BIGNUM*));
+    s->b = calloc(size, sizeof(BIGNUM*));
+
     for(int x = 0; x < size; x++){
-        BN_rand(a[x], bits, BN_RAND_TOP_ANY, BN_RAND_BOTTOM_ANY);
-        BN_rand(b[x], bits, BN_RAND_TOP_ANY, BN_RAND_BOTTOM_ANY);
+        (s->a)[x] = BN_new();
+        BN_rand((s->a)[x], bits, BN_RAND_TOP_ANY, BN_RAND_BOTTOM_ANY);
+        BN_rand((s->b)[x], bits, BN_RAND_TOP_ANY, BN_RAND_BOTTOM_ANY);
     }
-    return 0;
+    
+    return s;
 }
 
 //Initialize the receiver state 
@@ -223,8 +230,8 @@ int receiverStep3(DHGROUP * group, unsigned int x, RECEIVERSTATE * s, BIGNUM * X
     return 0;
 }
 
-//Outputs iPRF evaluation based on current value of V
-char * calculatePRF(DHGROUP * group, RECEIVERSTATE * s, BN_CTX * ctx){
+//Outputs iPRF evaluation at the receiver based on current value of V
+char * receiverPRF(DHGROUP * group, RECEIVERSTATE * s, BN_CTX * ctx){
     BIGNUM * iprf = BN_new();
 
     BN_mod_exp(iprf, s->V0, s->sk, group->p, ctx);
@@ -247,4 +254,8 @@ char * hashBN(BIGNUM * number){
     EVP_Digest(numbytes, size, finalbytes, &writtenbytes, EVP_sha256(), NULL);
 
     return finalbytes;
+}
+
+char * senderPRF(DHGROUP * group, SENDERSTATE * s, int * x, int length){
+    return NULL;
 }

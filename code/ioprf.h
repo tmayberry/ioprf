@@ -20,13 +20,19 @@ typedef struct receiverstate{
     BN_CTX * ctx;
 } RECEIVERSTATE;
 
+typedef struct senderstate{
+    BIGNUM ** a;
+    BIGNUM ** b;
+} SENDERSTATE;
+
 
 
 DHGROUP * chooseGroupParameters(BN_CTX * ctx);
-int generatePRFKey(BIGNUM ** a, BIGNUM ** b, int size, int bits);
+SENDERSTATE * initializeSender(int size, int bits);
 RECEIVERSTATE * initializeReceiver(DHGROUP * group, BN_CTX * ctx);
 int receiverStep1(DHGROUP * group, unsigned int x, RECEIVERSTATE * state, BN_CTX * ctx);
 int senderStep2(DHGROUP * group, BIGNUM * alpha, BIGNUM * beta, BIGNUM * T0, BIGNUM * T1, BIGNUM * U0, BIGNUM * U1, BIGNUM * X0, BIGNUM * X1, BIGNUM * Y0, BIGNUM * Y1, BN_CTX * ctx);
 int receiverStep3(DHGROUP * group, unsigned int x, RECEIVERSTATE * state, BIGNUM * X0, BIGNUM * X1, BIGNUM * Y0, BIGNUM * Y1, BN_CTX * ctx);
-char * calculatePRF(DHGROUP * group, RECEIVERSTATE * state, BN_CTX * ctx);
+char * receiverPRF(DHGROUP * group, RECEIVERSTATE * state, BN_CTX * ctx);
 char * hashBN(BIGNUM * number);
+char * senderPRF(DHGROUP * group, SENDERSTATE * s, int * x, int length);
