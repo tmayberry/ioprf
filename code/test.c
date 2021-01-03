@@ -60,25 +60,34 @@ void testECElGamal(){
 
 
 void testOPRF(){
+    int iterations = 1;
+
     BN_CTX * ctx = BN_CTX_new();
     DHGROUP * group = chooseGroupParameters(ctx);
 
     RECEIVERSTATE * rs = initializeReceiver(group, ctx);
     SENDERSTATE * ss = initializeSender(128, 2048);
 
-    receiverStep1(group, 1, rs, ctx);
+    int y = 0;
 
-    BIGNUM * X0, *X1, *Y0, *Y1;
-    X0 = BN_new();
-    X1 = BN_new();
-    Y0 = BN_new();
-    Y1 = BN_new();
+    int * x = malloc(sizeof(int) * iterations);
 
-    senderStep2(group, (ss->a)[0], (ss->b)[0], rs->T0, rs->T1, rs->U0, rs->U1, X0, X1, Y0, Y1, ctx);
+    for( y = 0; y < iterations; y++){
 
-    receiverStep3(group, 1, rs, X0, X1, Y0, Y1, ctx);
+        receiverStep1(group, y % 2, rs, ctx);
 
-    int x[] = {1};
+        BIGNUM * X0, *X1, *Y0, *Y1;
+        X0 = BN_new();
+        X1 = BN_new();
+        Y0 = BN_new();
+        Y1 = BN_new();
+
+        senderStep2(group, (ss->a)[0], (ss->b)[0], rs->T0, rs->T1, rs->U0, rs->U1, X0, X1, Y0, Y1, ctx);
+
+        receiverStep3(group, y % 2, rs, X0, X1, Y0, Y1, ctx);
+
+        x[y] = y%2;
+    }
 
     printf("iOPRF calculated by receiver:\n");
 
