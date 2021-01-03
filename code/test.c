@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "ioprf.h"
-#include "util.h"
 #include <openssl/obj_mac.h>
 #include <openssl/ec.h>
 
@@ -12,11 +11,10 @@ void testElGamal(){
     
     BIGNUM * egsk = BN_new();
     BIGNUM * egpk = BN_new();
-    BIGNUM * p = BN_get_rfc3526_prime_2048(NULL);
-    BIGNUM * g = BN_new();
-    randomBNFromPrimeGroup(p, g, ctx);
+    
+    DHGROUP * group = chooseGroupParameters(ctx);
 
-    generateEGKey(p, g, egsk, egpk, ctx);
+    generateEGKey(group->p, group->g1, egsk, egpk, ctx);
 
     unsigned int msgint = 20500;
     BIGNUM * msgbn = BN_new();
@@ -28,8 +26,8 @@ void testElGamal(){
 
     printf("%s\n", BN_bn2dec(msgbn));
 
-    encryptEG(p, g, egpk, msgbn, cbn, epkbn, ctx);
-    decryptEG(p, g, egsk, epkbn, cbn, msg2bn, ctx);
+    encryptEG(group, egpk, msgbn, cbn, epkbn, ctx);
+    decryptEG(group, egsk, epkbn, cbn, msg2bn, ctx);
 
     printf("%s\n", BN_bn2dec(msg2bn));
 }
@@ -57,9 +55,7 @@ void testECElGamal(){
 
     //Get two random generators of the group
     generateECParameters(group, ecg1, ecg2, ctx);
-    
-    //Generate random elements for the private key
-    generatePRFKey(privkey, keysize, bitlength);    
+      
 }
 
 

@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "util.h"
+#include "ioprf.h"
 #include <openssl/obj_mac.h>
 #include <openssl/ec.h>
 
@@ -100,13 +100,6 @@ int decryptECEG(EC_GROUP * group, EC_POINT * g, BIGNUM * sk, EC_POINT * epk, EC_
     return 0;
 }
 
-//Get two random generators of QR_p
-int generateParameters(BIGNUM * p, BIGNUM * g1, BIGNUM * g2, BN_CTX * ctx){
-    randomBNFromPrimeGroup(p, g1, ctx);
-    randomBNFromPrimeGroup(p, g2, ctx);
-
-    return 0;
-}
 
 //Generate ElGamal public and secret keys for group with generator g
 int generateEGKey(BIGNUM * p, BIGNUM * g, BIGNUM * sk, BIGNUM * pk, BN_CTX * ctx){
@@ -116,21 +109,32 @@ int generateEGKey(BIGNUM * p, BIGNUM * g, BIGNUM * sk, BIGNUM * pk, BN_CTX * ctx
     return 0;
 }
 
-int encryptEG(BIGNUM * p, BIGNUM * g, BIGNUM * pk, BIGNUM * m, BIGNUM * c, BIGNUM * epk, BN_CTX * ctx){
+int encryptIntEG(DHGROUP * group, BIGNUM * pk, unsigned int m, BIGNUM * c, BIGNUM * epk, BN_CTX * ctx){
+    BIGNUM * msgbn = BN_new();
+
+    BN_lebin2bn((char*)(&m), 4, msgbn);
+
+    int ret = encryptEG(group, pk, msgbn, c, epk, ctx);
+
+    BN_free(msgbn);
+    return ret;
+}
+
+int encryptEG(DHGROUP * group, BIGNUM * pk, BIGNUM * m, BIGNUM * c, BIGNUM * epk, BN_CTX * ctx){
     //Random r for encryption
     BIGNUM * r = BN_new();
-    BN_rand_range(r, p);
+    BN_rand_range(r, group->p);
 
     //Ephemeral public key epk = g^r mod p
-    BN_mod_exp(epk, g, r, p, ctx);
+    BN_mod_exp(epk, group->g1, r, group->p, ctx);
     //Shared key c = pk^r mod p
-    BN_mod_exp(c, pk, r, p, ctx);
+    BN_mod_exp(c, pk, r, group->p, ctx);
 
     //New variable for g^m
     BIGNUM * gm = BN_new();
-    BN_mod_exp(gm, g, m, p, ctx);
+    BN_mod_exp(gm, group->g2, m, group->p, ctx);
     //Ciphertext = c * g^m mod p
-    BN_mod_mul(c, c, gm, p, ctx);
+    BN_mod_mul(c, c, gm, group->p, ctx);
 
     BN_free(r);
     BN_free(gm);
@@ -138,16 +142,16 @@ int encryptEG(BIGNUM * p, BIGNUM * g, BIGNUM * pk, BIGNUM * m, BIGNUM * c, BIGNU
     return 0;
 }
 
-int decryptEG(BIGNUM * p, BIGNUM * g, BIGNUM * sk, BIGNUM * epk, BIGNUM * c, BIGNUM * m, BN_CTX * ctx){
+int decryptEG(DHGROUP * group, BIGNUM * sk, BIGNUM * epk, BIGNUM * c, BIGNUM * m, BN_CTX * ctx){
     //Calculate sharedkey = epk^sk mod p
     BIGNUM * sharedkey = BN_new();
-    BN_mod_exp(sharedkey, epk, sk, p, ctx);
+    BN_mod_exp(sharedkey, epk, sk, group->p, ctx);
 
     //Calculate inverse of shared key
-    BN_mod_inverse(sharedkey, sharedkey, p, ctx);
+    BN_mod_inverse(sharedkey, sharedkey, group->p, ctx);
 
     //Multiply c by inverse, store in sharedkey
-    BN_mod_mul(sharedkey, sharedkey, c, p, ctx);
+    BN_mod_mul(sharedkey, sharedkey, c, group->p, ctx);
 
     //Brute force for m
     BIGNUM * test = BN_new();
@@ -156,7 +160,7 @@ int decryptEG(BIGNUM * p, BIGNUM * g, BIGNUM * sk, BIGNUM * epk, BIGNUM * c, BIG
     
     while(1){
         //test = g^x mod p
-        BN_mod_exp(test, g, x, p, ctx);
+        BN_mod_exp(test, group->g2, x, group->p, ctx);
         //Check if this is the value we are looking for
         int cmp = BN_cmp(test, sharedkey);
 
