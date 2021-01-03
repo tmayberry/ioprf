@@ -47,11 +47,6 @@ RECEIVERSTATE * initializeReceiver(DHGROUP * group, BN_CTX * ctx){
     s->V1 = BN_new(); 
     s->D1 = BN_new();
 
-    s->r0 = BN_new(); 
-    s->r1 = BN_new(); 
-    s->r2 = BN_new(); 
-    s->r3 = BN_new(); 
-
     s->T0 = BN_new(); 
     s->T1 = BN_new(); 
     s->U0 = BN_new(); 
@@ -77,11 +72,18 @@ RECEIVERSTATE * initializeReceiver(DHGROUP * group, BN_CTX * ctx){
 //Calculates T and U from those outputs
 int receiverStep1(DHGROUP * group, unsigned int x, RECEIVERSTATE * s, BN_CTX * ctx){
 
+    BIGNUM * r0, * r1, * r2, * r3;
+
+    r0 = BN_new();
+    r1 = BN_new();
+    r2 = BN_new();
+    r3 = BN_new();
+
     //Generate random blinding values
-    BN_rand_range(s->r0, group->p);
-    BN_rand_range(s->r1, group->p);
-    BN_rand_range(s->r2, group->p);
-    BN_rand_range(s->r3, group->p);
+    BN_rand_range(r0, group->p);
+    BN_rand_range(r1, group->p);
+    BN_rand_range(r2, group->p);
+    BN_rand_range(r3, group->p);
 
     //Intermediate values c, c', d and d'
     BIGNUM *c0, *c1, *cp0, *cp1, *d0, *d1, *dp0, *dp1;
@@ -95,38 +97,38 @@ int receiverStep1(DHGROUP * group, unsigned int x, RECEIVERSTATE * s, BN_CTX * c
     dp1 = BN_new();
 
     //c
-    BN_mod_exp(c0, group->g1, s->r0, group->p, ctx);
+    BN_mod_exp(c0, group->g1, r0, group->p, ctx);
     if( x == 1 )
         BN_mod_mul(c0, c0, s->V0, group->p, ctx);
 
-    BN_mod_exp(c1, s->pk, s->r0, group->p, ctx);
+    BN_mod_exp(c1, s->pk, r0, group->p, ctx);
     if( x == 1)
         BN_mod_mul(c1, c1, s->V1, group->p, ctx);
     
     //c'
-    BN_mod_exp(cp0, group->g1, s->r1, group->p, ctx);
+    BN_mod_exp(cp0, group->g1, r1, group->p, ctx);
     if( x == 0 )
         BN_mod_mul(cp0, cp0, s->V0, group->p, ctx);
 
-    BN_mod_exp(cp1, s->pk, s->r1, group->p, ctx);
+    BN_mod_exp(cp1, s->pk, r1, group->p, ctx);
     if( x == 0)
         BN_mod_mul(cp1, cp1, s->V1, group->p, ctx);
 
     //d
-    BN_mod_exp(d0, group->g1, s->r2, group->p, ctx);
+    BN_mod_exp(d0, group->g1, r2, group->p, ctx);
     if( x == 1 )
         BN_mod_mul(d0, d0, s->D0, group->p, ctx);
 
-    BN_mod_exp(d1, s->pk, s->r2, group->p, ctx);
+    BN_mod_exp(d1, s->pk, r2, group->p, ctx);
     if( x == 1)
         BN_mod_mul(d1, d1, s->D1, group->p, ctx);
 
     //d'
-    BN_mod_exp(dp0, group->g1, s->r3, group->p, ctx);
+    BN_mod_exp(dp0, group->g1, r3, group->p, ctx);
     if( x == 0 )
         BN_mod_mul(dp0, dp0, s->D0, group->p, ctx);
 
-    BN_mod_exp(dp1, s->pk, s->r3, group->p, ctx);
+    BN_mod_exp(dp1, s->pk, r3, group->p, ctx);
     if( x == 0)
         BN_mod_mul(dp1, dp1, s->D1, group->p, ctx);
 
@@ -146,6 +148,10 @@ int receiverStep1(DHGROUP * group, unsigned int x, RECEIVERSTATE * s, BN_CTX * c
     BN_free(d1);
     BN_free(dp0);
     BN_free(dp1);
+    BN_free(r0);
+    BN_free(r1);
+    BN_free(r2);
+    BN_free(r3);
 
     return 0;
 }
@@ -177,39 +183,46 @@ int receiverStep3(DHGROUP * group, unsigned int x, RECEIVERSTATE * s, BIGNUM * X
     Q1 = BN_new();
     Qp1 = BN_new();
 
+    BIGNUM * r0, * r1, * r2, * r3;
+
+    r0 = BN_new();
+    r1 = BN_new();
+    r2 = BN_new();
+    r3 = BN_new();
+
     //P
-    BN_mod_exp(P0, group->g1, s->r0, group->p, ctx);
+    BN_mod_exp(P0, group->g1, r0, group->p, ctx);
     if( x == 1 )
         BN_mod_mul(P0, P0, X0, group->p, ctx);
 
-    BN_mod_exp(P1, s->pk, s->r0, group->p, ctx);
+    BN_mod_exp(P1, s->pk, r0, group->p, ctx);
     if( x == 1)
         BN_mod_mul(P1, P1, X1, group->p, ctx);
     
     //P'
-    BN_mod_exp(Pp0, group->g1, s->r1, group->p, ctx);
+    BN_mod_exp(Pp0, group->g1, r1, group->p, ctx);
     if( x == 0 )
         BN_mod_mul(Pp0, Pp0, X0, group->p, ctx);
 
-    BN_mod_exp(Pp1, s->pk, s->r1, group->p, ctx);
+    BN_mod_exp(Pp1, s->pk, r1, group->p, ctx);
     if( x == 0)
         BN_mod_mul(Pp1, Pp1, X1, group->p, ctx);
 
     //Q
-    BN_mod_exp(Q0, group->g1, s->r2, group->p, ctx);
+    BN_mod_exp(Q0, group->g1, r2, group->p, ctx);
     if( x == 1 )
         BN_mod_mul(Q0, Q0, Y0, group->p, ctx);
 
-    BN_mod_exp(Q1, s->pk, s->r2, group->p, ctx);
+    BN_mod_exp(Q1, s->pk, r2, group->p, ctx);
     if( x == 1)
         BN_mod_mul(Q1, Q1, Y1, group->p, ctx);
 
     //Q'
-    BN_mod_exp(Qp0, group->g1, s->r3, group->p, ctx);
+    BN_mod_exp(Qp0, group->g1, r3, group->p, ctx);
     if( x == 0 )
         BN_mod_mul(Qp0, Qp0, Y0, group->p, ctx);
 
-    BN_mod_exp(Qp1, s->pk, s->r3, group->p, ctx);
+    BN_mod_exp(Qp1, s->pk, r3, group->p, ctx);
     if( x == 0)
         BN_mod_mul(Qp1, Qp1, Y1, group->p, ctx);
 
@@ -227,6 +240,12 @@ int receiverStep3(DHGROUP * group, unsigned int x, RECEIVERSTATE * s, BIGNUM * X
     BN_free(Pp1);
     BN_free(Q1);
     BN_free(Qp1);
+
+    BN_free(r0);
+    BN_free(r1);
+    BN_free(r2);
+    BN_free(r3);
+
     return 0;
 }
 

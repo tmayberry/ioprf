@@ -9,10 +9,6 @@ typedef struct receiverstate{
     BIGNUM * V1;
     BIGNUM * D0;
     BIGNUM * D1;
-    BIGNUM * r0;
-    BIGNUM * r1;
-    BIGNUM * r2;
-    BIGNUM * r3;
     BIGNUM * T0;
     BIGNUM * T1;
     BIGNUM * U0;
