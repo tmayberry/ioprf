@@ -11,7 +11,7 @@ int randomBNFromPrimeGroup(BIGNUM * p, BIGNUM * output, BN_CTX * ctx);
 int randomBNFromECGroup(EC_GROUP * group, BIGNUM * output, BN_CTX * ctx);
 int generateECParameters(EC_GROUP *group, EC_POINT *g1, EC_POINT *g2, BN_CTX *ctx);
 int generateECEGKey(EC_GROUP * group, EC_POINT * g, BIGNUM * sk, EC_POINT * pk,  BN_CTX * ctx);
-int encryptECEG(EC_GROUP * group, EC_POINT * g, EC_POINT * pk, BIGNUM * msg, EC_POINT * c, EC_POINT * epk, BN_CTX * ctx);
+int encryptECEG(EC_GROUP * group, EC_POINT * g1, EC_POINT * g2, EC_POINT * pk, BIGNUM * msg, EC_POINT * c, EC_POINT * epk, BN_CTX * ctx);
 int decryptECEG(EC_GROUP * group, EC_POINT * g, BIGNUM * sk, EC_POINT * epk, EC_POINT * c, BIGNUM * m, BN_CTX * ctx);
 int generateEGKey(BIGNUM * p, BIGNUM * g, BIGNUM * sk, BIGNUM * pk, BN_CTX * ctx);
 int encryptIntEG(DHGROUP * group, BIGNUM * pk, unsigned int m, BIGNUM * c, BIGNUM * epk, BN_CTX * ctx);

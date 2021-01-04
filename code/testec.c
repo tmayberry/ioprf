@@ -4,35 +4,6 @@
 #include <openssl/ec.h>
 #include <string.h>
 
-void testElGamal(){
-    BN_CTX * ctx;
-    //Generate bignumber context, used for temporary storage by all the openssl functions
-    ctx = BN_CTX_new();
-
-    
-    BIGNUM * egsk = BN_new();
-    BIGNUM * egpk = BN_new();
-    
-    DHGROUP * group = chooseGroupParameters(ctx);
-
-    generateEGKey(group->p, group->g1, egsk, egpk, ctx);
-
-    unsigned int msgint = 20500;
-    BIGNUM * msgbn = BN_new();
-    BIGNUM * cbn = BN_new();
-    BIGNUM * epkbn = BN_new();
-    BIGNUM * msg2bn = BN_new();
-
-    BN_lebin2bn((char*)(&msgint), 4, msgbn);
-
-    printf("%s\n", BN_bn2dec(msgbn));
-
-    encryptEG(group, egpk, msgbn, cbn, epkbn, ctx);
-    decryptEG(group, egsk, epkbn, cbn, msg2bn, ctx);
-
-    printf("%s\n", BN_bn2dec(msg2bn));
-}
-
 void testECElGamal(){
     BN_CTX * ctx;
     //Generate bignumber context, used for temporary storage by all the openssl functions
@@ -70,28 +41,30 @@ void testOPRF(char * input){
     }
 
     BN_CTX * ctx = BN_CTX_new();
-    DHGROUP * group = chooseGroupParameters();
+    EC_GROUP * group = EC_GROUP_new_by_curve_name(NID_secp224r1);
 
-    RECEIVERSTATE * rs = initializeReceiver(group, ctx);
+    EC_POINT * g1 = EC_POINT_new(group);
+    EC_POINT * g2 = EC_POINT_new(group);
+
+    generateECParameters(group, g1, g2, ctx);
+
+    RECEIVERSTATE * rs = initializeReceiver(group, g1, g2, ctx);
     SENDERSTATE * ss = initializeSender(128, 2048);
-
-    //For debugging
-    BIGNUM * tmp = BN_new();
 
     printf("Testing PRF for input %s of length %d\n\n", input, iterations);
 
-    for( int y = 0; y < iterations; y++){
-        receiverStep1(group, x[y], rs, ctx);
+    EC_POINT * X0, *X1, *Y0, *Y1;
+    X0 = EC_POINT_new(group);
+    X1 = EC_POINT_new(group);
+    Y0 = EC_POINT_new(group);
+    Y1 = EC_POINT_new(group);
 
-        BIGNUM * X0, *X1, *Y0, *Y1;
-        X0 = BN_new();
-        X1 = BN_new();
-        Y0 = BN_new();
-        Y1 = BN_new();
+    for( int y = 0; y < iterations; y++){
+        receiverStep1(group, g1, x[y], rs, ctx);
 
         senderStep2(group, (ss->a)[y], (ss->b)[y], rs->T0, rs->T1, rs->U0, rs->U1, X0, X1, Y0, Y1, ctx);
 
-        receiverStep3(group, x[y], rs, X0, X1, Y0, Y1, ctx);
+        receiverStep3(group, g1, x[y], rs, X0, X1, Y0, Y1, ctx);
 
         printf("\nIteration %d ---------\n\n", y+1);
 
@@ -102,7 +75,7 @@ void testOPRF(char * input){
 
         printf("PRF calculated by sender:\n");
 
-        unsigned char * sendprf = senderPRF(group, ss, x, y+1, ctx);
+        unsigned char * sendprf = senderPRF(group, g2, ss, x, y+1, ctx);
         printBytes(sendprf, 32);
     }
 }
