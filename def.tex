@@ -13,19 +13,40 @@ holds, and $g$ is a random generator of $\myG$. For a security
 parameter $\lambda$, we set $|p|=\lambda$.
 
 
-\begin{construction}[PRF from~\cite{prf}] \label{nrprf}
-Define the function ensemble $F = \{F_n\}_{n\in N}$.  For every $n$, a key of a function $F_n$ is a tuple, $\langle P,Q,g,\vec{\alpha}\rangle$, 
+\begin{construction}[\citeauthor{prf} PRF] \label{nrprf}
+For any $\ell\in\N$, consider function family
+$F_K(x):\myG^{\ell}\times\{0,1\}^\ell\rightarrow\myG$, where key $K$
+is defined as a vector of $\ell+1$ random elements
+$K=\vec{\alpha}=(\alpha_0,\ldots,\alpha_\ell)$.  For any $\ell$ bit input
+$x=x_1 \ldots x_\ell$, function $F_K$ is
+defined by
+ $$F_K(x) = (g^{\alpha_0})^{\prod_{x_i=1}\alpha_i}.$$
+
+\ignore{
+  Define the function ensemble $F = \{F_n\}_{n\in N}$.  For every $n$, a key of a function $F_n$ is a tuple, $\langle P,Q,g,\vec{\alpha}\rangle$, 
 where $P$ is an $n$-bit prime, $Q$ a prime divisor of $P-1$, $g$ an element of order $Q$ in $\mathbb{Z}_{p}^*$ and $\vec{\alpha}=\langle 
 \alpha_0,\alpha_1, \ldots , \alpha_n \rangle$ a uniformly random sequence of $n+1$ elements of $\mathbb{Z}_Q$.  For any $n$-bit input, $x=x_1 x_2 \ldots x_n$, the 
 function $f_{P,Q,g,\vec{\alpha}}$ is defined by:
  $$f_{P,Q,g,\vec{\alpha}}(x) = (g^{\alpha_0})^{\prod_{x_i=1}\alpha_i}$$
+}%ignore
 \end{construction}
 
 \begin{theorem}[Theorem~4.1 of~\cite{prf}]
 \label{theorem:naor}
+If the DDH-Assumption holds, then for every PPT distinguisher
+$\mathcal{D}$, there exists a negligible function $\epsilon$ such that for
+    sufficiently large $\lambda$
+$$| Pr[\mathcal{D}^{F_K}=1] - Pr[\mathcal{D}^{R} = 1]|
+    =\epsilon(\lambda), $$ where $K$ is chosen randomly as in
+    Construction~\ref{nrprf}, and $R$ is a randomly chosen function
+    from the set of functions with domain $\{0,1\}^\ell$ and image
+    $\myG$.
+
+\ignore{
 If the DDH-Assumption holds, then for every probabilistic polynomial-time oracle machine $\mathcal{M}$, every constant $\gamma > 0$, and for all but a finite number of $n$'s
 $$| Pr[\mathcal{M}^{f_{P,Q,g,\vec{\alpha}}}(P,Q,g)=1] - Pr[\mathcal{M}^{R_{P,Q,g}}(P,Q,g) = 1]| < \frac{1}{n^\gamma} $$
 where in the first probability, $f_{P,Q,g,\vec{\alpha}}$ is distributed according to $F_n$, and in the second probability the distribution of $R_{P,Q,g}$ is uniformly chosen in the set of functions with the domain $\{0,1\}^n$ and image $\langle g\rangle$.
+}%ignore
 \end{theorem}
 
 \begin{construction}[OPRF$_K(x)$ from~\cite{oprf}]
@@ -106,7 +127,7 @@ an $\iprf$ out of
 $(F_{K_1}(x_1),\ldots,F_{K_1,\ldots,K_\ell}(x_1\ldots{}x_\ell))$,
 where $K_1=\alpha_1,\ldots,K_\ell=\alpha_\ell$.  However, this is in
 fact not an $\iprf$, as exemplified by inputs like
-$x=(10\ldots{}0)$. There
+$x=(10\ldots{}0)$. There, we have
 $F_{K_1}(1)=F_{K_1,K_2}(10)=\ldots=F_{K_1,\ldots,K_\ell}(10\ldots{}0)$,
 so the output repeats starting from the $2^\text{nd}$ invocation of
 $F$. In general, for any input $x=\mathsf{PREFIX}||0\ldots{}0$ ending

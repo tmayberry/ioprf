@@ -1,21 +1,22 @@
-\section{Constructions}
-We present new constructions for both $\iprf$ and $\ioprf$.  To ease
-readability, we omit an important technicality in the description and
-proofs: our $\iprf$ and $\ioprf$ constructions do not output
+\section{New Constructions}
+We present our new constructions for both $\iprf$ and $\ioprf$.  To
+ease readability, we omit an important technicality in the description
+and proofs: our $\iprf$ and $\ioprf$ constructions do not output
 pseudo-random bit strings of length $\lambda$, but pseudo-random
 elements of DDH group $\myG$. Yet, converting elements to bit strings
 follows from a standard application of the leftover hash
 lemma~\cite{leftover}. As $|p|\geq\lambda$, we have
-$|\myG|\ge{}2^\lambda$, and we silently assume in the following that each party implicitly hashes the output of
-$\iprf$ and $\ioprf$ using any pairwise independent family of hash
-functions.
+$|\myG|\ge{}2^\lambda$, and we silently assume in the following that
+each party implicitly hashes the output of $\iprf$ and $\ioprf$ using
+any pairwise independent family of hash functions.
 
 
 \subsection{$\iprf$ Construction}
-Initialization: choose a key $K=(\vec{{\alpha}},\vec{\beta})$ by sampling
-$\ell$ pairs of random scalars
-${\alpha_{i}},{\beta_{i}}\getr\Z_p.$
-$\iprf(x_1,\ldots,x_\ell)$: output a vector $\vec{v}$ of length $\ell$ where $v_i = g^{\prod_{j=1}^{i} (\alpha_jx_j+\beta_j(1-x_j))}.$
+Initialization: choose a key $K=(\vec{{\alpha}},\vec{\beta})$ by
+sampling $\ell$ pairs of random scalars
+$K_i=({\alpha_{i}},{\beta_{i}})$ from $Z_p.$
+$\iprf(x_1,\ldots,x_\ell)$: output a vector $\vec{v}$ of length $\ell$
+where $v_i = g^{\prod_{j=1}^{i} (\alpha_jx_j+\beta_j(1-x_j))}.$
 
 \label{sec:newprf}
 \begin{construction}
