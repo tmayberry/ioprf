@@ -93,11 +93,13 @@ sends $(X_i,Y_i)$ to the receiver and proves correct exponentiation
   Both sender and receiver compute
   $V_i=(P_i[0]\cdot{}Q'_i[0],P_i[1]\cdot{}Q'_i[1])$ and
   $D_i=(P'_i[0]\cdot{}Q_i[0],P'_i[1]\cdot{}Q_i[1])$.
+
+\item The receiver computes one $\iprf$ output value
+  $v_i=\frac{V_i[1]}{V_{i}[0]^{sk}}$.
+
   
 \end{enumerate}
 
-After $\ell$ rounds, the receiver computes output
-$\iprf_K(x)=\frac{V_\ell[1]}{V_{\ell}[0]^{sk}}$.
 
 
 \subsection{Security Analysis}
