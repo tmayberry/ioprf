@@ -21,12 +21,17 @@ $K_i=({\alpha_{i}},{\beta_{i}})\getr{}(\Z_p)^2.$ For any $\ell$ bit
 input $x=x_1\ldots{}x_\ell$, we define function family
 $\iprf_K(x_1,\ldots,x_\ell)=(f^1_{(\alpha_1,\beta_1)}(x_1),\ldots,f^\ell_{(\alpha_1,\beta_1),\ldots,(\alpha_\ell,\beta_\ell)}(x_1,\ldots,x_\ell))$,
 where
-\begin{align*}
-f^i_{(\alpha_1,\beta_1),\ldots,(\alpha_i,\beta_i)} &=
-g^{\prod_{x_i=1}\alpha_i \prod_{x_i=0}\beta_i}\\&=
-g^{\prod_{j=1}^{i} (\alpha_jx_j+\beta_j(1-x_j))}.
-\end{align*}
- 
+$$  f^i_{(\alpha_1,\beta_1),\ldots,(\alpha_i,\beta_i)} \stackrel{\text{def}}{=}
+  g^{\prod_{x_i=1}\alpha_i \prod_{x_i=0}\beta_i}
+=g^{\prod_{j=1}^{i}{\alpha_i^{x_i}\cdot{}\beta_i^{1-x_i}}}.$$
+
+
+Observe that you can also rewrite expression
+$g^{\prod_{j=1}^{i}{\alpha_i^{x_i}\cdot{}\beta_i^{1-x_i}}}$ as
+$g^{\prod_{j=1}^{i}(\alpha_j{}x_j+\beta_j(1-x_j))}$. This
+representation of $f^i$ will be very useful for during the
+presentation of $\proto$ later.
+
 \ignore{Define the function ensemble $F' = \{F'_n\}_{n\in N}$.  For every $n$, a key of a function $F'_n$ is a tuple, $\langle P,Q,g,\vec{\alpha},\vec{\beta}\rangle$, 
 where $P$ is an $n$-bit prime, $Q$ a prime divisor of $P-1$, $g$ an element of order $Q$ in $\mathbb{Z}_{p}^*$ and $\vec{\alpha}=\langle 
 \alpha_0,\alpha_1, \ldots , \alpha_n \rangle$ and $\vec{\beta}=\langle 
@@ -89,13 +94,13 @@ following:
 
 Eventually, $\mathcal{D}'$ outputs the same as $\mathcal{D}$.  If
 $\mathcal{D}'$ is interacting with PRF $F_K$, then the $z'$ values
-they give to $\mathcal{D}$ will be identical to function $f^i$, due to
-them being able to multiply in the extra $\beta$ components.  If
-$\mathcal{D}'$ is interacting with a real random function, then the
-responses they give will be distributed identically to a random
-function. \fixme{Yes, but why? There is one sentence of explanation
-  missing.}  Therefore, if $\mathcal{D}$ has a distinguishing
-advantage, so will $\mathcal{D}'$.
+$\mathcal{D}'$ gives to $\mathcal{D}$ will be identical to function
+$f^i$, due to $\mathcal{D}'$ being able to multiply in the extra
+$\beta$ components.  If $\mathcal{D}'$ is interacting with a real
+random function, then the responses they give will be distributed
+identically to a random function. \fixme{Yes, but why? There is one
+  sentence of explanation missing.}  Therefore, if $\mathcal{D}$ has a
+distinguishing advantage, so will $\mathcal{D}'$.
 \end{proof}
 
 
@@ -103,29 +108,30 @@ advantage, so will $\mathcal{D}'$.
 \input{ioprf}
 
 \subsection{OT-based $\proto$ Construction}
-
-The $\iprf$ above can be computed as an oblivious PRF between a sender $S$ and a receiver $R$.  In this protocol,
-the receiver $R$ has an array of bits $(x_1, \ldots, x_\ell)$ and wishes to compute $\iprf(x_1, \ldots, x_\ell)$ using
-the key $K$ possessed by $S$.
-
-Let $\ot(b, y_0, y_1)$ denote a secure 1-out-of-2 oblivious transfer protocol between $R$ and $S$ where
-$S$ holds $y_0$ and $y_1$, $R$ holds $b\in\{0,1\}$, and $R$ obliviously retrieves $y_b$ from $S$.  The OT-based version of $\proto$ works as follows.
+Our $\iprf$ in Construction~\ref{const:newprf} can also be computed as
+an $\ioprf$ with one sided security as follows.  Let $\ot(b, y_0,
+y_1)$ denote any maliciously secure $\binom{2}{1}$ oblivious transfer
+protocol between receiver $R$ and sender $S$, where $S$ holds $y_0$
+and $y_1$ from $\Z_p$, $R$ holds $b\in\{0,1\}$, and $R$ obliviously
+retrieves $y_b$ from $S$.  The OT-based version of $\proto$ works as
+follows.
 
 \begin{itemize}
-\item $S$ generates $\ell$ random scalars $r_i\getr\Z_p$
-\item For each $1 \leq i \leq \ell$, $R$ and $S$ execute $\ot(x_i, r_i\alpha_i, r_i\beta_i)$ and stores the result as $z_i$
-\item $S$ sends to $R$ the vector $\vec{C}$ where $\forall 1 \leq i \leq \ell$, $C_i =  G \cdot \frac{1}{\prod_{j=1}^{i} r_j}$
-\item $R$ recovers $\iprf$ output vector $v$ by calculating $v_i = C_i \cdot \prod_{j=1}^{i} z_j$
+\item $S$ generates $\ell$ random scalars $r_i\getr\Z_p$.
+\item For each $1 \leq i \leq \ell$, $R$ and $S$ execute $\ot(x_i, r_i\beta_i,r_i\alpha_i)$, and $R$ stores the result as $z_i$.
+\item $S$ sends to $R$ the vector $\vec{C}$ where $\forall 1 \leq i \leq \ell$, $C_i =  g^\frac{1}{\prod_{j=1}^{i} r_j}.$
+\item $R$ recovers $\iprf$ output vector $\vec{v}$ by calculating $v_i
+  = C_i^{\prod_{j=1}^{i} z_j}.$
 \end{itemize}
 
 
 {\bf Correctness:} \todo{update notation} For all $1 \leq i \leq \ell$ we have
 \begin{equation}
 \begin{aligned}
-v_i &= C_i \cdot \prod_{j=1}^{i} z_i \\
-&= G \cdot \frac{1}{\prod_{j=1}^{i} a_j} \cdot \prod_{j=1}^{i} z_j \\
-&= G \cdot \frac{1}{\prod_{j=1}^{i} a_j} \cdot \prod_{j=1}^{i} (a_jr_j)^{b_j}(a_js_j)^{1-b_j} a_j \\
-&= G \cdot \prod_{j=1}^{i} r_j^{b_j}s_j^{1-b_j}
+v_i &= C_i^{\prod_{j=1}^{i} z_i} \\
+&= g^{\frac{1}{\prod_{j=1}^{i} r_j} \cdot \prod_{j=1}^{i} z_j} \\
+&= g^{\frac{1}{\prod_{j=1}^{i} r_j} \cdot \prod_{j=1}^{i} (\alpha_jr_j)^{x_j}(\beta_jr_j)^{1-x_j} } \\
+&= g^{\prod_{j=1}^{i} \alpha_j^{x_i}\beta_j^{1-x_i}}
 \end{aligned}
 \end{equation}
 
