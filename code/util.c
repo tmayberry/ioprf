@@ -53,30 +53,33 @@ int generateECEGKey(EC_GROUP * group, EC_POINT * g, BIGNUM * sk, EC_POINT * pk, 
     //Generate random number in Z_p, store as sk
     randomBNFromECGroup(group, sk, ctx);
     //Generate public key = sk * g
-    EC_POINT_mul(group,NULL,NULL,g,sk,ctx);
+    EC_POINT_mul(group,pk,NULL,g,sk,ctx);
 
     return 0;
 }
 
 //Encrypt msg with public key pk, using generator g, store ciphertext as c and the ephemeral public key as epk
-int encryptECEG(EC_GROUP * group, EC_POINT * g, EC_POINT * pk, BIGNUM * msg, EC_POINT * c, EC_POINT * epk, BN_CTX * ctx)
+int encryptECEG(EC_GROUP * group, EC_POINT * g1, EC_POINT * g2, EC_POINT * pk, BIGNUM * msg, EC_POINT * c, EC_POINT * epk, BN_CTX * ctx)
 {
     BIGNUM * k = BN_new();
 
-    //Convert msg to an EC point
-    EC_POINT * msgpoint = EC_POINT_new(group);
-    EC_POINT_bn2point(group, msg, msgpoint, ctx);
-
     //Generate ephemeral public key
     randomBNFromECGroup(group, k, ctx);
-    EC_POINT_mul(group, epk, NULL, g, k, ctx);
+    EC_POINT_mul(group, epk, NULL, g1, k, ctx);
 
     //Generate ciphertext
     EC_POINT_mul(group, c, NULL, pk, k, ctx);
-    EC_POINT_add(group, c, c, msgpoint, ctx);
+    if( ! BN_is_zero(msg) )
+    {
+        //Convert msg to an EC point
+        EC_POINT * msgpoint = EC_POINT_new(group);
+        EC_POINT_mul(group, msgpoint, NULL, g2, msg, ctx);
+
+        EC_POINT_add(group, c, c, msgpoint, ctx);
+        EC_POINT_free(msgpoint);
+    }
 
     BN_free(k);
-    EC_POINT_free(msgpoint);
 
     return 0;
 }
