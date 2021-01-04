@@ -69,50 +69,61 @@ void testOPRF(char * input){
         x[i] = input[i] == '1' ? 1 : 0;
     }
 
+    BIGNUM * X0, *X1, *Y0, *Y1;
+    X0 = BN_new();
+    X1 = BN_new();
+    Y0 = BN_new();
+    Y1 = BN_new();
+
     BN_CTX * ctx = BN_CTX_new();
     DHGROUP * group = chooseGroupParameters(ctx);
+    for(int z = 0; z < 10; z++){
 
-    RECEIVERSTATE * rs = initializeReceiver(group, ctx);
-    SENDERSTATE * ss = initializeSender(128, 2048);
+        RECEIVERSTATE * rs = initializeReceiver(group, ctx);
+        
+        SENDERSTATE * ss = initializeSender(128, 2048);
 
-    //For debugging
-    BIGNUM * tmp = BN_new();
+        //For debugging
+        BIGNUM * tmp = BN_new();
 
-    printf("Testing PRF for input %s of length %d\n\n", input, iterations);
+        printf("Testing PRF for input %s of length %d\n\n", input, iterations);
 
-    for( int y = 0; y < iterations; y++){
-        receiverStep1(group, x[y], rs, ctx);
+        
 
-        BIGNUM * X0, *X1, *Y0, *Y1;
-        X0 = BN_new();
-        X1 = BN_new();
-        Y0 = BN_new();
-        Y1 = BN_new();
+        for( int y = 0; y < iterations; y++){
+            receiverStep1(group, x[y], rs, ctx);
 
-        senderStep2(group, (ss->a)[y], (ss->b)[y], rs->T0, rs->T1, rs->U0, rs->U1, X0, X1, Y0, Y1, ctx);
+            
 
-        receiverStep3(group, x[y], rs, X0, X1, Y0, Y1, ctx);
+            senderStep2(group, (ss->a)[y], (ss->b)[y], rs->T0, rs->T1, rs->U0, rs->U1, X0, X1, Y0, Y1, ctx);
 
-        printf("\nIteration %d ---------\n\n", y+1);
+            receiverStep3(group, x[y], rs, X0, X1, Y0, Y1, ctx);
 
-        printf("iOPRF calculated by receiver:\n");
+            printf("\nIteration %d ---------\n\n", y+1);
 
-        unsigned char * recprf = receiverPRF(group, rs, ctx);
-        printBytes(recprf, 32);
+            printf("iOPRF calculated by receiver:\n");
 
-        printf("PRF calculated by sender:\n");
+            unsigned char * recprf = receiverPRF(group, rs, ctx);
+            printBytes(recprf, 32);
 
-        unsigned char * sendprf = senderPRF(group, ss, x, y+1, ctx);
-        printBytes(sendprf, 32);
+            //printf("PRF calculated by sender:\n");
+
+            //unsigned char * sendprf = senderPRF(group, ss, x, y+1, ctx);
+            //printBytes(sendprf, 32);
+
+
+        }
     }
 }
 
 
 int main(int argc, char ** argv){
-    if(argc != 2){
-        printf("No argument given, testing with default input string\n");
-        testOPRF("1010101");
-    }
-    else
-        testOPRF(argv[1]);
+    // if(argc != 2){
+    //     printf("No argument given, testing with default input string\n");
+    //     //testOPRF("1010101010101010");
+    //     testOPRF("10101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010");
+    // }
+    // else
+    //     testOPRF(argv[1]);
+    
 }

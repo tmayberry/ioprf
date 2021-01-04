@@ -26,22 +26,26 @@ int randomBNFromPrimeGroup(BIGNUM * p, BIGNUM * output, BN_CTX * ctx){
 
 //Creates the two generators g1 and g2 for an elliptic curve
 //g1 and g2 must be initialized EC_POINT objects
-int generateECParameters(EC_GROUP *group, EC_POINT *g1, EC_POINT *g2, BN_CTX *ctx){
+int generateECParameters(EC_GROUP **group, EC_POINT **g1, EC_POINT **g2, BN_CTX *ctx){
     int ok = 0;
     BIGNUM *k; 
     
+    *group = EC_GROUP_new_by_curve_name(NID_secp224r1);
+
+    *g1 = EC_POINT_new(*group);
+    *g2 = EC_POINT_new(*group);
 
     k = BN_new();
     
     //Choose a random number k (this can be 0 with negligible chance, we won't worry about it)
     //Multiply generator by k to get a new random generator
     //g1 could be 1 or -1 but only with negligible chance so again we won't worry about it
-    randomBNFromECGroup(group, k, ctx);
-    EC_POINT_mul(group,g1,k,NULL,NULL,ctx);
+    randomBNFromECGroup(*group, k, ctx);
+    EC_POINT_mul(*group,*g1,k,NULL,NULL,ctx);
 
     //Repeat again for second generator
-    randomBNFromECGroup(group, k, ctx);
-    EC_POINT_mul(group,g2,k,NULL,NULL,ctx);
+    randomBNFromECGroup(*group, k, ctx);
+    EC_POINT_mul(*group,*g2,k,NULL,NULL,ctx);
 
     BN_free(k);
 
@@ -191,4 +195,63 @@ void printBytes(unsigned char * b, int length){
         printf("%x", b[i]);
     }
     printf("\n");
+}
+
+void createParameterFile()
+{
+    EC_GROUP * group;
+    BN_CTX * ctx = BN_CTX_new();
+    EC_POINT *g1, *g2;
+
+    generateECParameters(&group, &g1, &g2, ctx);
+
+    int size1 = EC_POINT_point2oct(group, g1, POINT_CONVERSION_UNCOMPRESSED, NULL, 0, ctx);
+    int size2 = EC_POINT_point2oct(group, g2, POINT_CONVERSION_UNCOMPRESSED, NULL, 0, ctx);
+
+    unsigned char * g1bytes = malloc(size1);
+    unsigned char * g2bytes = malloc(size2);
+
+    EC_POINT_point2oct(group, g1, POINT_CONVERSION_UNCOMPRESSED, g1bytes, size1, ctx);
+    EC_POINT_point2oct(group, g2, POINT_CONVERSION_UNCOMPRESSED, g2bytes, size1, ctx);
+
+    FILE * out = fopen("params.bin", "wb");
+
+    unsigned char  length[] = {(unsigned char)size1};
+    fwrite(length, 1, 1, out);
+    fwrite(g1bytes, size1, 1, out);
+
+    length[0] = (unsigned char)size2;
+    fwrite(length, 1, 1, out);
+    fwrite(g2bytes, size2, 1, out);
+
+    fclose(out);
+}
+
+//Reads the file params.bin and gets the 2 generator points
+//Uses fixed curve
+void readParameterFile(EC_GROUP ** group, EC_POINT ** g1, EC_POINT ** g2, BN_CTX * ctx){
+    *group = EC_GROUP_new_by_curve_name(NID_secp224r1);
+
+    *g1 = EC_POINT_new(*group);
+    *g2 = EC_POINT_new(*group);
+
+    FILE * in = fopen("params.bin", "rb");
+    if(in == NULL){
+        printf("Must run ./test gen to generate the parameter file\n");
+        return;
+    }
+    unsigned char * length = malloc(1);
+    fread(length, 1, 1, in);
+
+    unsigned char * gbytes = malloc(length[0]);
+    fread(gbytes, length[0], 1, in);
+
+    EC_POINT_oct2point(*group, *g1, gbytes, length[0], ctx);
+
+    fread(length, 1, 1, in);
+    fread(gbytes, length[0], 1, in);
+
+    EC_POINT_oct2point(*group, *g2, gbytes, length[0], ctx);
+
+    fclose(in);
 }

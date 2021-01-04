@@ -26,7 +26,7 @@ void testECElGamal(){
     group = EC_GROUP_new_by_curve_name(NID_secp224r1);
 
     //Get two random generators of the group
-    generateECParameters(group, ecg1, ecg2, ctx);
+    generateECParameters(&group, &ecg1, &ecg2, ctx);
       
 }
 
@@ -41,17 +41,12 @@ void testOPRF(char * input){
     }
 
     BN_CTX * ctx = BN_CTX_new();
-    EC_GROUP * group = EC_GROUP_new_by_curve_name(NID_secp224r1);
+    EC_GROUP * group;
 
-    EC_POINT * g1 = EC_POINT_new(group);
-    EC_POINT * g2 = EC_POINT_new(group);
+    EC_POINT * g1;
+    EC_POINT * g2;
 
-    generateECParameters(group, g1, g2, ctx);
-
-    RECEIVERSTATE * rs = initializeReceiver(group, g1, g2, ctx);
-    SENDERSTATE * ss = initializeSender(128, 2048);
-
-    printf("Testing PRF for input %s of length %d\n\n", input, iterations);
+    readParameterFile(&group, &g1, &g2, ctx);
 
     EC_POINT * X0, *X1, *Y0, *Y1;
     X0 = EC_POINT_new(group);
@@ -59,33 +54,51 @@ void testOPRF(char * input){
     Y0 = EC_POINT_new(group);
     Y1 = EC_POINT_new(group);
 
-    for( int y = 0; y < iterations; y++){
-        receiverStep1(group, g1, x[y], rs, ctx);
+    for(int z = 0; z < 10; z++){
 
-        senderStep2(group, (ss->a)[y], (ss->b)[y], rs->T0, rs->T1, rs->U0, rs->U1, X0, X1, Y0, Y1, ctx);
+        RECEIVERSTATE * rs = initializeReceiver(group, g1, g2, ctx);
+        SENDERSTATE * ss = initializeSender(128, 128);
 
-        receiverStep3(group, g1, x[y], rs, X0, X1, Y0, Y1, ctx);
+        printf("Testing PRF for input %s of length %d\n\n", input, iterations);
 
-        printf("\nIteration %d ---------\n\n", y+1);
+        
 
-        printf("iOPRF calculated by receiver:\n");
+        for( int y = 0; y < iterations; y++){
+            receiverStep1(group, g1, x[y], rs, ctx);
 
-        unsigned char * recprf = receiverPRF(group, rs, ctx);
-        printBytes(recprf, 32);
+            senderStep2(group, (ss->a)[y], (ss->b)[y], rs->T0, rs->T1, rs->U0, rs->U1, X0, X1, Y0, Y1, ctx);
 
-        printf("PRF calculated by sender:\n");
+            receiverStep3(group, g1, x[y], rs, X0, X1, Y0, Y1, ctx);
 
-        unsigned char * sendprf = senderPRF(group, g2, ss, x, y+1, ctx);
-        printBytes(sendprf, 32);
+            printf("\nIteration %d ---------\n\n", y+1);
+
+            printf("iOPRF calculated by receiver:\n");
+
+            unsigned char * recprf = receiverPRF(group, rs, ctx);
+            printBytes(recprf, 32);
+
+            // printf("PRF calculated by sender:\n");
+
+            // unsigned char * sendprf = senderPRF(group, g2, ss, x, y+1, ctx);
+            // printBytes(sendprf, 32);
+        }
     }
 }
+
+
 
 
 int main(int argc, char ** argv){
     if(argc != 2){
         printf("No argument given, testing with default input string\n");
-        testOPRF("1010101");
+        //testOPRF("10101010");
+        testOPRF("10101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010");
     }
-    else
+    else if(strcmp(argv[1], "gen")){
+        createParameterFile();
+    }
+    else{
         testOPRF(argv[1]);
+    }
+    
 }
