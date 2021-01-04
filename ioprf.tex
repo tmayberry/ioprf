@@ -2,9 +2,6 @@
 \label{our-ioprf}
 \todo{ for one-sided security, we use the OT-based solution.}
 
-\fixme{Switch to additive notation}
-
-
 \subsubsection{Preliminaries}
 Let there be two generators $g_1,g_2$ of prime order $p$ DDH group
 $\myG$. Nobody knows the discrete log of one generator $g_i$ to the
@@ -23,11 +20,11 @@ a generator of $\myG$.  To open $\com_{g}(m)$, reveal $(m,r)$.
 
 
 \subsubsection{$\proto$ Initialization}
-The sender in $\proto$ knows the $\iprf$'s secret key
-$K=(\alpha_1,\ldots,\alpha_\ell,\beta_1,\ldots,\beta_\ell)$ as before. For some input
-string $x=(x_1\ldots{}x_\ell)$, we define the output of $\proto$ for
-the receiver as
-$\iprf_K(x)=g_2^{\prod_{i=1}^{\ell}(\alpha_i{}x_i+\beta_i(1-x_i))}$.
+The sender in $\proto$ knows secret key
+$K=((\alpha_1,\beta_1),\ldots,(\alpha_\ell,\beta_\ell))$.  For some
+input string $x=(x_1\ldots{}x_\ell)$, we define the output of $\proto$
+for the receiver as $(v_1,\ldots,v_\ell)$ with
+$v_i=g_2^{\prod_{j=1}^{i}(\alpha_j{}x_j+\beta_j(1-x_j))}$.
 
 The receiver computes $V_0 \leftarrow\enc_{pk}(1)$ and
 $D_0\leftarrow\enc_{pk}(0)$, sends them to the sender and proves that
@@ -96,11 +93,13 @@ sends $(X_i,Y_i)$ to the receiver and proves correct exponentiation
   Both sender and receiver compute
   $V_i=(P_i[0]\cdot{}Q'_i[0],P_i[1]\cdot{}Q'_i[1])$ and
   $D_i=(P'_i[0]\cdot{}Q_i[0],P'_i[1]\cdot{}Q_i[1])$.
+
+\item The receiver computes one $\iprf$ output value
+  $v_i=\frac{V_i[1]}{V_{i}[0]^{sk}}$.
+
   
 \end{enumerate}
 
-After $\ell$ rounds, the receiver computes output
-$\iprf_K(x)=\frac{V_\ell[1]}{V_{\ell}[0]^{sk}}$.
 
 
 \subsection{Security Analysis}
