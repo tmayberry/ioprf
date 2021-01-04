@@ -15,7 +15,7 @@
 void fetchFile(char **inputStrings, BIGNUM **serverSet, FILE *f, unsigned char *plaintexts, unsigned long n, char party, BIGNUM *p, BN_CTX * ctx);
 int dec(unsigned char *ciphertext, int ciphertext_len, unsigned char *tag, unsigned char *key, unsigned char *iv,unsigned char *plaintext);
 void decrypt (EC_GROUP *group, unsigned char *plaintext, unsigned char *ciphertext, EC_POINT *key, BN_CTX * ctx);
-void encrypt(EC_GROUP *group, unsigned char *ciphertexts, unsigned char *plaintexts, EC_POINT **serverKeyPoints, size_t n);
+void ECencrypt(EC_GROUP *group, unsigned char *ciphertexts, unsigned char *plaintexts, EC_POINT **serverKeyPoints, size_t n);
 int hash(unsigned char* output, unsigned char *input, unsigned int len);
 int enc(unsigned char *plaintext, int plaintext_len, unsigned char *key, unsigned char *iv, unsigned char *ciphertext, unsigned char *tag);
 void printSet(BIGNUM **set1, unsigned long size);

@@ -85,7 +85,7 @@ int main(int argc, char **argv)
     unsigned char *ciphertexts = malloc(n*CIPHERTEXT_LENGTH);
     
     start = omp_get_wtime();
-    encrypt(group, ciphertexts, plaintexts, serverKeyPoints, n);
+    ECencrypt(group, ciphertexts, plaintexts, serverKeyPoints, n);
     end = omp_get_wtime();
     ttime += (end-start);
     printf("Done with encrypting plaintexts in: %f s\n", end-start);

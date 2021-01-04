@@ -102,7 +102,7 @@ void pointToKey(EC_GROUP *group, unsigned char *key, EC_POINT *point, BN_CTX *ct
     BN_free(y);
 }
 
-void encrypt(EC_GROUP *group, unsigned char *ciphertexts, unsigned char *plaintexts, EC_POINT **serverKeyPoints, size_t n) {
+void ECencrypt(EC_GROUP *group, unsigned char *ciphertexts, unsigned char *plaintexts, EC_POINT **serverKeyPoints, size_t n) {
 
     #pragma omp parallel
     {
@@ -115,7 +115,7 @@ void encrypt(EC_GROUP *group, unsigned char *ciphertexts, unsigned char *plainte
         unsigned char key[KEY_LENGTH];
         pointToKey(group, key, serverKeyPoints[i], ctx);
 
-        //Encrypt
+        //ECencrypt
         unsigned char *buff = &ciphertexts[i*CIPHERTEXT_LENGTH];
         unsigned char *iv = buff;
         unsigned char *tag = &buff[IV_LENGTH];
@@ -247,25 +247,25 @@ void emerge(erikBN * X, unsigned long size, erikBN * tmp) {
 
 
 
-void mergesort(BIGNUM ** X, unsigned long size, BIGNUM ** tmp)
+void myMergeSort(BIGNUM ** X, unsigned long size, BIGNUM ** tmp)
 {
     if (size < 2) return;
 
-    mergesort(X, size/2, tmp);
-    mergesort(X+(size/2), size-(size/2), tmp);
+    myMergeSort(X, size/2, tmp);
+    myMergeSort(X+(size/2), size-(size/2), tmp);
 
     merge(X, size, tmp);
 }
 
-void emergesort(erikBN * X, unsigned long size, erikBN *tmp)
+void emyMergeSort(erikBN * X, unsigned long size, erikBN *tmp)
 {
     if (size < 2) return;
 
     //pragma omp task shared(X, tmp)
-    emergesort(X, size/2, tmp);
+    emyMergeSort(X, size/2, tmp);
 
     //pragma omp task shared(X, tmp)
-    emergesort(X+(size/2), size-(size/2), tmp+(size/2));
+    emyMergeSort(X+(size/2), size-(size/2), tmp+(size/2));
 
     //pragma omp taskwait
     emerge(X, size, tmp);
@@ -346,7 +346,7 @@ void findSame(EC_GROUP *group, EC_POINT **points1, EC_POINT **points2, EC_POINT 
 
     erikBN *tmp = initeBN(2*size);
 
-    emergesort(myset, 2*size, tmp);
+    emyMergeSort(myset, 2*size, tmp);
 
     omp_lock_t matchSem, printSem;
     omp_init_lock(&matchSem);
