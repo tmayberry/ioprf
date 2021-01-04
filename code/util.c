@@ -183,3 +183,9 @@ int decryptEG(DHGROUP * group, BIGNUM * sk, BIGNUM * epk, BIGNUM * c, BIGNUM * m
     return 0;
 }
 
+void printBytes(unsigned char * b, int length){
+    for(int i = 0; i < length; i++){
+        printf("%x", b[i]);
+    }
+    printf("\n");
+}

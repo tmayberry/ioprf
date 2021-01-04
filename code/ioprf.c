@@ -227,6 +227,7 @@ int receiverStep3(DHGROUP * group, unsigned int x, RECEIVERSTATE * s, BIGNUM * X
     if( x == 0)
         BN_mod_mul(Qp1, Qp1, Y1, group->p, ctx);
 
+    //Store results
     BN_mod_mul(s->V0, P0, Qp0, group->p, ctx);
     BN_mod_mul(s->V1, P1, Qp1, group->p, ctx);
 

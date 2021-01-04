@@ -2,6 +2,7 @@
 #include "ioprf.h"
 #include <openssl/obj_mac.h>
 #include <openssl/ec.h>
+#include <string.h>
 
 void testElGamal(){
     BN_CTX * ctx;
@@ -59,8 +60,14 @@ void testECElGamal(){
 }
 
 
-void testOPRF(){
-    int iterations = 1;
+void testOPRF(char * input){
+    int iterations = strlen(input);
+
+    int * x = malloc(sizeof(int) * iterations);
+
+    for(int i = 0; i < iterations; i++){
+        x[i] = input[i] == '1' ? 1 : 0;
+    }
 
     BN_CTX * ctx = BN_CTX_new();
     DHGROUP * group = chooseGroupParameters(ctx);
@@ -68,13 +75,13 @@ void testOPRF(){
     RECEIVERSTATE * rs = initializeReceiver(group, ctx);
     SENDERSTATE * ss = initializeSender(128, 2048);
 
-    int y = 0;
+    //For debugging
+    BIGNUM * tmp = BN_new();
 
-    int * x = malloc(sizeof(int) * iterations);
+    printf("Testing PRF for input %s of length %d\n\n", input, iterations);
 
-    for( y = 0; y < iterations; y++){
-
-        receiverStep1(group, y % 2, rs, ctx);
+    for( int y = 0; y < iterations; y++){
+        receiverStep1(group, x[y], rs, ctx);
 
         BIGNUM * X0, *X1, *Y0, *Y1;
         X0 = BN_new();
@@ -82,33 +89,30 @@ void testOPRF(){
         Y0 = BN_new();
         Y1 = BN_new();
 
-        senderStep2(group, (ss->a)[0], (ss->b)[0], rs->T0, rs->T1, rs->U0, rs->U1, X0, X1, Y0, Y1, ctx);
+        senderStep2(group, (ss->a)[y], (ss->b)[y], rs->T0, rs->T1, rs->U0, rs->U1, X0, X1, Y0, Y1, ctx);
 
-        receiverStep3(group, y % 2, rs, X0, X1, Y0, Y1, ctx);
+        receiverStep3(group, x[y], rs, X0, X1, Y0, Y1, ctx);
 
-        x[y] = y%2;
+        printf("\nIteration %d ---------\n\n", y+1);
+
+        printf("iOPRF calculated by receiver:\n");
+
+        unsigned char * recprf = receiverPRF(group, rs, ctx);
+        printBytes(recprf, 32);
+
+        printf("PRF calculated by sender:\n");
+
+        unsigned char * sendprf = senderPRF(group, ss, x, y+1, ctx);
+        printBytes(sendprf, 32);
     }
-
-    printf("iOPRF calculated by receiver:\n");
-
-    unsigned char * recprf = receiverPRF(group, rs, ctx);
-
-    for(int i = 0; i < 32; i++){
-        printf("%x", recprf[i]);
-    }
-    printf("\n");
-
-    printf("PRF calculated by sender:\n");
-
-    unsigned char * sendprf = senderPRF(group, ss, x, 1, ctx);
-
-    for(int i = 0; i < 32; i++){
-        printf("%x", sendprf[i]);
-    }
-    printf("\n");
 }
 
 
-int main(){
-    testOPRF();
+int main(int argc, char ** argv){
+    if(argc != 2){
+        printf("No argument given, testing with default input string\n");
+        testOPRF("1010101");
+    }
+    else
+        testOPRF(argv[1]);
 }
