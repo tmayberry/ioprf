@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "ecioprf.h"
+#include "ioprf.h"
 #include <openssl/obj_mac.h>
 #include <openssl/ec.h>
 #include <string.h>
@@ -70,7 +70,7 @@ void testOPRF(char * input){
     }
 
     BN_CTX * ctx = BN_CTX_new();
-    DHGROUP * group = chooseGroupParameters();
+    DHGROUP * group = chooseGroupParameters(ctx);
 
     RECEIVERSTATE * rs = initializeReceiver(group, ctx);
     SENDERSTATE * ss = initializeSender(128, 2048);
