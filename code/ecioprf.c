@@ -121,11 +121,11 @@ int receiverStep1(EC_GROUP * group, EC_POINT * g1, unsigned int x, RECEIVERSTATE
     //d'
     EC_POINT_mul(group, dp0, NULL, g1, r3, ctx);
     if( x == 0 )
-        EC_POINT_add(group, dp0, cp0, s->D0, ctx);
+        EC_POINT_add(group, dp0, dp0, s->D0, ctx);
 
     EC_POINT_mul(group, dp1, NULL, s->pk, r3, ctx);
     if( x == 0 )
-        EC_POINT_add(group, dp1, cp1, s->D1, ctx);
+        EC_POINT_add(group, dp1, dp1, s->D1, ctx);
 
     //Calculate T and U
     EC_POINT_add(group, s->T0, c0, dp0, ctx);
@@ -197,7 +197,7 @@ int receiverStep3(EC_GROUP * group, EC_POINT * g1, unsigned int x, RECEIVERSTATE
     //P'
     EC_POINT_mul(group, Pp0, NULL, g1, r1, ctx);
     if( x == 0 )
-        EC_POINT_add(group, P0, P0, X0, ctx);
+        EC_POINT_add(group, Pp0, Pp0, X0, ctx);
 
     EC_POINT_mul(group, Pp1, NULL, s->pk, r1, ctx);
     if( x == 0 )
