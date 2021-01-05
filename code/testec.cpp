@@ -107,6 +107,7 @@ int testOPRF(char * input, NetIO * io, int party){
 	    //ToDo: Receiver sends c,c',d,d'
 	  }
 	  else {
+	    //ToDO: Sender receives c,c',d,d'
 	    
 	    //ToDo: Sender computes T, U
 	    //senderStep1c(...)
@@ -116,6 +117,7 @@ int testOPRF(char * input, NetIO * io, int party){
 	    //Todo: Send X,Y to receiver
 	  }
 	  if (party==RECEIVER) {
+	    //ToDo: receiver receives X,Y
             receiverStep3(x[y], rs, ss->X0, ss->X1, ss->Y0, ss->Y1);
 
             //printf("Iteration %d: ", y+1);
@@ -133,9 +135,9 @@ int testOPRF(char * input, NetIO * io, int party){
 	    cpu_time_used += (double) (end-start);
 	    
             //printBytes(sendprf, 32);
-	    if (memcmp(sendprf, recprf, 32)!=0) {
+	    /*	    if (memcmp(sendprf, recprf, 32)!=0) {
 	      printf("FAIL\n");
-	    } 
+	      } */
         }
     }
     printf("CPU time: %f ms per/IOPRF\n",1000.0*cpu_time_used/(CLOCKS_PER_SEC*runs));
