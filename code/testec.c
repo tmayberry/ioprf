@@ -94,12 +94,13 @@ int testOPRF(char * input){
 
 
 int main(int argc, char ** argv){
-    if(argc != 2){
+  if(argc != 2){
         printf("No argument given, testing with default input string\n");
         //testOPRF("10101010");
         return testOPRF("10101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010");
     }
-    else if(strcmp(argv[1], "gen")){
+    else if(strcmp(argv[1], "gen")==0){
+        printf("Generating parameter file.\n");
         createParameterFile();
     }
     else{
