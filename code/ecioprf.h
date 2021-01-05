@@ -13,20 +13,31 @@ typedef struct receiverstate{
     EC_POINT * T1;
     EC_POINT * U0;
     EC_POINT * U1;
+  
+    //Intermediate values c, c', d and d'
+    EC_POINT *c0, *c1, *cp0, *cp1, *d0, *d1, *dp0, *dp1;
+ 
+    EC_POINT * g1;
+    EC_POINT * g2;
     BN_CTX * ctx;
+    EC_GROUP * group;
+  
 } RECEIVERSTATE;
 
 typedef struct senderstate{
     BIGNUM ** a;
     BIGNUM ** b;
+    EC_GROUP * group;
+    EC_POINT * g2;
+  BN_CTX * ctx;
 } SENDERSTATE;
 
 
-SENDERSTATE * initializeSender(int size, int bits);
-RECEIVERSTATE * initializeReceiver(EC_GROUP * group, EC_POINT * g1, EC_POINT * g2, BN_CTX * ctx);
-int receiverStep1(EC_GROUP * group, EC_POINT * g1, unsigned int x, RECEIVERSTATE * state, BN_CTX * ctx);
-int senderStep2(EC_GROUP * group, BIGNUM * alpha, BIGNUM * beta, EC_POINT * T0, EC_POINT * T1, EC_POINT * U0, EC_POINT * U1, EC_POINT * X0, EC_POINT * X1, EC_POINT * Y0, EC_POINT * Y1, BN_CTX * ctx);
-int receiverStep3(EC_GROUP * group, EC_POINT * g1, unsigned int x, RECEIVERSTATE * state, EC_POINT * X0, EC_POINT * X1, EC_POINT * Y0, EC_POINT * Y1, BN_CTX * ctx);
-unsigned char * receiverPRF(EC_GROUP * group, RECEIVERSTATE * state, BN_CTX * ctx);
+SENDERSTATE * initializeSender(EC_GROUP * group, EC_POINT * g2, int size, int bits);
+RECEIVERSTATE * initializeReceiver(EC_GROUP * group, EC_POINT * g1, EC_POINT * g2);
+int receiverStep1(unsigned int x, RECEIVERSTATE * state);
+int senderStep2(SENDERSTATE *s, int index, EC_POINT * T0, EC_POINT * T1, EC_POINT * U0, EC_POINT * U1, EC_POINT * X0, EC_POINT * X1, EC_POINT * Y0, EC_POINT * Y1);
+int receiverStep3(unsigned int x, RECEIVERSTATE * state, EC_POINT * X0, EC_POINT * X1, EC_POINT * Y0, EC_POINT * Y1);
+unsigned char * receiverPRF(RECEIVERSTATE * state);
 unsigned char * hashPoint(EC_GROUP * group, EC_POINT * number, BN_CTX * ctx);
-unsigned char * senderPRF(EC_GROUP * group, EC_POINT * g2, SENDERSTATE * s, int * x, int length, BN_CTX * ctx);
+unsigned char * senderPRF(SENDERSTATE * s, int * x, int length);

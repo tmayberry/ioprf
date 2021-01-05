@@ -62,32 +62,31 @@ int testOPRF(char * input){
 
     clock_t start, end;
     double cpu_time_used = 0.0;
-
-    
-    for(int z = 0; z < runs; z++)
+   
+        for(int z = 0; z < runs; z++)
       {
 
-        RECEIVERSTATE * rs = initializeReceiver(group, g1, g2, ctx);
-        SENDERSTATE * ss = initializeSender(128, 128);
+        RECEIVERSTATE * rs = initializeReceiver(group, g1, g2);
+        SENDERSTATE * ss = initializeSender(group, g2, 128, 128);
 
 	start = clock();
         for( int y = 0; y < iterations; y++){
-            receiverStep1(group, g1, x[y], rs, ctx);
-
-            senderStep2(group, (ss->a)[y], (ss->b)[y], rs->T0, rs->T1, rs->U0, rs->U1, X0, X1, Y0, Y1, ctx);
-
-            receiverStep3(group, g1, x[y], rs, X0, X1, Y0, Y1, ctx);
+            receiverStep1(x[y], rs);
+   
+            senderStep2(ss, y, rs->T0, rs->T1, rs->U0, rs->U1, X0, X1, Y0, Y1);
+	    
+            receiverStep3(x[y], rs, X0, X1, Y0, Y1);
 
             //printf("Iteration %d: ", y+1);
 
 	    //	    printf("iOPRF calculated by receiver:\n");
 
-            unsigned char * recprf = receiverPRF(group, rs, ctx);
+            unsigned char * recprf = receiverPRF(rs);
             //printBytes(recprf, 32);
 
             //printf("PRF calculated by sender:\n");
 
-            unsigned char * sendprf = senderPRF(group, g2, ss, x, y+1, ctx);
+            unsigned char * sendprf = senderPRF(ss, x, y+1);
 
 	    end = clock();
 	    cpu_time_used += (double) (end-start);
