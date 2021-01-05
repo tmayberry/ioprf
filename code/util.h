@@ -20,3 +20,5 @@ int decryptEG(DHGROUP * group, BIGNUM * sk, BIGNUM * epk, BIGNUM * c, BIGNUM * m
 void printBytes(unsigned char * b, int length);
 int readParameterFile(EC_GROUP ** group, EC_POINT ** g1, EC_POINT ** g2, BN_CTX * ctx);
 void createParameterFile();
+
+void point2BA(unsigned char **buf, size_t *length, EC_POINT * p, EC_GROUP * group, BN_CTX * ctx);

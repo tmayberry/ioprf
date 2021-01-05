@@ -1,8 +1,18 @@
+#define SENDER 1
+#define RECEIVER 2
+
 #include <stdio.h>
 #include "ecioprf.h"
 #include <openssl/obj_mac.h>
 #include <openssl/ec.h>
 #include <string.h>
+
+#include "emp-tool/emp-tool.h"
+#include <iostream>
+
+using namespace std;
+using namespace emp;
+
 
 void testECElGamal(){
     BN_CTX * ctx;
@@ -17,7 +27,7 @@ void testECElGamal(){
     EC_POINT * ecg2, *ecg1;
 
     //Allocate and initialize bignums for the private key
-    BIGNUM ** privkey = calloc(sizeof(BIGNUM *),keysize);
+    BIGNUM ** privkey = (BIGNUM **) calloc(sizeof(BIGNUM *),keysize);
     for(int x = 0; x < keysize; x++){
         privkey[x] = BN_new();
     }
@@ -31,10 +41,10 @@ void testECElGamal(){
 }
 
 
-int testOPRF(char * input){
+int testOPRF(char * input, int party){
     int iterations = strlen(input);
 
-    int * x = malloc(sizeof(int) * iterations);
+    int * x = (int *) malloc(sizeof(int) * iterations);
 
     for(int i = 0; i < iterations; i++){
         x[i] = input[i] == '1' ? 1 : 0;
@@ -67,6 +77,32 @@ int testOPRF(char * input){
         for( int y = 0; y < iterations; y++){
             receiverStep1(x[y], rs);
 
+	    unsigned char *c0, *c1, *cp0, *cp1, *d0, *d1, *dp0, *dp1;
+	    size_t total_size = 0;
+	    size_t length;
+
+	    point2BA(&c0, &length, rs->c0, rs->group, rs->ctx);
+	    total_size+=length;
+	    point2BA(&c1, &length, rs->c1, rs->group, rs->ctx);
+	    total_size+=length;
+
+	    point2BA(&cp0, &length, rs->cp0, rs->group, rs->ctx);
+	    total_size+=length;
+	    point2BA(&cp1, &length, rs->cp1, rs->group, rs->ctx);
+	    total_size+=length;
+	    
+	    point2BA(&d0, &length, rs->d0, rs->group, rs->ctx);
+	    total_size+=length;
+	    point2BA(&d1, &length, rs->d1, rs->group, rs->ctx);
+	    total_size+=length;
+
+	    point2BA(&dp0, &length, rs->dp0, rs->group, rs->ctx);
+	    total_size+=length;
+	    point2BA(&dp1, &length, rs->dp1, rs->group, rs->ctx);
+	    total_size+=length;
+
+	    
+	    
 	    //ToDo: Receiver sends c,c',d,d'
 	    //ToDo: Sender computes T, U
 	    //senderStep1c(...)
@@ -111,17 +147,16 @@ int testOPRF(char * input){
 
 
 int main(int argc, char ** argv){
-  if(argc != 2){
-        printf("No argument given, testing with default input string\n");
-        //testOPRF("10101010");
-        return testOPRF("10101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010");
-    }
-    else if(strcmp(argv[1], "gen")==0){
-        printf("Generating parameter file.\n");
-        createParameterFile();
-    }
-    else{
-        return testOPRF(argv[1]);
-    }
+  if (argc!=4) {
+    cout <<"You have to specify which party (1=Alice=sender or 2=Bob=receiver) and which port (e.g., 12345) you are, and the string (e.g., 101101)."<<endl;
+    return -1;
+  }
+
+  /*  int port, party;
+  parse_party_and_port(argv, &party, &port);
+  NetIO * io = new NetIO(party == SENDER ? nullptr:"127.0.0.1", port);
+  */
+  return testOPRF(argv[3], 1);
+    
     
 }

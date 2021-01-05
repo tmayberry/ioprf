@@ -6,7 +6,7 @@
 
 //Creates size number of random BIGNUMs, each bits length long, and stores them in the vectors a and b
 SENDERSTATE * initializeSender(EC_GROUP * group, EC_POINT * g2, int size, int bits){
-    SENDERSTATE * s = malloc(sizeof(SENDERSTATE));
+  SENDERSTATE * s = (SENDERSTATE *) malloc(sizeof(SENDERSTATE));
 
     s->group = group;
     s->ctx = BN_CTX_new();
@@ -18,8 +18,8 @@ SENDERSTATE * initializeSender(EC_GROUP * group, EC_POINT * g2, int size, int bi
     s->Y1 = EC_POINT_new(group);
 
     
-    s->a = calloc(size, sizeof(BIGNUM*));
-    s->b = calloc(size, sizeof(BIGNUM*));
+    s->a = (BIGNUM**) calloc(size, sizeof(BIGNUM*));
+    s->b = (BIGNUM**) calloc(size, sizeof(BIGNUM*));
 
     for(int x = 0; x < size; x++){
         (s->a)[x] = BN_new();
@@ -34,7 +34,7 @@ SENDERSTATE * initializeSender(EC_GROUP * group, EC_POINT * g2, int size, int bi
 //Initialize the receiver state 
 RECEIVERSTATE * initializeReceiver(EC_GROUP * group, EC_POINT * g1, EC_POINT * g2){
     //Malloc space for it
-    RECEIVERSTATE * s = malloc(sizeof(RECEIVERSTATE));
+  RECEIVERSTATE * s = (RECEIVERSTATE *) malloc(sizeof(RECEIVERSTATE));
 
     //Allocate all variables
     s->c0 = EC_POINT_new(group);
@@ -318,10 +318,14 @@ unsigned char * receiverPRF(RECEIVERSTATE * s){
 //Hashes a BIGNUM to a byte array using SHA256
 unsigned char * hashPoint(EC_GROUP * group, EC_POINT * number, BN_CTX * ctx){
 
-    int size = EC_POINT_point2oct(group, number, POINT_CONVERSION_UNCOMPRESSED, NULL, 0, ctx);
+  /*    int size = EC_POINT_point2oct(group, number, POINT_CONVERSION_UNCOMPRESSED, NULL, 0, ctx);
     unsigned char * numbytes = malloc(size);
-    EC_POINT_point2oct(group, number, POINT_CONVERSION_UNCOMPRESSED, numbytes, size, ctx);
-    unsigned char * finalbytes = malloc(32);
+    EC_POINT_point2oct(group, number, POINT_CONVERSION_UNCOMPRESSED, numbytes, size, ctx);*/
+  unsigned char *numbytes;
+  size_t size;
+  point2BA(&numbytes, &size, number, group, ctx);
+  
+  unsigned char * finalbytes = (unsigned char *) malloc(32);
 
     unsigned int writtenbytes;
     EVP_Digest(numbytes, size, finalbytes, &writtenbytes, EVP_sha256(), NULL);
