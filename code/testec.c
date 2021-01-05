@@ -57,15 +57,20 @@ int testOPRF(char * input){
     Y0 = EC_POINT_new(group);
     Y1 = EC_POINT_new(group);
 
-    for(int z = 0; z < 10; z++){
+    int runs = 100;
+    printf("Testing PRF for input %s of length %d, %d runs\n", input, iterations,runs);
+
+    clock_t start, end;
+    double cpu_time_used = 0.0;
+
+    
+    for(int z = 0; z < runs; z++)
+      {
 
         RECEIVERSTATE * rs = initializeReceiver(group, g1, g2, ctx);
         SENDERSTATE * ss = initializeSender(128, 128);
 
-        printf("Testing PRF for input %s of length %d\n\n", input, iterations);
-
-        
-
+	start = clock();
         for( int y = 0; y < iterations; y++){
             receiverStep1(group, g1, x[y], rs, ctx);
 
@@ -73,20 +78,34 @@ int testOPRF(char * input){
 
             receiverStep3(group, g1, x[y], rs, X0, X1, Y0, Y1, ctx);
 
-            printf("\nIteration %d ---------\n\n", y+1);
+            //printf("Iteration %d: ", y+1);
 
-            printf("iOPRF calculated by receiver:\n");
+	    //	    printf("iOPRF calculated by receiver:\n");
 
             unsigned char * recprf = receiverPRF(group, rs, ctx);
-            printBytes(recprf, 32);
+            //printBytes(recprf, 32);
 
-            // printf("PRF calculated by sender:\n");
+            //printf("PRF calculated by sender:\n");
 
-            // unsigned char * sendprf = senderPRF(group, g2, ss, x, y+1, ctx);
-            // printBytes(sendprf, 32);
+            unsigned char * sendprf = senderPRF(group, g2, ss, x, y+1, ctx);
+
+	    end = clock();
+	    cpu_time_used += (double) (end-start);
+	    
+            //printBytes(sendprf, 32);
+	    if (memcmp(sendprf, recprf, 32)!=0) {
+	      printf("FAIL\n");
+	    } 
         }
     }
+    printf("CPU time: %f ms per/IOPRF\n",1000.0*cpu_time_used/(CLOCKS_PER_SEC*runs));
+    
 
+    EC_POINT_free(g1);
+    EC_POINT_free(g2);
+    EC_GROUP_free(group);
+    BN_CTX_free(ctx);
+    
     return 0;
 }
 

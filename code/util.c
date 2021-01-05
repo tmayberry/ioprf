@@ -36,7 +36,8 @@ int generateECParameters(EC_GROUP **group, EC_POINT **g1, EC_POINT **g2, BN_CTX 
     *g2 = EC_POINT_new(*group);
 
     k = BN_new();
-    
+
+    //Computing these generators should be done once by a trusted party.
     //Choose a random number k (this can be 0 with negligible chance, we won't worry about it)
     //Multiply generator by k to get a new random generator
     //g1 could be 1 or -1 but only with negligible chance so again we won't worry about it
@@ -225,6 +226,12 @@ void createParameterFile()
     fwrite(g2bytes, size2, 1, out);
 
     fclose(out);
+    BN_CTX_free(ctx);
+    free(g1bytes);
+    free(g2bytes);
+    EC_POINT_free(g1);
+    EC_POINT_free(g2);
+    EC_GROUP_free(group);
 }
 
 //Reads the file params.bin and gets the 2 generator points
