@@ -51,12 +51,6 @@ int testOPRF(char * input){
       return -1;
     }
 
-    EC_POINT * X0, *X1, *Y0, *Y1;
-    X0 = EC_POINT_new(group);
-    X1 = EC_POINT_new(group);
-    Y0 = EC_POINT_new(group);
-    Y1 = EC_POINT_new(group);
-
     int runs = 100;
     printf("Testing PRF for input %s of length %d, %d runs\n", input, iterations,runs);
 
@@ -72,10 +66,15 @@ int testOPRF(char * input){
 	start = clock();
         for( int y = 0; y < iterations; y++){
             receiverStep1(x[y], rs);
-   
-            senderStep2(ss, y, rs->T0, rs->T1, rs->U0, rs->U1, X0, X1, Y0, Y1);
+
+	    //ToDo: Receiver sends c,c',d,d'
+	    //ToDo: Sender computes T, U
+	    //senderStep1c(...)
 	    
-            receiverStep3(x[y], rs, X0, X1, Y0, Y1);
+            senderStep2(ss, y, rs->T0, rs->T1, rs->U0, rs->U1);
+
+	    //Todo: Send X,Y to receiver
+            receiverStep3(x[y], rs, ss->X0, ss->X1, ss->Y0, ss->Y1);
 
             //printf("Iteration %d: ", y+1);
 

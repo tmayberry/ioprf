@@ -11,6 +11,12 @@ SENDERSTATE * initializeSender(EC_GROUP * group, EC_POINT * g2, int size, int bi
     s->group = group;
     s->ctx = BN_CTX_new();
     s->g2 = g2;
+
+    s->X0 = EC_POINT_new(group);
+    s->X1 = EC_POINT_new(group);
+    s->Y0 = EC_POINT_new(group);
+    s->Y1 = EC_POINT_new(group);
+
     
     s->a = calloc(size, sizeof(BIGNUM*));
     s->b = calloc(size, sizeof(BIGNUM*));
@@ -179,10 +185,15 @@ int receiverStep1(unsigned int x, RECEIVERSTATE * s){
 //position is the index into the PRF key that should be used at this step
 //Sender raises T to the alpha, outputs as X
 //Sender raises U to the beta, ouputs as Y
-int senderStep2(SENDERSTATE *s, int index, EC_POINT * T0, EC_POINT * T1, EC_POINT * U0, EC_POINT * U1, EC_POINT * X0, EC_POINT * X1, EC_POINT * Y0, EC_POINT * Y1){
+int senderStep2(SENDERSTATE *s, int index, EC_POINT * T0, EC_POINT * T1, EC_POINT * U0, EC_POINT * U1){
   EC_GROUP * group = s->group;
    BN_CTX * ctx = s->ctx;
 
+   EC_POINT * X0 = s->X0;
+   EC_POINT * X1 = s->X1;
+   EC_POINT * Y0 = s->Y0;
+   EC_POINT * Y1 = s->Y1;
+   
    BIGNUM  * alpha = (s->a)[index];
    BIGNUM  * beta = (s->b)[index];
 

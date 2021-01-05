@@ -25,6 +25,8 @@ typedef struct receiverstate{
 } RECEIVERSTATE;
 
 typedef struct senderstate{
+    EC_POINT * X0, *X1, *Y0, *Y1;
+
     BIGNUM ** a;
     BIGNUM ** b;
     EC_GROUP * group;
@@ -36,7 +38,7 @@ typedef struct senderstate{
 SENDERSTATE * initializeSender(EC_GROUP * group, EC_POINT * g2, int size, int bits);
 RECEIVERSTATE * initializeReceiver(EC_GROUP * group, EC_POINT * g1, EC_POINT * g2);
 int receiverStep1(unsigned int x, RECEIVERSTATE * state);
-int senderStep2(SENDERSTATE *s, int index, EC_POINT * T0, EC_POINT * T1, EC_POINT * U0, EC_POINT * U1, EC_POINT * X0, EC_POINT * X1, EC_POINT * Y0, EC_POINT * Y1);
+int senderStep2(SENDERSTATE *s, int index, EC_POINT * T0, EC_POINT * T1, EC_POINT * U0, EC_POINT * U1);
 int receiverStep3(unsigned int x, RECEIVERSTATE * state, EC_POINT * X0, EC_POINT * X1, EC_POINT * Y0, EC_POINT * Y1);
 unsigned char * receiverPRF(RECEIVERSTATE * state);
 unsigned char * hashPoint(EC_GROUP * group, EC_POINT * number, BN_CTX * ctx);
