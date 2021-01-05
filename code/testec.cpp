@@ -41,7 +41,7 @@ void testECElGamal(){
 }
 
 
-int testOPRF(char * input, int party){
+int testOPRF(char * input, NetIO * io, int party){
     int iterations = strlen(input);
 
     int * x = (int *) malloc(sizeof(int) * iterations);
@@ -70,11 +70,15 @@ int testOPRF(char * input, int party){
         for(int z = 0; z < runs; z++)
       {
 
+	if (party==RECEIVER) {
         RECEIVERSTATE * rs = initializeReceiver(group, g1, g2);
+	} else {
         SENDERSTATE * ss = initializeSender(group, g2, 128, 128);
-
+	}
+	
 	start = clock();
         for( int y = 0; y < iterations; y++){
+	  if (party==RECEIVER) {
             receiverStep1(x[y], rs);
 
 	    unsigned char *c0, *c1, *cp0, *cp1, *d0, *d1, *dp0, *dp1;
@@ -100,16 +104,18 @@ int testOPRF(char * input, int party){
 	    total_size+=length;
 	    point2BA(&dp1, &length, rs->dp1, rs->group, rs->ctx);
 	    total_size+=length;
-
-	    
-	    
 	    //ToDo: Receiver sends c,c',d,d'
+	  }
+	  else {
+	    
 	    //ToDo: Sender computes T, U
 	    //senderStep1c(...)
 	    
             senderStep2(ss, y, rs->T0, rs->T1, rs->U0, rs->U1);
 
 	    //Todo: Send X,Y to receiver
+	  }
+	  if (party==RECEIVER) {
             receiverStep3(x[y], rs, ss->X0, ss->X1, ss->Y0, ss->Y1);
 
             //printf("Iteration %d: ", y+1);
@@ -120,9 +126,9 @@ int testOPRF(char * input, int party){
             //printBytes(recprf, 32);
 
             //printf("PRF calculated by sender:\n");
-
+	  } else {
             unsigned char * sendprf = senderPRF(ss, x, y+1);
-
+	  }
 	    end = clock();
 	    cpu_time_used += (double) (end-start);
 	    
@@ -152,11 +158,11 @@ int main(int argc, char ** argv){
     return -1;
   }
 
-  /*  int port, party;
+  int port, party;
   parse_party_and_port(argv, &party, &port);
   NetIO * io = new NetIO(party == SENDER ? nullptr:"127.0.0.1", port);
-  */
-  return testOPRF(argv[3], 1);
+  
+  return testOPRF(argv[3], io, party);
     
     
 }
