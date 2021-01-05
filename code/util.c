@@ -229,7 +229,7 @@ void createParameterFile()
 
 //Reads the file params.bin and gets the 2 generator points
 //Uses fixed curve
-void readParameterFile(EC_GROUP ** group, EC_POINT ** g1, EC_POINT ** g2, BN_CTX * ctx){
+int readParameterFile(EC_GROUP ** group, EC_POINT ** g1, EC_POINT ** g2, BN_CTX * ctx){
     *group = EC_GROUP_new_by_curve_name(NID_secp224r1);
 
     *g1 = EC_POINT_new(*group);
@@ -238,7 +238,7 @@ void readParameterFile(EC_GROUP ** group, EC_POINT ** g1, EC_POINT ** g2, BN_CTX
     FILE * in = fopen("params.bin", "rb");
     if(in == NULL){
         printf("Must run ./test gen to generate the parameter file\n");
-        return;
+        return -1;
     }
     unsigned char * length = malloc(1);
     fread(length, 1, 1, in);
@@ -254,4 +254,6 @@ void readParameterFile(EC_GROUP ** group, EC_POINT ** g1, EC_POINT ** g2, BN_CTX
     EC_POINT_oct2point(*group, *g2, gbytes, length[0], ctx);
 
     fclose(in);
+
+    return 0;
 }

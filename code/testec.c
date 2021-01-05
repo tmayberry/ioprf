@@ -31,7 +31,7 @@ void testECElGamal(){
 }
 
 
-void testOPRF(char * input){
+int testOPRF(char * input){
     int iterations = strlen(input);
 
     int * x = malloc(sizeof(int) * iterations);
@@ -46,7 +46,10 @@ void testOPRF(char * input){
     EC_POINT * g1;
     EC_POINT * g2;
 
-    readParameterFile(&group, &g1, &g2, ctx);
+    if (readParameterFile(&group, &g1, &g2, ctx)==-1) {
+      printf("Could not load parameter file.\n");
+      return -1;
+    }
 
     EC_POINT * X0, *X1, *Y0, *Y1;
     X0 = EC_POINT_new(group);
