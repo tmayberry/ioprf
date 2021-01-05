@@ -86,6 +86,8 @@ int testOPRF(char * input){
             // printBytes(sendprf, 32);
         }
     }
+
+    return 0;
 }
 
 
@@ -95,13 +97,13 @@ int main(int argc, char ** argv){
     if(argc != 2){
         printf("No argument given, testing with default input string\n");
         //testOPRF("10101010");
-        testOPRF("10101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010");
+        return testOPRF("10101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010");
     }
     else if(strcmp(argv[1], "gen")){
         createParameterFile();
     }
     else{
-        testOPRF(argv[1]);
+        return testOPRF(argv[1]);
     }
     
 }

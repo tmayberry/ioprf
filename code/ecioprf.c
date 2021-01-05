@@ -272,7 +272,7 @@ unsigned char * hashPoint(EC_GROUP * group, EC_POINT * number, BN_CTX * ctx){
     EC_POINT_point2oct(group, number, POINT_CONVERSION_UNCOMPRESSED, numbytes, size, ctx);
     unsigned char * finalbytes = malloc(32);
 
-    int writtenbytes;
+    unsigned int writtenbytes;
     EVP_Digest(numbytes, size, finalbytes, &writtenbytes, EVP_sha256(), NULL);
 
     return finalbytes;

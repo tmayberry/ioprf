@@ -119,7 +119,7 @@ int generateEGKey(BIGNUM * p, BIGNUM * g, BIGNUM * sk, BIGNUM * pk, BN_CTX * ctx
 int encryptIntEG(DHGROUP * group, BIGNUM * pk, unsigned int m, BIGNUM * c, BIGNUM * epk, BN_CTX * ctx){
     BIGNUM * msgbn = BN_new();
 
-    BN_lebin2bn((char*)(&m), 4, msgbn);
+    BN_lebin2bn((unsigned char*)(&m), 4, msgbn);
 
     int ret = encryptEG(group, pk, msgbn, c, epk, ctx);
 
