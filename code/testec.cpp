@@ -61,7 +61,7 @@ int testOPRF(char * input, NetIO * io, int party){
       return -1;
     }
 
-    int runs = 1;
+    int runs = 100;
     printf("Testing PRF for input %s of length %d, %d runs\n", input, iterations,runs);
 
     clock_t start, end;
@@ -73,17 +73,17 @@ int testOPRF(char * input, NetIO * io, int party){
 
 	if (party==RECEIVER) {
         rs = initializeReceiver(group, g1, g2);
-	cout <<"Receiver init done"<<endl;
+	//cout <<"Receiver init done"<<endl;
 	} else {
         ss = initializeSender(group, g2, 128, 128);
-	cout <<"Receiver init done"<<endl;
+	//cout <<"Receiver init done"<<endl;
 	}
 	
 	start = clock();
         for( int y = 0; y < iterations; y++){
 	  if (party==RECEIVER) {
             receiverStep1(x[y], rs);
-	    cout <<"Receiver Step 1 done."<<endl;
+	    //cout <<"Receiver Step 1 done."<<endl;
 
 	    sendPoint(io, rs->c0, rs->group, rs->ctx);
 	    sendPoint(io, rs->c1, rs->group, rs->ctx);
@@ -93,11 +93,11 @@ int testOPRF(char * input, NetIO * io, int party){
 	    sendPoint(io, rs->d1, rs->group, rs->ctx);
 	    sendPoint(io, rs->dp0, rs->group, rs->ctx);
 	    sendPoint(io, rs->dp1, rs->group, rs->ctx);
-	    cout <<"Sent c, c', ... points"<<endl;
+	    //cout <<"Sent c, c', ... points"<<endl;
 	    
 	  }
 	  else {//sender
-	    //ToDO: Sender receives c,c',d,d'
+	    //Sender receives c,c',d,d'
 	    EC_POINT *c0, *c1, *cp0, *cp1, *d0, *d1, *dp0, *dp1;
 	    
 	    receivePoint(io, &c0, ss->group, ss->ctx);
@@ -108,14 +108,14 @@ int testOPRF(char * input, NetIO * io, int party){
 	    receivePoint(io, &d1, ss->group, ss->ctx);
 	    receivePoint(io, &dp0, ss->group, ss->ctx);
 	    receivePoint(io, &dp1, ss->group, ss->ctx);
-	    cout <<"Received points"<<endl;
+	    //cout <<"Received points"<<endl;
 	    
 	    //Sender computes T, U
 	    senderStep1c(ss, c0, c1, cp0, cp1, d0, d1, dp0, dp1);
-	    cout <<"Sender Step1c done."<<endl;
+	    //cout <<"Sender Step1c done."<<endl;
 	    
             senderStep2(ss, y);
-	    cout <<"Sender Step2 done."<<endl;
+	    //cout <<"Sender Step2 done."<<endl;
 
 	    //Send X,Y to receiver
 	    sendPoint(io, ss->X0, ss->group, ss->ctx);
@@ -123,7 +123,7 @@ int testOPRF(char * input, NetIO * io, int party){
     	    sendPoint(io, ss->Y0, ss->group, ss->ctx);
     	    sendPoint(io, ss->Y1, ss->group, ss->ctx);
 
-	    cout <<"Sent X and Y"<<endl;
+	    //cout <<"Sent X and Y"<<endl;
 	  }
 	  if (party==RECEIVER) {
 	    //Receiver receives X,Y
@@ -132,22 +132,23 @@ int testOPRF(char * input, NetIO * io, int party){
 	    receivePoint(io, &(rs->Y0), rs->group, rs->ctx);
 	    receivePoint(io, &(rs->Y1), rs->group, rs->ctx);
 	    
-	    cout <<"Received X and Y"<<endl;
+	    //cout <<"Received X and Y"<<endl;
 
 	    receiverStep3(x[y], rs);
 
             //printf("Iteration %d: ", y+1);
 
-	    printf("iOPRF calculated by receiver: ");
+	    //printf("iOPRF calculated by receiver: ");
 
-            unsigned char * recprf = receiverPRF(rs);
-            printBytes(recprf, 32);
+            unsigned char *recprf = receiverPRF(rs);
+            //printBytes(recprf, 32);
+	    free(recprf);
 
 	  } else {//Sender
 
-	    printf("PRF calculated by sender: ");
+	    //printf("PRF calculated by sender: ");
 	    unsigned char * sendprf = senderPRF(ss, x, y+1);
-            printBytes(sendprf, 32);
+            //printBytes(sendprf, 32);
 	    free(sendprf);
             
 	  }
@@ -160,7 +161,8 @@ int testOPRF(char * input, NetIO * io, int party){
 	      } */
         }
     }
-    printf("CPU time: %f ms per/IOPRF\n",1000.0*cpu_time_used/(CLOCKS_PER_SEC*runs));
+	
+	printf("Party %d CPU time: %f ms per/IOPRF of length %d\n",party,1000.0*cpu_time_used/(CLOCKS_PER_SEC*runs), iterations);
     
 
     EC_POINT_free(g1);
