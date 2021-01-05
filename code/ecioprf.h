@@ -16,7 +16,10 @@ typedef struct receiverstate{
   
     //Intermediate values c, c', d and d'
     EC_POINT *c0, *c1, *cp0, *cp1, *d0, *d1, *dp0, *dp1;
- 
+
+    //Results from sender
+    EC_POINT * X0, *X1, *Y0, *Y1;
+  
     EC_POINT * g1;
     EC_POINT * g2;
     BN_CTX * ctx;
@@ -40,7 +43,7 @@ SENDERSTATE * initializeSender(EC_GROUP * group, EC_POINT * g2, int size, int bi
 RECEIVERSTATE * initializeReceiver(EC_GROUP * group, EC_POINT * g1, EC_POINT * g2);
 int receiverStep1(unsigned int x, RECEIVERSTATE * state);
 int senderStep2(SENDERSTATE *s, int index);
-int receiverStep3(unsigned int x, RECEIVERSTATE * state, EC_POINT * X0, EC_POINT * X1, EC_POINT * Y0, EC_POINT * Y1);
+int receiverStep3(unsigned int x, RECEIVERSTATE * state);
 unsigned char * receiverPRF(RECEIVERSTATE * state);
 unsigned char * hashPoint(EC_GROUP * group, EC_POINT * number, BN_CTX * ctx);
 unsigned char * senderPRF(SENDERSTATE * s, int * x, int length);

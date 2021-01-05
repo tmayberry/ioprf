@@ -124,8 +124,6 @@ int testOPRF(char * input, NetIO * io, int party){
     	    sendPoint(io, ss->Y1, ss->group, ss->ctx);
 
 	    cout <<"Sent X and Y"<<endl;
-	    exit(1);
-	    
 	  }
 	  if (party==RECEIVER) {
 	    //Receiver receives X,Y
@@ -135,16 +133,15 @@ int testOPRF(char * input, NetIO * io, int party){
 	    receivePoint(io, &(rs->Y1), rs->group, rs->ctx);
 	    
 	    cout <<"Received X and Y"<<endl;
-	    exit(1);
 
-	    receiverStep3(x[y], rs, ss->X0, ss->X1, ss->Y0, ss->Y1);
+	    receiverStep3(x[y], rs);
 
             //printf("Iteration %d: ", y+1);
 
-	    //	    printf("iOPRF calculated by receiver:\n");
+	    printf("iOPRF calculated by receiver:\n");
 
             unsigned char * recprf = receiverPRF(rs);
-            //printBytes(recprf, 32);
+            printBytes(recprf, 32);
 
             //printf("PRF calculated by sender:\n");
 	  } else {
@@ -174,6 +171,15 @@ int testOPRF(char * input, NetIO * io, int party){
 
 
 int main(int argc, char ** argv){
+  if (argc!=1) {
+    if (strcmp(argv[1],"gen")==0) {
+      createParameterFile();
+      cout <<"Parameters created."<<endl;
+      exit(1);
+    }
+  }
+
+  
   if (argc!=4) {
     cout <<"You have to specify which party (1=Alice=sender or 2=Bob=receiver) and which port (e.g., 12345) you are, and the string (e.g., 101101)."<<endl;
     return -1;

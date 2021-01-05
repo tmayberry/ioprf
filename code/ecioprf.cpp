@@ -50,6 +50,12 @@ RECEIVERSTATE * initializeReceiver(EC_GROUP * group, EC_POINT * g1, EC_POINT * g
     s->cp1 = EC_POINT_new(group);
     s->d1 = EC_POINT_new(group);
     s->dp1 = EC_POINT_new(group);
+
+    s->X0 = EC_POINT_new(group);
+    s->X1 = EC_POINT_new(group);
+    s->Y0 = EC_POINT_new(group);
+    s->Y1 = EC_POINT_new(group);
+
     
     s->sk = BN_new();
     s->pk = EC_POINT_new(group);
@@ -231,11 +237,17 @@ int senderStep2(SENDERSTATE *s, int index){
 //Step 3 from the paper
 //Receiver takes as input X and Y
 //Unblinds and unshuffles to obtain new values of V and D
-int receiverStep3(unsigned int x, RECEIVERSTATE * s, EC_POINT * X0, EC_POINT * X1, EC_POINT * Y0, EC_POINT * Y1){
+int receiverStep3(unsigned int x, RECEIVERSTATE * s){
 
   BN_CTX * ctx = s->ctx;
   EC_GROUP * group = s->group;
   EC_POINT * g1 = s->g1;
+
+
+  EC_POINT * X0 = s->X0;
+  EC_POINT * X1 = s->X1;
+  EC_POINT * Y0 = s->Y0;
+  EC_POINT * Y1 = s->Y1;
   
     EC_POINT *P0, *P1, *Pp0, *Pp1, *Q0, *Q1, *Qp0, *Qp1;
     P0 = EC_POINT_new(group);
