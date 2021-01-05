@@ -1,5 +1,5 @@
 all:	
-	g++ -Wall -Wno-ignored-attributes -Iemp-tool/ -o test testec.cpp util.cpp ecioprf.cpp -lcrypto -lssl 
+	g++ -Wall -Wno-unused-variable -Wno-ignored-attributes -Iemp-tool/ -o test testec.cpp util.cpp ecioprf.cpp -lcrypto -lssl 
 
 net:	net.cpp
 	g++ -Iemp-tool/ -Wall -o net net.cpp

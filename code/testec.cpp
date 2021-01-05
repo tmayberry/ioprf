@@ -73,55 +73,71 @@ int testOPRF(char * input, NetIO * io, int party){
 
 	if (party==RECEIVER) {
         rs = initializeReceiver(group, g1, g2);
+	cout <<"Receiver init done"<<endl;
 	} else {
         ss = initializeSender(group, g2, 128, 128);
+	cout <<"Receiver init done"<<endl;
 	}
 	
 	start = clock();
         for( int y = 0; y < iterations; y++){
 	  if (party==RECEIVER) {
             receiverStep1(x[y], rs);
+	    cout <<"Receiver Step 1 done."<<endl;
 
-	    unsigned char *c0, *c1, *cp0, *cp1, *d0, *d1, *dp0, *dp1;
-	    size_t total_size = 0;
-	    size_t length;
-
-	    point2BA(&c0, &length, rs->c0, rs->group, rs->ctx);
-	    total_size+=length;
-	    point2BA(&c1, &length, rs->c1, rs->group, rs->ctx);
-	    total_size+=length;
-
-	    point2BA(&cp0, &length, rs->cp0, rs->group, rs->ctx);
-	    total_size+=length;
-	    point2BA(&cp1, &length, rs->cp1, rs->group, rs->ctx);
-	    total_size+=length;
+	    sendPoint(io, rs->c0, rs->group, rs->ctx);
+	    sendPoint(io, rs->c1, rs->group, rs->ctx);
+	    sendPoint(io, rs->cp0, rs->group, rs->ctx);
+	    sendPoint(io, rs->cp1, rs->group, rs->ctx);
+	    sendPoint(io, rs->d0, rs->group, rs->ctx);
+	    sendPoint(io, rs->d1, rs->group, rs->ctx);
+	    sendPoint(io, rs->dp0, rs->group, rs->ctx);
+	    sendPoint(io, rs->dp1, rs->group, rs->ctx);
+	    cout <<"Sent c, c', ... points"<<endl;
 	    
-	    point2BA(&d0, &length, rs->d0, rs->group, rs->ctx);
-	    total_size+=length;
-	    point2BA(&d1, &length, rs->d1, rs->group, rs->ctx);
-	    total_size+=length;
-
-	    point2BA(&dp0, &length, rs->dp0, rs->group, rs->ctx);
-	    total_size+=length;
-	    point2BA(&dp1, &length, rs->dp1, rs->group, rs->ctx);
-	    total_size+=length;
-	    //ToDo: Receiver sends c,c',d,d'
-	    //io->send_data
 	  }
-	  else {
+	  else {//sender
 	    //ToDO: Sender receives c,c',d,d'
 	    EC_POINT *c0, *c1, *cp0, *cp1, *d0, *d1, *dp0, *dp1;
-
-	    //ToDo: Sender computes T, U
-	    //senderStep1c(...)
 	    
-            senderStep2(ss, y, rs->T0, rs->T1, rs->U0, rs->U1);
+	    receivePoint(io, &c0, ss->group, ss->ctx);
+	    receivePoint(io, &c1, ss->group, ss->ctx);
+	    receivePoint(io, &cp0, ss->group, ss->ctx);
+	    receivePoint(io, &cp1, ss->group, ss->ctx);
+	    receivePoint(io, &d0, ss->group, ss->ctx);
+	    receivePoint(io, &d1, ss->group, ss->ctx);
+	    receivePoint(io, &dp0, ss->group, ss->ctx);
+	    receivePoint(io, &dp1, ss->group, ss->ctx);
+	    cout <<"Received points"<<endl;
+	    
+	    //Sender computes T, U
+	    senderStep1c(ss, c0, c1, cp0, cp1, d0, d1, dp0, dp1);
+	    cout <<"Sender Step1c done."<<endl;
+	    
+            senderStep2(ss, y);
+	    cout <<"Sender Step2 done."<<endl;
 
-	    //Todo: Send X,Y to receiver
+	    //Send X,Y to receiver
+	    sendPoint(io, ss->X0, ss->group, ss->ctx);
+    	    sendPoint(io, ss->X1, ss->group, ss->ctx);
+    	    sendPoint(io, ss->Y0, ss->group, ss->ctx);
+    	    sendPoint(io, ss->Y1, ss->group, ss->ctx);
+
+	    cout <<"Sent X and Y"<<endl;
+	    exit(1);
+	    
 	  }
 	  if (party==RECEIVER) {
-	    //ToDo: receiver receives X,Y
-            receiverStep3(x[y], rs, ss->X0, ss->X1, ss->Y0, ss->Y1);
+	    //Receiver receives X,Y
+    	    receivePoint(io, &(rs->X0), rs->group, rs->ctx);
+       	    receivePoint(io, &(rs->X1), rs->group, rs->ctx);
+	    receivePoint(io, &(rs->Y0), rs->group, rs->ctx);
+	    receivePoint(io, &(rs->Y1), rs->group, rs->ctx);
+	    
+	    cout <<"Received X and Y"<<endl;
+	    exit(1);
+
+	    receiverStep3(x[y], rs, ss->X0, ss->X1, ss->Y0, ss->Y1);
 
             //printf("Iteration %d: ", y+1);
 

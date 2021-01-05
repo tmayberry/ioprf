@@ -8,9 +8,10 @@ void mySend(NetIO * io, const void *data, size_t length) {
   io->send_data(data, length);
 }
 
-void myRecv(NetIO * io, void *data, size_t *length) {
+void myRecv(NetIO * io, void **data, size_t *length) {
   io->recv_data(length, sizeof(size_t));
-  io->recv_data(data, *length);
+  *data = (void *) malloc(*length);
+  io->recv_data(*data, *length);
 }
 
 
@@ -28,9 +29,9 @@ int main(int argc, char** argv) {
   if (party == ALICE) {
     mySend(io, "blabla", strlen("blabla"));
   } else {
-    char buffer[256];
+    char *buffer;
     size_t length;
-    myRecv(io, buffer, &length);
+    myRecv(io, (void **)&buffer, &length);
     cout <<"Received "<<length<<" Bytes: "<<buffer<<endl;
   }
   

@@ -16,6 +16,11 @@ SENDERSTATE * initializeSender(EC_GROUP * group, EC_POINT * g2, int size, int bi
     s->X1 = EC_POINT_new(group);
     s->Y0 = EC_POINT_new(group);
     s->Y1 = EC_POINT_new(group);
+    
+    s->T0 = EC_POINT_new(group); 
+    s->T1 = EC_POINT_new(group); 
+    s->U0 = EC_POINT_new(group); 
+    s->U1 = EC_POINT_new(group); 
 
     
     s->a = (BIGNUM**) calloc(size, sizeof(BIGNUM*));
@@ -181,11 +186,28 @@ int receiverStep1(unsigned int x, RECEIVERSTATE * s){
     return 0;
 }
 
+//Step 1c from the paper
+int senderStep1c(SENDERSTATE *s, EC_POINT * c0, EC_POINT *c1, EC_POINT *cp0, EC_POINT *cp1, EC_POINT *d0, EC_POINT *d1, EC_POINT *dp0, EC_POINT *dp1) {
+  
+    EC_POINT_add(s->group, s->T0, c0, dp0, s->ctx);
+    EC_POINT_add(s->group, s->T1, c1, dp1, s->ctx);
+
+    EC_POINT_add(s->group, s->U0, cp0, d0, s->ctx);
+    EC_POINT_add(s->group, s->U1, cp1, d1, s->ctx);
+    return 0;
+}
+
 //Step 2 from the paper
 //position is the index into the PRF key that should be used at this step
 //Sender raises T to the alpha, outputs as X
 //Sender raises U to the beta, ouputs as Y
-int senderStep2(SENDERSTATE *s, int index, EC_POINT * T0, EC_POINT * T1, EC_POINT * U0, EC_POINT * U1){
+int senderStep2(SENDERSTATE *s, int index){
+
+  EC_POINT * T0 = s->T0;
+  EC_POINT * T1 = s->T1;
+  EC_POINT * U0 = s->U0;
+  EC_POINT * U1 = s->U1;
+  
   EC_GROUP * group = s->group;
    BN_CTX * ctx = s->ctx;
 

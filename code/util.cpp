@@ -2,6 +2,23 @@
 #include <openssl/obj_mac.h>
 #include <openssl/ec.h>
 
+#include "emp-tool/emp-tool.h"
+using namespace std;
+using namespace emp;
+
+//Send and receive data
+void mySend(NetIO * io, const void *data, size_t length) {
+  io->send_data(&length, sizeof(length));
+  io->send_data(data, length);
+}
+
+void myRecv(NetIO * io, void **data, size_t *length) {
+  io->recv_data(length, sizeof(size_t));
+  *data = (void *) malloc(*length);
+  io->recv_data(*data, *length);
+}
+
+
 //Convert EC point to byte array
 void point2BA(unsigned char **buf, size_t *length, EC_POINT * p, EC_GROUP * group, BN_CTX * ctx) {
 
@@ -9,6 +26,35 @@ void point2BA(unsigned char **buf, size_t *length, EC_POINT * p, EC_GROUP * grou
     *buf = (unsigned char *) malloc(*length);
     EC_POINT_point2oct(group, p, POINT_CONVERSION_UNCOMPRESSED, *buf, *length, ctx);
   
+}
+
+//Convert byte array to EC point
+void BA2point(EC_POINT **point, unsigned char *buf, size_t length, EC_GROUP * group, BN_CTX * ctx) {
+
+  *point = EC_POINT_new(group);
+  if (EC_POINT_oct2point(group, *point, buf, length, ctx)!=1) {
+    cout <<"BA2point conversion error"<<endl;
+  }
+  
+}
+
+//Receive data over network and convert to point
+void receivePoint(NetIO *io, EC_POINT **point, EC_GROUP * group, BN_CTX * ctx) {
+  unsigned char *buffer;
+  size_t length;
+  myRecv(io, (void**) &buffer, &length);
+  BA2point(point, buffer, length, group, ctx);
+  free (buffer);	    
+}
+
+//Convert point to BA and send over network
+void sendPoint(NetIO *io, EC_POINT * point, EC_GROUP * group, BN_CTX * ctx) {
+
+  size_t length;
+  unsigned char *buf;
+  point2BA(&buf, &length, point, group, ctx);
+  mySend(io, buf, length);
+  free(buf);
 }
 
 //Generate a random BIGNUM from the numbers [1,N-1] where N is the size of the group
