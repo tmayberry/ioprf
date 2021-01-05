@@ -61,7 +61,7 @@ int testOPRF(char * input, NetIO * io, int party){
       return -1;
     }
 
-    int runs = 100;
+    int runs = 1;
     printf("Testing PRF for input %s of length %d, %d runs\n", input, iterations,runs);
 
     clock_t start, end;
@@ -138,14 +138,18 @@ int testOPRF(char * input, NetIO * io, int party){
 
             //printf("Iteration %d: ", y+1);
 
-	    printf("iOPRF calculated by receiver:\n");
+	    printf("iOPRF calculated by receiver: ");
 
             unsigned char * recprf = receiverPRF(rs);
             printBytes(recprf, 32);
 
-            //printf("PRF calculated by sender:\n");
-	  } else {
-            unsigned char * sendprf = senderPRF(ss, x, y+1);
+	  } else {//Sender
+
+	    printf("PRF calculated by sender: ");
+	    unsigned char * sendprf = senderPRF(ss, x, y+1);
+            printBytes(sendprf, 32);
+	    free(sendprf);
+            
 	  }
 	    end = clock();
 	    cpu_time_used += (double) (end-start);
