@@ -66,14 +66,15 @@ int testOPRF(char * input, NetIO * io, int party){
 
     clock_t start, end;
     double cpu_time_used = 0.0;
-   
+    RECEIVERSTATE * rs;
+    SENDERSTATE * ss;
         for(int z = 0; z < runs; z++)
       {
 
 	if (party==RECEIVER) {
-        RECEIVERSTATE * rs = initializeReceiver(group, g1, g2);
+        rs = initializeReceiver(group, g1, g2);
 	} else {
-        SENDERSTATE * ss = initializeSender(group, g2, 128, 128);
+        ss = initializeSender(group, g2, 128, 128);
 	}
 	
 	start = clock();
@@ -105,10 +106,12 @@ int testOPRF(char * input, NetIO * io, int party){
 	    point2BA(&dp1, &length, rs->dp1, rs->group, rs->ctx);
 	    total_size+=length;
 	    //ToDo: Receiver sends c,c',d,d'
+	    //io->send_data
 	  }
 	  else {
 	    //ToDO: Sender receives c,c',d,d'
-	    
+	    EC_POINT *c0, *c1, *cp0, *cp1, *d0, *d1, *dp0, *dp1;
+
 	    //ToDo: Sender computes T, U
 	    //senderStep1c(...)
 	    
