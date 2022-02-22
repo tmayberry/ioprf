@@ -1,0 +1,315 @@
+\section{Security Analysis}
+%\subsection{Security Analysis}
+\label{sec:sec-analysis}
+We prove security of Construction~\ref{const:ioprf} using simulation
+in the standard model. The simulation uses several efficient
+Zero-Knowledge Proofs of Knowledge hybrids introduced first.  To ease
+readability, we actually present Honest-Verifier Zero-Knowledge (HVZK)
+versions of the proofs, but one can convert these to maliciously
+verifier Zero-Knowledge proofs of knowledge using the following two
+general transformations~\cite{efficient2pc}. We stress that we have
+evaluated and benchmarked the full malicious verifier ZK proofs of
+knowledge in Section~\ref{sec:implementation}, i.e., including the two
+transformations.
+
+\subsection{Zero Knowledge (instead of HVZK)}
+\label{sec:extraction}
+\ignore{We cannot use Fiat-Shamir transform and replace $e$, as we use
+  Pedersen commitments for witness extraction.}
+All our efficient ZK proofs below are three-move (``Sigma'') ZK
+proofs. Recall that a three-move ZK proof comprises messages
+$(t,e,s)$, where first message $t$ is a commitment from $P$ sent to
+$V$, $e$ is $V$'s challenge sent to $P$, and $s$ is the final message
+sent from $P$ to $V$.
+
+
+To make these proofs zero-knowledge instead of only HVZK, we send an
+additional message before first message $t$ of the regular three-move
+proof.  In this new first message, $V$ sends a Pedersen commitment
+$\com{}(e)=g_1^r\cdot{}g_2^e$ to their random challenge $e$ to
+$V$. The proof  continues with $V$ sending their regular
+commitment $t$ of the regular three-move proof and $V$ opening
+$\com{}(e)$ by sending $(e,r)$. If $\com{}(e)$ matches
+$(e,r)$, $P$ finally sends last message $s$ of the regular
+proof. Verifier $V$ accepts, if $t$ and $s$ of the regular proof match
+$e$.
+
+This technique allows a simulator $\myS$ simulating $P$ to cheat in
+the ZK proof. More specifically, after receiving $\com{}(e)$, $\myS$
+internally computes a valid ZK proof $(t',e',s')$, assuming a random
+challenge $e'$. $\myS$ sends $t'$ to $V$ and receives $(e,r)$. If
+$(e,r)$ matches $\com{}(e)$, $\myS$ rewinds $V$ to the point after $V$
+has sent $\com{}(e)$. Knowing $e$, $\myS$ computes a $t$ and $s$, such
+that $(t,e,s)$ will be accepted by $V$. How exactly $t$ and $s$ are
+chosen depends on the statement we want to prove, but are typically
+straightforward for the Schnorr-style proofs we use below. We show an
+example in \S\ref{pobit}.
+
+
+\subsection{Witness Extraction for Pedersen Commitments}
+To transform our ZK proofs to ZK proofs of knowledge, we rely on the
+extractability of commitments.  Pedersen commitments are trapdoor
+commitments which means that a party knowing a trapdoor $\rho$ can
+open a commitment $\com(\cdot)$ to any plaintext they want
+(equivocable).  We use this property for witness extraction in
+three-move ZK proofs as follows.
+
+Before starting the actual ZK proof by the first message $t$ from the
+prover to the verifier, we send the following two messages.
+\begin{enumerate}[leftmargin=*]
+\item Prover $P$ sends to verifier $V$: $\hat{g}=g_1^\rho$ for random
+  $\rho\getr\Z_p$. 
+  \item Verifier $V$ will use this $\hat{g}$ instead of $g_2$ for the computation of the
+    commitment to challenge $e$.  That is, $V$ computes and sends back
+    commitment $\com(e)=g_1^r\cdot{}\hat{g}^{\,e}$ for their random challenge
+    $e\in\Z_p$ as in the previous section.
+\end{enumerate}
+
+The ZK proof then continues as usual with $P$ sending $t$ and $V$
+opening $\com(e)$ by sending $(e,r)$. If $(e,r)$ match $\com(e)$,
+$P$ sends final message $s$ and $\rho$ to $V$. Only if
+both is correct, the last ZK proof message $s$ matches $P$'s
+commitment $t$ and challenge $e$, and $\rho$ matches $\hat{g}=g_1^\rho$, $V$
+accepts.
+
+This setup enables a simulator $\myS$ simulating $V$ to extract the
+witness from $P$. After receiving trapdoor $\rho$ from $P$, $\myS$
+rewinds $P$ until after the point were $P$ sends $t$ to $V$. Knowing
+trapdoor $\rho$, $\myS$ can open $\com(e)$ to any $e'\neq{}e$ they
+want by solving $r+\rho\cdot{}e=r'+\rho\cdot{}e'$ for $r'$, i.e., they
+compute $r'=r+\rho\cdot{}(e-e')$. Running two executions of the ZK
+proof with the same input and messages from $P$ but different
+challenges extracts the witness of the ZK proof. Details on which $e$
+to send in each execution again depend on the exact three-move ZK
+proof, but are typically obvious. We refer to \citet{efficient2pc} for
+more details.
+
+In conclusion, these two transformation will render our three-move ZK
+proofs below into (fully-maliciously secure) ZK proofs of knowledge. We
+name each proof below with a hybrid which we will use in the main
+proof later. So, for example, the hybrid for the proof of encryption
+is called $\fzk{enc}$.
+
+
+\subsection{ZK Building Blocks}
+Before presenting our main proof of Construction~\ref{const:ioprf}, we
+introduce the following ZK proofs that we use as building blocks.
+
+\subsubsection{$\fzk{enc}$: Proof of Encryption/Commitment to $m$}
+\label{poe}
+To prove that an encryption
+$c=(c[0],c[1])=(g_1^r,pk^r)\leftarrow\enc_{pk}(0)$ is an encryption of
+$m=0$, $P$ proves that $(g_1,c[0],pk,c[1])$ is a DDH tuple.  You can
+prove that tuple
+$(u_1=g_1,u_2=g_1^r,u_3=g_1^{sk},u_4=g_1^{sk\cdot{}r})$ is a DDH tuple
+using the \citet{cp92} protocol as follows.
+
+\begin{enumerate}[leftmargin=*]
+\item $P$ sends $(t_1=u_1^{\rho},t_2=u_3^{\rho})$ for $\rho\getr\Z_p$ to $V$.
+  \item $V$ sends $e\getr\Z_p$ to $P$.
+  \item $P$ sends $s=\rho+e\cdot{}r$ to $V$.
+    \item $V$ accepts if $u_1^s=u_2^e\cdot{}t_1$ and $u_3^s=u_4^e\cdot{}t_2$.
+\end{enumerate}
+
+This proof has an important property.\ignore{ Besides showing that a
+  tuple is a DDH tuple, it also shows DLOG equivalence, i.e.,
+  $\log_{u_1}{u_2}=\log_{u_3}{u_4}$.} Instead of showing that some
+ciphertext encrypts $m=0$, we can easily generalize it to show
+encryption of arbitrary $m$. Specifically, we set
+$c'[1]=\frac{c[1]}{g_2^m}$ and run the proof with $m = 0$ for new Elgamal
+ciphertext $(c[0],c'[1])$.
+
+%Finally, observe that Pedersen commitments are essentially just the
+%right-hand side $c[1]$ of an Elgamal ciphertext. 
+Finally, observe that Pedersen commitments are similarly structured as the
+right-hand side $c[1]$ of an Elgamal ciphertext, just without the secret key.
+Thus, to prove a
+Pedersen commitment $\com(m)$ to $m$, parties divide $\com(m)$ by
+$g_2^m$ and run a {\bf Schnorr proof} for $r$ used in the commitment ($P$
+sends $t=g_1^\rho$, $V$ sends $e$, $P$ sends $s=\rho+e\cdot{}r$, and $V$
+accepts if $g_1^s\sr\frac{\com(m)^e}{g_2^m}\cdot{}t$.)
+
+\subsubsection{$\fzk{pop}$: Proof for Knowledge of Plaintext }
+\label{pokop}
+For $\com(m)=g_1^r\cdot{}g_2^m$,  prover $P$ can prove that they know
+$m$.
+
+\begin{enumerate}[leftmargin=*]
+\item $P$ sends $t=g_1^{\rho_1}\cdot{}g_2^{\rho_2}$ for
+  $\rho_1,\rho_2\getr\Z_p$ to $V$.
+\item $V$ sends $e\getr\Z_p$ to $P$.
+  \item $P$ sends $s_1=\rho_1+e\cdot{}r$ and $s_2=\rho_2+e\cdot{}m$ to
+    $V$.
+    \item $V$ checks whether $g_1^{s_1}\cdot{}g_2^{s_2}\sr\com(m)^e\cdot{}t$.
+\end{enumerate}
+
+\subsubsection{$\fzk{bit}$: Proof of Plaintext Bit }
+\label{pobit}
+For a commitment $\com(x_i)$, prover $P$ can prove that $x_i$ is a
+bit, i.e., $x_i\in\{0,1\}$. This is an application of the
+\emph{one-out-of-two} (OR) technique~\cite{ooot}. Essentially, $P$
+proves that either $x_i=1$ which implies proving that ${\com(x_i)}$
+equals ${g_1^{r_1}\cdot{}g_2}$ for some $r_1$, or $x_i=0$ which implies
+proving that $\com(x_i)$ equals $g_1^{r_2}$ for some $r_2$. Proving
+that ${\com(x_i)}$ equals ${g_1^{r_1}\cdot{}g_2}$ is equivalent to
+proving that $\frac{{\com(x_i)}}{g_2}$ equals ${g_1^{r_1}}$.
+
+$P$ will prove that they know (I) an $r$ such that
+$g_1^{r}=\frac{{\com(x_i)}}{g_2}$ or (II) an $r$ such that
+$g_1^{r}=\com(x_i)$. These are essentially two standard Schnorr
+proofs.  The trick is that $P$ chooses $e_1$ and $e_2$ such that, for
+the verifier's challenge $e$, we have $e=e_1+e_2$. Prover $P$ proves
+knowledge of $r_1$ for (I) using challenge $e_1$ and knowledge of
+$r_2$ for (II) using challenge $e_2$. Thus, $P$ can choose either
+$e_1$ or $e_2$ before sending their first message of the ZK proof and
+cheat in one proof. Without loss of generality, let $x_i=1$, so $P$
+will cheat in proof (II). This works as follows.
+
+\begin{enumerate}[leftmargin=*]
+\item $P$ sends $t_1=g_1^{\rho_1}$ and
+  $t_2=\com(x_i)^{-e_2}\cdot{}g_1^{s_2}$, where $\rho,s_2\getr\Z_p$, to
+  $V$.
+\item $V$ sends $e\getr\Z_p$ to $P$.
+  \item $P$ calculates $e_1 = e - e_2$, sends $e_1,e_2,s_1=\rho_1+e_1\cdot{}r$, and $s_2$ to $V$.
+
+\item $V$ checks $e\sr{}e_1+e_2$, $g_1^{s_1}\sr{}\left(\frac{\com(x_i)}{g_2}\right)^{e_1}\cdot{}t_1$ and $g_1^{s_2}\sr{}\com(x_i)^{e_2}\cdot{}t_2$.
+\end{enumerate}
+
+\ignore{If $x_i=0$ then $P$ will modify steps 1 and 3 so that they ``cheat''
+on the other side of the proof:
+
+\begin{enumerate}[leftmargin=*]
+\item [(1)] $P$ sends $t_1=c_1^{-e_1}\cdot{}g_1^{\rho}\cdot{}g$ and $t_2=g_1^{\rho'}$.
+\item [(3)] $P$ calculates $e_2 = e - e_1$, sends $e_1, e_2, s_1=\rho, s_2=\rho'+e_2\cdot{}r$.
+\end{enumerate}
+}
+
+\subsubsection{$\fzk{sum}$: Proof of Sum of Plaintexts equals $1$ }
+\label{pkseo}
+For commitments $\com(x)=g_1^r\cdot{}g_2^x$ and
+$\com(1-x)=g_1^{r'}\cdot{}g_2^{1-x}$, $P$ shows that the sum of
+plaintexts equals $1$.
+
+  \begin{enumerate}[leftmargin=*]
+  \item $P$ and $V$ compute
+    $\com(1)=\com(x)\cdot{}\com(1-x)=g_1^{r+r'}\cdot{}g_2$.
+\item $P$ proves that $\com(1)$ is a commitment to $1$ (see
+  \S\ref{poe}).
+  \end{enumerate}
+
+
+\ignore{
+\subsubsection{$\fzk{mul}$: Proof of Scalar Multiplication with Group Elements }
+\label{pomult}
+Let a party commit to $x$ with commitment
+$\com(x) =g_1^r\cdot{}g_2^x$.  Given two elements $(A,B)$ of DDH group
+$\myG$, such as an Elgamal ciphertext tuple, this party can then prove
+in ZK that $(C=A^x,D=B^x)$ are the result of exponentiation with $x$,
+i.e., scalar multiplication of $x$ with underlying plaintexts.
+
+
+\begin{enumerate}[leftmargin=*]
+      \item $P$ sends $t_1=A^{\rho_1},t_2=B^{\rho_1},
+        t_3=g_1^{\rho_2}\cdot{}g_2^{\rho_1}$, for randomly chosen
+        $\rho_i\getr\Z_p$, to $V$.
+
+      \item $V$ sends challenge $e\getr\Z_p$.
+
+      \item $P$ sends $s_1=\rho_1+e\cdot{}x,s_2=\rho_2+e\cdot{}r$.
+        \item $V$ checks $A^{s_1}\sr{}C^e\cdot{}t_1$,
+          $B^{s_1}\sr{}D^e\cdot{}t_2$, and
+          $g_1^{s_2}\cdot{}g_2^{s_1}\sr{}\com(x)^e\cdot{}t_3$.
+          
+      \end{enumerate}   
+}%ignore
+\subsubsection{$\fzk{ExR}$: Proof of Exponentiation and Re-Encryption }
+\label{pexr}
+  One can
+      efficiently prove correctness of combinations of linear operations  in one step. 
+      We present the  
+      example for the correctness of exponentiation of
+      two elements $(A,B)$ from group $\myG$ with a committed value $x$
+      and then multiplying $A^x$ by $g_1^{r'}$ and $B^x$ by $pk^{r'}$ from our protocol. So, this
+      can be used to prove correct exponentiation (homomorphic scalar multiplication) of an Elgamal ciphertext
+      by a previously committed scalar  $x$ and subsequent re-randomization of
+      the result (homomorphic addition of Elgamal encryption of $0$).
+
+      Specifically, given two group elements $(A,B)$ and commitment
+      $\com(x) =g_1^{r}\cdot{}g_2^x$, prove correctness that
+      $(C=g_1^{r'}\cdot{}A^x,D=pk^{r'}\cdot{}B^x)$ are the result of
+      exponentiation with $x$ and multiplying with $g_1^{r'}$ and
+      $pk^{r'}$, $r'\getr\Z_p$, known to $P$.
+
+\begin{enumerate}[leftmargin=*]
+  \item $P$ sends $t_1=g_1^{\rho_1}\cdot{}A^{\rho_2},t_2=pk^{\rho_1}\cdot{}B^{\rho_2},t_3=g_1^{\rho_3}\cdot{}g_2^{\rho_2}$ to $V$.
+  \item $V$ sends $e\getr\Z_p$ to $P$.
+    \item $P$ sends $s_1=\rho_1+e\cdot{}r'$, $s_2=\rho_2+e\cdot{}x$,
+      and $s_3=\rho_3+e\cdot{}r$ to $V$.
+\item $V$ checks whether $g_1^{s_1}\cdot{}A^{s_2}\sr{}C^e\cdot{}t_1$,
+  $pk^{s_1}\cdot{}B^{s_2}\sr{}D^e\cdot{}t_2$, and
+  $g_1^{s_3}\cdot{}g_2^{s_2}\sr{}\com(x)^e\cdot{}t_3$.
+\end{enumerate}
+
+      
+\ignore{
+\section{Old ZK Tools}
+\subsubsection{ZK Proofs for Exponents}
+\subsubsection{Proof of Plaintext Equivalence}
+Let $c_1=(c_1[0],c_1[1],)=(g_1^{r_1},pk^{r_1}\cdot{}g^m)$ and
+$c_2=(c_2[0],c_2[1],)=(g_1^{r_2},pk^{r_2}\cdot{}g^m)$ be two
+encryptions from $\enc_{pk}(m)$. To prove plaintext equivalence of
+these two ciphertexts, the prover shows that
+$(g_1,\frac{c_1[0]}{c_2[0]},pk,\frac{c_1[1]}{c_2[1]})$ is a DDH tuple.
+
+To prove that some ciphertext $c_1$ encrypts a plaintext $m$ with
+respect to base $g$, a simple trick for the prover is to compute
+another encryption $c_2$ of $m$ with respect to base $g$, show
+plaintext equivalence, and then open randomness of $c_2$.
+
+\subsubsection{Proofs for Arithmetic with Pedersen Commitments}
+We can do simple arithmetic on Pedersen Commitments.
+\begin{itemize}
+\item Addition: given $\com_g(a)$ and $\com_g(b)$, everybody can
+  compute and thus verify commitment
+  $\com_g(c)=\com_g(a)\cdot{}\com_g(b)$ which commits to
+  $c=a+b$. Obviously, no other party than the one originally computing
+  $\com_g(a)$ and $\com_g(b)$ can open $\com_g(c)$, but all parties
+  know that $\com_g(c)$ is a commitment to $c=a+b$
+  
+\item Multiplication: a party committing
+  \begin{align*}
+  \com_g(a)=g_1^{r_a}\cdot{}g^a, \com_g(b)=g_1^{r_b}\cdot{}g^b,
+  \com_g(c)=g_1^{r_c}\cdot{}g^{a\cdot{}b}
+  \end{align*}
+  can prove in ZK that
+  $\com_g(c)$ commits to the product of the messages committed in
+  $\com_g(a)$ and $\com_g(b)$.
+
+  The trick is to rewrite
+  $\com_g(c)=g_1^{r_c-a\cdot{}r_b}\cdot\com_g(b)^{a}$ and then prove
+  that all commitments are well formed, and $\com_g(c)$ uses the same
+  exponent $a$ as $\com_g(a)$, but with basis $\com_g(b)$ instead of
+  $g$. Specifically,
+  \begin{enumerate}
+  \item $P$ computes and sends
+    \begin{align*}
+      t_1=g_1^{\rho_1}\cdot{}g^{\rho_2},
+      t_2=g_1^{\rho_3}\cdot{}g^{\rho_4},
+      t_3=g_1^{\rho_5}\cdot{}\com_g(b)^{\rho_2}
+      \end{align*}
+      for $\rho_i\getr\Z_p$. Observe that the same randomness $\rho_2$
+      is used for the same witness $a$.
+    \item $V$ replies by sending challenge $e\getr\Z_p$.
+    \item $P$ sends
+      \begin{align*}
+        s_1&=\rho_1+e\cdot{}r_a,s_2=\rho_2+e\cdot{}a,s_3=\rho_3+e\cdot{}r_b,s_4=\rho_4+e\cdot{}b,\\s_5&=\rho_5+e\cdot{}(r_c-a\cdot{}r_b).
+        \end{align*}
+    \item $V$ checks
+      \begin{align*}
+        g_1^{s_1}\cdot{}g^{s_2}\sr{}\com_g(a)^e, g_1^{s_3}\cdot{}g^{s_4}\sr{}\com_g(b)^e, g_1^{s_5}\cdot{}\com_g(b)^{s_2}\sr{}\com_g(c)^e\cdot{}t_3.
+        \end{align*}
+\end{enumerate}
+
+\end{itemize}
+}%ignore
+

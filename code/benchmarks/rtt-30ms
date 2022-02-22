@@ -1,0 +1,224 @@
+connected
+Testing PRF of length 1, 10 runs
+Party RECEIVER, total CPU time: 113.00 ms (11.30 ms per IOPRF, 11.30 ms per IOPRF round), total wall time: 7173.91 ms (717.39 ms per IOPRF), IOPRF length: 1, total data sent: 58.90 kB (5.89 kB per IOPRF)
+connected
+Testing PRF of length 1, 10 runs
+Party SENDER, total CPU time: 123.00 ms (12.30 ms per IOPRF, 12.30 ms per IOPRF round), total wall time: 7179.80 ms (717.98 ms per IOPRF), IOPRF length: 1, total data sent: 25.58 kB (2.56 kB per IOPRF)
+
+connected
+Testing PRF of length 2, 10 runs
+Party RECEIVER, total CPU time: 211.00 ms (21.10 ms per IOPRF, 10.55 ms per IOPRF round), total wall time: 11433.49 ms (1143.35 ms per IOPRF), IOPRF length: 2, total data sent: 109.42 kB (10.94 kB per IOPRF)
+connected
+Testing PRF of length 2, 10 runs
+Party SENDER, total CPU time: 232.00 ms (23.20 ms per IOPRF, 11.60 ms per IOPRF round), total wall time: 11442.59 ms (1144.26 ms per IOPRF), IOPRF length: 2, total data sent: 48.49 kB (4.85 kB per IOPRF)
+
+connected
+Testing PRF of length 3, 10 runs
+Party RECEIVER, total CPU time: 326.00 ms (32.60 ms per IOPRF, 10.87 ms per IOPRF round), total wall time: 15708.11 ms (1570.81 ms per IOPRF), IOPRF length: 3, total data sent: 159.94 kB (15.99 kB per IOPRF)
+connected
+Testing PRF of length 3, 10 runs
+Party SENDER, total CPU time: 343.00 ms (34.30 ms per IOPRF, 11.43 ms per IOPRF round), total wall time: 15713.85 ms (1571.38 ms per IOPRF), IOPRF length: 3, total data sent: 71.40 kB (7.14 kB per IOPRF)
+
+connected
+Testing PRF of length 4, 10 runs
+Party RECEIVER, total CPU time: 435.00 ms (43.50 ms per IOPRF, 10.88 ms per IOPRF round), total wall time: 19984.02 ms (1998.40 ms per IOPRF), IOPRF length: 4, total data sent: 210.45 kB (21.04 kB per IOPRF)
+connected
+Testing PRF of length 4, 10 runs
+Party SENDER, total CPU time: 438.00 ms (43.80 ms per IOPRF, 10.95 ms per IOPRF round), total wall time: 19992.03 ms (1999.20 ms per IOPRF), IOPRF length: 4, total data sent: 94.31 kB (9.43 kB per IOPRF)
+
+connected
+Testing PRF of length 5, 10 runs
+Party RECEIVER, total CPU time: 498.00 ms (49.80 ms per IOPRF, 9.96 ms per IOPRF round), total wall time: 24251.89 ms (2425.19 ms per IOPRF), IOPRF length: 5, total data sent: 260.97 kB (26.10 kB per IOPRF)
+connected
+Testing PRF of length 5, 10 runs
+Party SENDER, total CPU time: 556.00 ms (55.60 ms per IOPRF, 11.12 ms per IOPRF round), total wall time: 24258.76 ms (2425.88 ms per IOPRF), IOPRF length: 5, total data sent: 117.22 kB (11.72 kB per IOPRF)
+
+connected
+Testing PRF of length 6, 10 runs
+Party RECEIVER, total CPU time: 629.00 ms (62.90 ms per IOPRF, 10.48 ms per IOPRF round), total wall time: 28602.97 ms (2860.30 ms per IOPRF), IOPRF length: 6, total data sent: 311.49 kB (31.15 kB per IOPRF)
+connected
+Testing PRF of length 6, 10 runs
+Party SENDER, total CPU time: 699.00 ms (69.90 ms per IOPRF, 11.65 ms per IOPRF round), total wall time: 28611.55 ms (2861.16 ms per IOPRF), IOPRF length: 6, total data sent: 140.13 kB (14.01 kB per IOPRF)
+
+connected
+Testing PRF of length 7, 10 runs
+Party RECEIVER, total CPU time: 726.00 ms (72.60 ms per IOPRF, 10.37 ms per IOPRF round), total wall time: 32860.44 ms (3286.04 ms per IOPRF), IOPRF length: 7, total data sent: 361.99 kB (36.20 kB per IOPRF)
+connected
+Testing PRF of length 7, 10 runs
+Party SENDER, total CPU time: 817.00 ms (81.70 ms per IOPRF, 11.67 ms per IOPRF round), total wall time: 32870.43 ms (3287.04 ms per IOPRF), IOPRF length: 7, total data sent: 163.03 kB (16.30 kB per IOPRF)
+
+connected
+Testing PRF of length 8, 10 runs
+Party RECEIVER, total CPU time: 807.00 ms (80.70 ms per IOPRF, 10.09 ms per IOPRF round), total wall time: 37109.45 ms (3710.94 ms per IOPRF), IOPRF length: 8, total data sent: 412.51 kB (41.25 kB per IOPRF)
+connected
+Testing PRF of length 8, 10 runs
+Party SENDER, total CPU time: 887.00 ms (88.70 ms per IOPRF, 11.09 ms per IOPRF round), total wall time: 37117.87 ms (3711.79 ms per IOPRF), IOPRF length: 8, total data sent: 185.93 kB (18.59 kB per IOPRF)
+
+connected
+Testing PRF of length 9, 10 runs
+Party RECEIVER, total CPU time: 898.00 ms (89.80 ms per IOPRF, 9.98 ms per IOPRF round), total wall time: 41379.20 ms (4137.92 ms per IOPRF), IOPRF length: 9, total data sent: 463.04 kB (46.30 kB per IOPRF)
+connected
+Testing PRF of length 9, 10 runs
+Party SENDER, total CPU time: 986.00 ms (98.60 ms per IOPRF, 10.96 ms per IOPRF round), total wall time: 41387.18 ms (4138.72 ms per IOPRF), IOPRF length: 9, total data sent: 208.85 kB (20.89 kB per IOPRF)
+
+connected
+Testing PRF of length 10, 10 runs
+Party RECEIVER, total CPU time: 1026.00 ms (102.60 ms per IOPRF, 10.26 ms per IOPRF round), total wall time: 45712.60 ms (4571.26 ms per IOPRF), IOPRF length: 10, total data sent: 513.54 kB (51.35 kB per IOPRF)
+connected
+Testing PRF of length 10, 10 runs
+Party SENDER, total CPU time: 1122.00 ms (112.20 ms per IOPRF, 11.22 ms per IOPRF round), total wall time: 45720.07 ms (4572.01 ms per IOPRF), IOPRF length: 10, total data sent: 231.76 kB (23.18 kB per IOPRF)
+
+connected
+Testing PRF of length 11, 10 runs
+Party RECEIVER, total CPU time: 1119.00 ms (111.90 ms per IOPRF, 10.17 ms per IOPRF round), total wall time: 49971.56 ms (4997.16 ms per IOPRF), IOPRF length: 11, total data sent: 564.06 kB (56.41 kB per IOPRF)
+connected
+Testing PRF of length 11, 10 runs
+Party SENDER, total CPU time: 1190.00 ms (119.00 ms per IOPRF, 10.82 ms per IOPRF round), total wall time: 49979.90 ms (4997.99 ms per IOPRF), IOPRF length: 11, total data sent: 254.66 kB (25.47 kB per IOPRF)
+
+connected
+Testing PRF of length 12, 10 runs
+Party RECEIVER, total CPU time: 1233.00 ms (123.30 ms per IOPRF, 10.28 ms per IOPRF round), total wall time: 54254.65 ms (5425.47 ms per IOPRF), IOPRF length: 12, total data sent: 614.58 kB (61.46 kB per IOPRF)
+connected
+Testing PRF of length 12, 10 runs
+Party SENDER, total CPU time: 1312.00 ms (131.20 ms per IOPRF, 10.93 ms per IOPRF round), total wall time: 54261.19 ms (5426.12 ms per IOPRF), IOPRF length: 12, total data sent: 277.58 kB (27.76 kB per IOPRF)
+
+connected
+Testing PRF of length 13, 10 runs
+Party RECEIVER, total CPU time: 1330.00 ms (133.00 ms per IOPRF, 10.23 ms per IOPRF round), total wall time: 58523.08 ms (5852.31 ms per IOPRF), IOPRF length: 13, total data sent: 665.10 kB (66.51 kB per IOPRF)
+connected
+Testing PRF of length 13, 10 runs
+Party SENDER, total CPU time: 1437.00 ms (143.70 ms per IOPRF, 11.05 ms per IOPRF round), total wall time: 58529.79 ms (5852.98 ms per IOPRF), IOPRF length: 13, total data sent: 300.49 kB (30.05 kB per IOPRF)
+
+connected
+Testing PRF of length 14, 10 runs
+Party RECEIVER, total CPU time: 1540.00 ms (154.00 ms per IOPRF, 11.00 ms per IOPRF round), total wall time: 62979.10 ms (6297.91 ms per IOPRF), IOPRF length: 14, total data sent: 715.61 kB (71.56 kB per IOPRF)
+connected
+Testing PRF of length 14, 10 runs
+Party SENDER, total CPU time: 1657.00 ms (165.70 ms per IOPRF, 11.84 ms per IOPRF round), total wall time: 62987.40 ms (6298.74 ms per IOPRF), IOPRF length: 14, total data sent: 323.39 kB (32.34 kB per IOPRF)
+
+connected
+Testing PRF of length 15, 10 runs
+Party RECEIVER, total CPU time: 1490.00 ms (149.00 ms per IOPRF, 9.93 ms per IOPRF round), total wall time: 67070.61 ms (6707.06 ms per IOPRF), IOPRF length: 15, total data sent: 766.13 kB (76.61 kB per IOPRF)
+connected
+Testing PRF of length 15, 10 runs
+Party SENDER, total CPU time: 1651.00 ms (165.10 ms per IOPRF, 11.01 ms per IOPRF round), total wall time: 67077.35 ms (6707.74 ms per IOPRF), IOPRF length: 15, total data sent: 346.31 kB (34.63 kB per IOPRF)
+
+connected
+Testing PRF of length 16, 10 runs
+Party RECEIVER, total CPU time: 1682.00 ms (168.20 ms per IOPRF, 10.51 ms per IOPRF round), total wall time: 71507.86 ms (7150.79 ms per IOPRF), IOPRF length: 16, total data sent: 816.64 kB (81.66 kB per IOPRF)
+connected
+Testing PRF of length 16, 10 runs
+Party SENDER, total CPU time: 1835.00 ms (183.50 ms per IOPRF, 11.47 ms per IOPRF round), total wall time: 71513.53 ms (7151.35 ms per IOPRF), IOPRF length: 16, total data sent: 369.20 kB (36.92 kB per IOPRF)
+
+connected
+Testing PRF of length 17, 10 runs
+Party RECEIVER, total CPU time: 1699.00 ms (169.90 ms per IOPRF, 9.99 ms per IOPRF round), total wall time: 75626.82 ms (7562.68 ms per IOPRF), IOPRF length: 17, total data sent: 867.16 kB (86.72 kB per IOPRF)
+connected
+Testing PRF of length 17, 10 runs
+Party SENDER, total CPU time: 1840.00 ms (184.00 ms per IOPRF, 10.82 ms per IOPRF round), total wall time: 75632.26 ms (7563.23 ms per IOPRF), IOPRF length: 17, total data sent: 392.11 kB (39.21 kB per IOPRF)
+
+connected
+Testing PRF of length 18, 10 runs
+Party RECEIVER, total CPU time: 1871.00 ms (187.10 ms per IOPRF, 10.39 ms per IOPRF round), total wall time: 80277.88 ms (8027.79 ms per IOPRF), IOPRF length: 18, total data sent: 917.66 kB (91.77 kB per IOPRF)
+connected
+Testing PRF of length 18, 10 runs
+Party SENDER, total CPU time: 2063.00 ms (206.30 ms per IOPRF, 11.46 ms per IOPRF round), total wall time: 80285.66 ms (8028.57 ms per IOPRF), IOPRF length: 18, total data sent: 415.03 kB (41.50 kB per IOPRF)
+
+connected
+Testing PRF of length 19, 10 runs
+Party RECEIVER, total CPU time: 1878.00 ms (187.80 ms per IOPRF, 9.88 ms per IOPRF round), total wall time: 84122.23 ms (8412.22 ms per IOPRF), IOPRF length: 19, total data sent: 968.18 kB (96.82 kB per IOPRF)
+connected
+Testing PRF of length 19, 10 runs
+Party SENDER, total CPU time: 2068.00 ms (206.80 ms per IOPRF, 10.88 ms per IOPRF round), total wall time: 84129.80 ms (8412.98 ms per IOPRF), IOPRF length: 19, total data sent: 437.93 kB (43.79 kB per IOPRF)
+
+connected
+Testing PRF of length 20, 10 runs
+Party RECEIVER, total CPU time: 2161.00 ms (216.10 ms per IOPRF, 10.80 ms per IOPRF round), total wall time: 88728.38 ms (8872.84 ms per IOPRF), IOPRF length: 20, total data sent: 1018.71 kB (101.87 kB per IOPRF)
+connected
+Testing PRF of length 20, 10 runs
+Party SENDER, total CPU time: 2317.00 ms (231.70 ms per IOPRF, 11.59 ms per IOPRF round), total wall time: 88736.76 ms (8873.68 ms per IOPRF), IOPRF length: 20, total data sent: 460.84 kB (46.08 kB per IOPRF)
+
+connected
+Testing PRF of length 21, 10 runs
+Party RECEIVER, total CPU time: 2114.00 ms (211.40 ms per IOPRF, 10.07 ms per IOPRF round), total wall time: 92800.00 ms (9280.00 ms per IOPRF), IOPRF length: 21, total data sent: 1069.21 kB (106.92 kB per IOPRF)
+connected
+Testing PRF of length 21, 10 runs
+Party SENDER, total CPU time: 2320.00 ms (232.00 ms per IOPRF, 11.05 ms per IOPRF round), total wall time: 92807.78 ms (9280.78 ms per IOPRF), IOPRF length: 21, total data sent: 483.74 kB (48.37 kB per IOPRF)
+
+connected
+Testing PRF of length 22, 10 runs
+Party RECEIVER, total CPU time: 2225.00 ms (222.50 ms per IOPRF, 10.11 ms per IOPRF round), total wall time: 97079.28 ms (9707.93 ms per IOPRF), IOPRF length: 22, total data sent: 1119.75 kB (111.97 kB per IOPRF)
+connected
+Testing PRF of length 22, 10 runs
+Party SENDER, total CPU time: 2374.00 ms (237.40 ms per IOPRF, 10.79 ms per IOPRF round), total wall time: 97083.53 ms (9708.35 ms per IOPRF), IOPRF length: 22, total data sent: 506.66 kB (50.67 kB per IOPRF)
+
+connected
+Testing PRF of length 23, 10 runs
+Party RECEIVER, total CPU time: 2309.00 ms (230.90 ms per IOPRF, 10.04 ms per IOPRF round), total wall time: 101308.10 ms (10130.81 ms per IOPRF), IOPRF length: 23, total data sent: 1170.25 kB (117.03 kB per IOPRF)
+connected
+Testing PRF of length 23, 10 runs
+Party SENDER, total CPU time: 2526.00 ms (252.60 ms per IOPRF, 10.98 ms per IOPRF round), total wall time: 101314.45 ms (10131.44 ms per IOPRF), IOPRF length: 23, total data sent: 529.56 kB (52.96 kB per IOPRF)
+
+connected
+Testing PRF of length 24, 10 runs
+Party RECEIVER, total CPU time: 2450.00 ms (245.00 ms per IOPRF, 10.21 ms per IOPRF round), total wall time: 105676.37 ms (10567.64 ms per IOPRF), IOPRF length: 24, total data sent: 1220.76 kB (122.08 kB per IOPRF)
+connected
+Testing PRF of length 24, 10 runs
+Party SENDER, total CPU time: 2692.00 ms (269.20 ms per IOPRF, 11.22 ms per IOPRF round), total wall time: 105683.70 ms (10568.37 ms per IOPRF), IOPRF length: 24, total data sent: 552.48 kB (55.25 kB per IOPRF)
+
+connected
+Testing PRF of length 25, 10 runs
+Party RECEIVER, total CPU time: 2504.00 ms (250.40 ms per IOPRF, 10.02 ms per IOPRF round), total wall time: 109868.35 ms (10986.83 ms per IOPRF), IOPRF length: 25, total data sent: 1271.28 kB (127.13 kB per IOPRF)
+connected
+Testing PRF of length 25, 10 runs
+Party SENDER, total CPU time: 2736.00 ms (273.60 ms per IOPRF, 10.94 ms per IOPRF round), total wall time: 109876.62 ms (10987.66 ms per IOPRF), IOPRF length: 25, total data sent: 575.38 kB (57.54 kB per IOPRF)
+
+connected
+Testing PRF of length 26, 10 runs
+Party RECEIVER, total CPU time: 2641.00 ms (264.10 ms per IOPRF, 10.16 ms per IOPRF round), total wall time: 114191.63 ms (11419.16 ms per IOPRF), IOPRF length: 26, total data sent: 1321.80 kB (132.18 kB per IOPRF)
+connected
+Testing PRF of length 26, 10 runs
+Party SENDER, total CPU time: 2832.00 ms (283.20 ms per IOPRF, 10.89 ms per IOPRF round), total wall time: 114199.47 ms (11419.95 ms per IOPRF), IOPRF length: 26, total data sent: 598.29 kB (59.83 kB per IOPRF)
+
+connected
+Testing PRF of length 27, 10 runs
+Party RECEIVER, total CPU time: 2725.00 ms (272.50 ms per IOPRF, 10.09 ms per IOPRF round), total wall time: 118661.93 ms (11866.19 ms per IOPRF), IOPRF length: 27, total data sent: 1372.32 kB (137.23 kB per IOPRF)
+connected
+Testing PRF of length 27, 10 runs
+Party SENDER, total CPU time: 2995.00 ms (299.50 ms per IOPRF, 11.09 ms per IOPRF round), total wall time: 118666.86 ms (11866.69 ms per IOPRF), IOPRF length: 27, total data sent: 621.21 kB (62.12 kB per IOPRF)
+
+connected
+Testing PRF of length 28, 10 runs
+Party RECEIVER, total CPU time: 2809.00 ms (280.90 ms per IOPRF, 10.03 ms per IOPRF round), total wall time: 122803.23 ms (12280.32 ms per IOPRF), IOPRF length: 28, total data sent: 1422.83 kB (142.28 kB per IOPRF)
+connected
+Testing PRF of length 28, 10 runs
+Party SENDER, total CPU time: 3031.00 ms (303.10 ms per IOPRF, 10.82 ms per IOPRF round), total wall time: 122808.50 ms (12280.85 ms per IOPRF), IOPRF length: 28, total data sent: 644.12 kB (64.41 kB per IOPRF)
+
+connected
+Testing PRF of length 29, 10 runs
+Party RECEIVER, total CPU time: 2927.00 ms (292.70 ms per IOPRF, 10.09 ms per IOPRF round), total wall time: 127001.54 ms (12700.15 ms per IOPRF), IOPRF length: 29, total data sent: 1473.33 kB (147.33 kB per IOPRF)
+connected
+Testing PRF of length 29, 10 runs
+Party SENDER, total CPU time: 3158.00 ms (315.80 ms per IOPRF, 10.89 ms per IOPRF round), total wall time: 127015.18 ms (12701.52 ms per IOPRF), IOPRF length: 29, total data sent: 667.02 kB (66.70 kB per IOPRF)
+
+connected
+Testing PRF of length 30, 10 runs
+Party RECEIVER, total CPU time: 2960.00 ms (296.00 ms per IOPRF, 9.87 ms per IOPRF round), total wall time: 131282.30 ms (13128.23 ms per IOPRF), IOPRF length: 30, total data sent: 1523.86 kB (152.39 kB per IOPRF)
+connected
+Testing PRF of length 30, 10 runs
+Party SENDER, total CPU time: 3216.00 ms (321.60 ms per IOPRF, 10.72 ms per IOPRF round), total wall time: 131288.59 ms (13128.86 ms per IOPRF), IOPRF length: 30, total data sent: 689.92 kB (68.99 kB per IOPRF)
+
+connected
+Testing PRF of length 31, 10 runs
+Party RECEIVER, total CPU time: 3062.00 ms (306.20 ms per IOPRF, 9.88 ms per IOPRF round), total wall time: 135551.86 ms (13555.19 ms per IOPRF), IOPRF length: 31, total data sent: 1574.38 kB (157.44 kB per IOPRF)
+connected
+Testing PRF of length 31, 10 runs
+Party SENDER, total CPU time: 3388.00 ms (338.80 ms per IOPRF, 10.93 ms per IOPRF round), total wall time: 135559.06 ms (13555.91 ms per IOPRF), IOPRF length: 31, total data sent: 712.84 kB (71.28 kB per IOPRF)
+
+connected
+Testing PRF of length 32, 10 runs
+Party RECEIVER, total CPU time: 3070.00 ms (307.00 ms per IOPRF, 9.59 ms per IOPRF round), total wall time: 139632.71 ms (13963.27 ms per IOPRF), IOPRF length: 32, total data sent: 1624.90 kB (162.49 kB per IOPRF)
+connected
+Testing PRF of length 32, 10 runs
+Party SENDER, total CPU time: 3310.00 ms (331.00 ms per IOPRF, 10.34 ms per IOPRF round), total wall time: 139640.09 ms (13964.01 ms per IOPRF), IOPRF length: 32, total data sent: 735.73 kB (73.57 kB per IOPRF)
+

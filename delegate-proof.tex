@@ -1,0 +1,63 @@
+\subsection{Delegation}
+We achieve delegation for Construction~\ref{const:newprf} using the
+following transformation algorithm $T$.
+\begin{align*}
+&\text{On input: }
+(g,((\alpha_1,\beta_1),\ldots,(\alpha_\ell,\beta_\ell)),x^*_1\ldots{}x^*_i),
+\\&T\text{ outputs: }
+(g',((\alpha_{i+1},\beta_{i+1}),\ldots{},(\alpha_\ell,\beta_\ell))),
+\text{where }{g'}=g^{\prod_{j=1}^{i}{\alpha_j^{x_j}\cdot\beta_j^{1-x_j}}}.
+\end{align*}
+
+Observe that $g'$ is effectively a precomputed partial-$\iprf$ for input
+$(x^*_1\ldots{}x^*_i)$.  So, if party $P_1$ sends
+$({g'},((\alpha_{i+1},\beta_{i+1}),\ldots{},(\alpha_\ell,\beta_\ell)))$
+to $P_2$, $P_2$ can then compute $\iprf$ outputs
+$(v_{i+1},\ldots,v_\ell)$ for any input string $x=(x_1\ldots{}x_\ell)$
+which has $(x^*_1\cdots{}x^*_i)$ as a prefix by computing
+$v_{k}={g'}^{{\prod_{j={i+1}}^k{\alpha_j^{x_j}\cdot\beta_j^{1-x_j}}}}$.
+
+\begin{lemma}
+Construction~\ref{const:newprf} with transformation $T$ is a
+delegatable $\iprf$.
+\end{lemma}
+
+\begin{proof}
+  We prove this by straightforward reduction.  Let $\iprf_K$ be
+  Construction~\ref{const:newprf} for inputs $x$ of length $\ell+1$
+  bits, and let $\widehat{\iprf}_{\widehat{K}}$ be
+  Construction~\ref{const:newprf} for inputs $x$ of length $\ell$
+  bits.  Let prefix $x^*$ be any length $\ell$ bit string, and $K$ and
+  $\widehat{K}$ are randomly chosen keys.
+
+  Assume there exists distinguisher $\D$ which can distinguish the
+  first $\ell$ outputs from $\iprf_K$ with a prefix different from $x^*$
+  with non-negligible probability from $\ell$ random bit strings.
+
+  We build distinguisher $\D'$ who will be able to distinguish the
+  $\ell$ outputs from $\widehat{\iprf}_{\widehat{K}}$ from $\ell$
+  randomly chosen bit strings.
+
+\begin{enumerate}
+\item If $\D$ queries for delegation of length $\ell$ prefix $x^*$,
+  $\D'$ will query their challenger for $x^*$ and will get back $z$
+  which is either $(v_1,\ldots,v_\ell)=\iprf_K(x^*)$ or $\ell$ random
+  bit strings $(r_1,\ldots,r_\ell)$.
+\item $\D'$ generates a random pair
+  $(\alpha_{\ell+1},\beta_{\ell+1})\getr(\Z_p)^2$.  It computes
+  transformation $(g'=z, (\alpha_{\ell+1},\beta_{\ell+1}))$ and sends it
+  to $\D$.
+\item When $\D$ queries for $x$ with a different prefix than $x^*$, $\D$
+forwards $x$ to their challenger, forwards the response to $\D$ and
+outputs whatever $\D$ outputs.
+  
+\end{enumerate}  
+If $\D'$ is receiving the output of a $\widehat{\iprf}_{\widehat{K}}$,
+then the values it gives to $\D$ will be identifically distributed to
+correct outputs of a delegated $\iprf$, with the effective key of $K$
+concatenated with the random $(\alpha_{\ell+1}, \beta_{\ell+1})$.  If
+$\D'$ is receiving random strings $(r_1,\ldots,r_\ell)$, then $\D$ is also
+getting random strings.  Therefore, $\D$'s view is distributed
+identically to its distinguishing game. If $\D$ has a non-negligible advantage in distinguishing, then
+$\D'$ will have the same advantage in distinguishing $\iprf$ output from random strings.
+\end{proof}

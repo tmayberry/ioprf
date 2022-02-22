@@ -1,0 +1,89 @@
+\documentclass[sigconf, anonymous]{llncs}
+\input{emacros}
+
+
+\begin{document}
+\title{Iterative Oblivious Pseudo-Random Functions and Applications}
+\author{Erik-Oliver Blass$^1$\quad Travis Mayberry$^2$\quad Florian
+  Kerschbaum$^3$\vskip 2eX
+  $^1$Airbus, Munich\\
+  erik-oliver.blass@airbus.com
+  \vskip 1eX $^2$United States
+  Naval Academy \\mayberry@usna.edu 
+  \vskip 1eX
+  $^3$University of Waterloo\\
+  florian.kerschbaum@uwaterloo.ca
+}\institute{}
+
+\maketitle
+\input{abstract}
+
+\input{introduction}
+\input{def}
+\input{construction}
+\input{delegate-proof}
+\input{ot-ioprf}
+\input{ioprf}
+\input{sec-analysis}
+\input{proof}
+\input{implementation}
+\input{applications}
+\input{conclusion}
+
+
+\ignore{
+\input{related}
+
+  \section{Difference to structured encryption}
+\begin{itemize}
+\item Different adversary model
+\item Matrix queries and labeled data queries, neighbor queries and adjacency queries on graphs, are trivial.
+\item Token length?!
+\item the original PRF is mentioned by Naor and Reingold (Section 6.3), but details on how to use OT is mentioned by \url{https://www.iacr.org/archive/tcc2005/3378_304/3378_304.pdf}.  
+\end{itemize}
+}
+
+
+\ignore{
+* Note that our iOPRF can be evaluated ``interactively'',  i.e., the receiver runs OTs adaptively
+
+Motivation:
+
+* One could just replace the PRF in structured encryption (Figure 2 /
+Section 5) with an OPRF, but this is not sufficient: the adversary
+could ``flip-flop'' inside the graph, but we want that they can only
+follow paths.
+
+
+Apps:
+* Graphs: https://robobees.seas.harvard.edu/files/privacytools/files/grecs.pdf
+and https://par.nsf.gov/servlets/purl/10042572 and http://www.vldb.org/pvldb/vol11/p420-sahu.pdf
+
+* Similar as with structured encryption (web graphs, graphs, matrices)
+
+* What about running SQL queries https://eprint.iacr.org/2016/453.pdf
+
+* We also allow for ``controlled disclosure'', e.g., the server
+reveals one internal node, the root of some subtree, and the client
+can then go on and make queries on that subtree. 
+
+https://www.cis.upenn.edu/~mkearns/papers/nwlocal.pdf
+Jump and crawl algorithms for analyzing social networks
+
+* Microsoft Azure Marketplace: allow a cloud application to analyze your data.
+** Data provider does not want to reveal whole data set, but only ``subtree''
+** Cloud Application does not want to leak details about their techniques 
+*** Compromise between no security and fully-homomorphic encryption or MPC
+
+* HITS and PageRank: algorithms to analyze properties of an intranet, local sub-tree of the intranet
+
+}
+
+
+
+%\bibliographystyle{plainnat}
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{main}
+\appendix
+\input{appendix}
+\end{document}

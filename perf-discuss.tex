@@ -1,0 +1,49 @@
+\section{Discussion: Performance of Related Approaches}
+\label{sec:perf-related}
+$\ioprf$s must be interactive, requiring an interaction per
+iteration, and interactivity turns out to be the runtime bottleneck.
+Yet, we argue that such interaction is still more efficient than
+alternatives.
+
+For example, we could construct a single round $\ioprf$ protocol using
+fully homomorphic encryption (FHE).  However, we would then have to
+evaluate $\ell$ one-way functions inside the FHE circuit and prove
+their correct computation.  We expect such computations would be too
+long to be practical even on very powerful hardware.  Another
+alternative would be general cryptographic primitives which allow
+iterative one-way functions.  Recent Multi-Linear Maps could be used
+for this purpose.  However, there exist no secure multi-linear map for
+generic constructions, let alone efficient ones.  Lastly, the sender
+could compute the $\iprf$ for all possible inputs by the receiver and
+the receiver could select one using oblivious transfer.  Another
+example of obliviously evaluating such a function are distributed
+point functions \cite{fss} which would avoid oblivious transfer.
+However, in both cases the server would need to evaluate $2^\ell$
+functions rendering this approach quickly infeasible.  In conclusion,
+our $\ioprf$ avoids the pitfalls of non-interactive design
+alternatives providing practical performance.
+
+
+Finally, one could envision realizing an $\ioprf$ using general
+maliciously MPC frameworks such as MP-SPDZ~\cite{mpspdz} or
+efficient maliciously secure 2PC~\cite{empag2pc}. However, it
+is sender-receiver interactivity which turns out to be the main
+challenge. Evaluation of an arithmetic (SPDZ) or Boolean (2PC) circuit
+cannot be stopped, its output revealed, and then continued with new
+input. Instead, sender and receiver would need to securely evaluate
+$\ell$ different circuits. After evaluating circuit $i$, the receiver
+learns the $i^{\text{th}}$ output, and specifies the $(i+1)^\text{st}$
+input, and both parties evaluate another circuit. Inside the circuit,
+the sender and receiver would need to somehow prove to each other that
+they continue the evaluation with correct data which is not
+trivial. For example, the circuit would need to output an (encrypted)
+state to the sender after each iteration which the circuit then
+verifies in the next round based on additional information output to
+the receiver. The sender would also need to prove that they are using
+the same key as one they have committed to, previously. Recall that
+evaluation of cryptographic primitives inside a circuit is very
+expensive, even using fast maliciously secure 2PC. For example,
+\citet{empag2pc} report $85$~ms for the evaluation of a single SHA2
+circuit (amortized over 1024 circuits) in a scenario with latency
+comparable to LAN1. This is already more expensive than one full round
+of Construction~\ref{const:ioprf}.

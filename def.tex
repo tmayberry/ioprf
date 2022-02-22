@@ -1,0 +1,362 @@
+\section{Background and Related Work}
+Before introducing $\iprf$s, $\ioprf$s, and their constructions, we
+briefly revisit seminal PRF and OPRF schemes and some useful
+security definitions.  They will be helpful in understanding the
+intuition behind $\iprf$s and $\ioprf$s.
+
+
+%\paragraph{PRFs and OPRFs}
+While there exist many different
+PRFs~\cite{chaum,prf,dodis,ggm,lewko,bonehprf} and
+OPRFs~\cite{oprf,stan,chase,koles,boneh,kia}, we present the DH-based
+techniques by \citet{prf} and \citet{oprf}, as our constructions are
+build on their main idea.
+
+Let $\myG$ be a group of prime order $p$ where the DDH assumption
+holds, and $g$ is a random generator of $\myG$. For a security
+parameter $\lambda$, we set $|p|=\mathsf{poly}(\lambda)$.
+
+\begin{construction}[\citeauthor{prf} Function] \label{nrprf}
+For any $\ell\in\N$, consider function family (ensemble)
+$F_K(x):(\Z_p)^{\ell+1}\times\{0,1\}^\ell\rightarrow\myG$,
+where key $K$ is defined as sequence $K=(\alpha_0,\ldots,\alpha_\ell)$
+of $\ell+1$ random elements $\alpha_i$ from $\Z_p$.  For any $\ell$ bit input
+$x=x_1 \ldots x_\ell$, function $F_K$ is defined by
+$$F_K(x) = (g^{\alpha_0})^{\prod_{x_i=1}\alpha_i}.$$
+  \end{construction}
+
+Function $F_k$ holds the following important randomness property. We
+will come back to it later in the proof of our own construction.
+
+\begin{definition}[\citeauthor{prf} Pseudo-Randomness]\label{def:pr}
+For any $\ell\in\N$, function family $F_K(x):(\Z_p)^{\ell+1}\times\{0,1\}^{\ell}\rightarrow\myG$ has \emph{pseudo-random output}, \emph{iff}
+  for every PPT distinguisher
+$\mathcal{D}$, there exists a negligible function $\epsilon$ such that
+for sufficiently large $\lambda$
+$$| Pr[\mathcal{D}^{F_K(\cdot)}(1^\lambda)=1] - Pr[\mathcal{D}^{R(\cdot)}(1^\lambda) = 1]|
+    =\epsilon(\lambda), $$ where $K\getr(\Z_p)^{\ell+1}$, and $R$ is a randomly chosen function
+    from the set of functions with domain $\{0,1\}^{\ell}$ and image
+    $\myG$.
+\end{definition}
+
+
+\begin{theorem}[Theorem~4.1 of~\cite{prf}]
+\label{theorem:naor} 
+If the DDH-Assumption holds, then $F_K$ from Construction~\ref{nrprf}
+has pseudo-random output.
+\end{theorem}
+Observe that $F_K$ from Construction~\ref{nrprf} is \emph{not} a
+pseudo-random function. The standard PRF textbook definition (which we
+omit here) requires indistinguishability of PRF output from output of
+a random function which $F_K$ does not provide.  However, $F_K$ can
+trivially be converted into a PRF. If $H_\lambda$ is a family of
+pairwise independent hash functions, and $h\getr{}H_\lambda$, then
+$\hat{F}_K(\cdot)=h(F_K(\cdot))$ is a PRF by a standard argument of
+the leftover hash lemma~\cite{leftover}. We will use the same argument
+later for our techniques and thus concentrate only on the
+pseudo-randomness property of Definition~\ref{def:pr}.
+
+\begin{definition}[$\oprf$]
+  Let $F_K$ be a pseudo-random function family. An $\oprf$ is a
+  2-party protocol between a sender and a receiver realizing the
+  following ideal functionality.  A trusted third party receives a key
+  $K\in\{0,1\}^\lambda$ from the sender and input $x\in\{0,1\}^\ell$
+  from the receiver and sends $F_K(x)$ to the receiver.
+\end{definition}
+
+\begin{construction}[OPRF$_K(x)$ from~\cite{oprf}]
+\label{ot-oprf}
+  During initialization, sender $S$ chooses key
+  $K=(\alpha_0,\ldots,\alpha_\ell)$ by randomly sampling $\ell+1$
+  scalars $\alpha_i\getr\Z_p$.
+  To evaluate receiver $R$'s input $x=(x_1\ldots{}x_\ell)$, parties perform the following steps.
+  \begin{enumerate}
+  \item $S$ randomly selects $(r_1,\ldots,r_\ell),r_i\getr\Z_p$.
+  \item $S$ and $R$ engage in $\ell$ rounds of $\binom{2}{1}$-OT. In round
+    $i$, the server's input to OT is $(r_i,r_i\cdot\alpha_i)$, and the
+    receiver's input is $x_i$. So, depending on $x_i$, the receiver gets either $z_i=r_i$ or $z_i=r_i\cdot{}\alpha_i$.
+  \item $S$ sends $\hat{g}=g^{\frac{1}{\prod_{i=1}^{\ell}r_i}}$ to $R$, and
+    $R$ outputs $\text{OPRF}_K(x)=\hat{g}^{\prod^{\ell}_{i=1}z_i}$.
+    
+    \end{enumerate}
+\end{construction}
+
+\citet{oprf} present a proof sketch for
+Construction~\ref{ot-oprf}. Effectively, this OPRF assembles the
+\citeauthor{prf} function $F_K$ on input $x$ in $\ell$ rounds.  If
+the DDH assumptions holds, and the underlying OT is secure and does
+not simultaneously leak $r_i$ and $r_i\cdot\alpha_i$, 
+Construction~\ref{ot-oprf} is an OPRF (semi-honest
+model).
+
+\section{$\iprf$ and $\ioprf$ Definition}
+In this paper we introduce the notion of iterative pseudo-random
+functions ($\iprf$) and iterated oblivious pseudo-random functions
+($\ioprf$).
+
+Informally, an $\iprf$ is a keyed function with bit strings
+$x=(x_1\ldots{}x_\ell)$ of length $\ell$ as input. It outputs $\ell$
+bit strings $v_i$, each of length $\lambda$. Besides that each $v_i$
+is indistinguishable from a randomly chosen bit string, the crucial
+property which we target is that, for two bit strings $x$ and $x'$
+sharing the same length $k$ bit prefix, the first $k$ outputs
+$(v_1,\ldots,v_k)$ of $\iprf$ will be the same.
+
+Similar to OPRFs, an $\ioprf$ is a two party protocol, where a
+receiver gets $\iprf_K(x)$ for their input $x$, and the sender with
+input key $K$ does not learn $x$. However, unlike standard OPRFs,
+$\ioprf$s run in $\ell$ rounds as required by the application
+scenarios we consider. In round $i$, the receiver adaptively inputs
+$x_i$ such that eventually they receive all $\ell$ outputs from
+$\iprf_K(x)$, where $x=(x_1\ldots{}x_\ell)$ is as specified during the
+$\ell$ rounds.
+
+\subsection{$\iprf$}
+\begin{definition}[$\iprf$]\label{defiprf}
+  For inputs $x=(x_1\ldots{}x_\ell)\in\{0,1\}^\ell$ and randomly
+  chosen keys $K=(K_1,\ldots,K_\ell)\in\{0,1\}^{\ell\cdot\lambda}$, an
+  \emph{iterative pseudo-random function} family $\iprf_K(x)$ is a sequence
+  of mutually independent function families
+  $$\iprf_K(x)=(f^1_{K_1}(x_{1}),\ldots,f^\ell_{K_1,\ldots,K_\ell}(x_{1}\ldots{}x_{\ell})),$$
+  where each
+  $f^i_{K_1,\ldots,K_i}(x_{1}\ldots{}x_{i}):\{0,1\}^{i\cdot\lambda}\times\{0,1\}^{i}\rightarrow{}\{0,1\}^\lambda$
+  is a pseudo-random function family with key $(K_1,\ldots,K_i)$ from
+  $K$ and input $(x_1\ldots{}x_i)$ from $x$.
+ Concatenated output
+  $V_\lambda=v_1||\ldots||v_\ell,v_i=f^i_{K_1,\ldots,K_i}(x_1\ldots{}x_i)$
+  is a family of mutually independent random variables (a probability ensemble) of bit
+  strings of length $\ell\cdot\lambda$.
+\end{definition}
+
+Definition~\ref{defiprf} implies that each probability ensemble
+$v_i=\{(v_i)_\lambda\}_{\lambda\in\N}$ of length $\lambda$ bit strings
+is computationally indistinguishable from an ensemble $u_i$ describing
+uniformly random bit strings of length $\lambda$. However, probability
+ensemble $V_\lambda=v_1||\ldots||v_\ell$ is \emph{not}
+indistinguishable from an ensemble of uniformly random bit strings of
+length $\lambda\cdot\ell$. Instead, if any two inputs $x$ and $x'$
+share the same prefix of length $i$, then the first $i$ outputs
+$(v_1,\ldots,v_i)$ of $\iprf_K(x)$ will equal those of $\iprf(x')$. Mutual independence means that $v_j$ does not depend on (combinations of) other $v_{i\neq{}j}$.
+
+
+Besides being PRFs, we do not require anything else from underlying
+functions $f^i$. Note that, in general, PRFs do not need to be
+length-preserving~\cite{nonlengthpres}.
+
+\mypara{Simple Constructions}
+Observe that the hashed \citeauthor{prf} PRF $\hat{F}_K$ from
+Construction~\ref{nrprf} is not an $\iprf$ and cannot easily be
+converted into an $\iprf$. First, to support $\lambda\cdot\ell$
+outputs, $\lambda$ for each input bit $x_i$, one might try and create
+an $\iprf$ out of
+$(\hat{F}_{K_1}(x_1),\ldots,\hat{F}_{K_1,\ldots,K_\ell}(x_1\ldots{}x_\ell))$,
+where $K_1=\alpha_1,\ldots,K_\ell=\alpha_\ell$.  However, this is in
+fact not an $\iprf$, as exemplified by inputs like
+$x=(10\ldots{}0)$. There, we have
+$\hat{F}_{K_1}(1)=\hat{F}_{K_1,K_2}(10)=\ldots=\hat{F}_{K_1,\ldots,K_\ell}(10\ldots{}0)$,
+so the output repeats starting from the $2^\text{nd}$ invocation of
+$\hat{F}_K$. In general, for any input $x=\mathsf{PREFIX}||0\ldots{}0$ ending
+with a sequence of zeros, $\hat{F}_K(x)$ will be equal to
+$\hat{F}_K(\mathsf{PREFIX})$ violating mutual independence of the $v_i$ in Definition~\ref{defiprf}.
+
+Many simple construction from symmetric key PRFs for an $\iprf$
+could be based on variable input length PRFs such as HMAC and a
+collision resistant hash function $H$. For example, consider
+$\iprf_K(x)=(\hmac_{H(K_1)}(x_1),\ldots,\hmac_{H(K_1||\ldots||K_\ell)}(x_1\ldots{}x_\ell))$.
+While this and other variations and adoptions of standard symmetric key PRF-based setups (also PRG-based PRFs~\cite{ggm}) might result in valid $\iprf$s,
+we dismiss them in favor of our new 
+Construction~\ref{const:newprf} (Section $\S$\ref{sec:newprf}), as it offers several advantages. First, it
+builds on the \citeauthor{prf} pseudo-randomness, so we can prove malicious security by an elegant, formal reduction from DDH to the $\iprf$ property.
+More importantly, its key advantage
+is that you can use it as a building block to construct an efficient $\ioprf$
+which also supports delegation and verifiability. As we will see, the $\ioprf$ offers malicious security with highly efficient, practical ZK proofs, i.e., without reverting to reductions of expensive general ZK proofs. 
+
+\subsection{$\ioprf$}
+\begin{figure}[tb]
+\RestyleAlgo{boxed}
+\LinesNumbered
+\begingroup
+\removelatexerror% Nullify \@latex@error
+\begin{spacing}{0.7}
+\begin{functionality}[H]\small
+  \tcp{Let $\iprf$ be an iterative pseudo-random function family}
+  \For{$i=1$ {\bf to} {$\ell$} }{
+    $R\rightarrow{}\ttpioprf:x_i$\;
+    $S\rightarrow{}\ttpioprf$: $K_i$\tcp*{$K=(K_1,\ldots,K_\ell)$}
+    $\ttpioprf\rightarrow{}R: v_i$ such
+    that $(v_1,\ldots,v_\ell)=\iprf_K(x_1\ldots{}x_\ell)$\;
+  }
+\end{functionality}
+\end{spacing}
+\endgroup
+\caption{Ideal Functionality $\fioprf$\label{idealioprf}}
+\end{figure}
+
+\begin{definition}[$\proto$]
+  \label{def:ioprf}
+  Let $\iprf_K$ be an iterative pseudo-random function family.  An
+  \emph{iterative {oblivious} pseudo-random function} is an $\ell$-round
+  probabilistic protocol $\proto$ between a sender $S$ with input key
+  $K\in\{0,1\}^{\lambda\cdot\ell}$ and receiver $R$ with input bit
+  string $x=(x_1\ldots{}x_\ell)\in\{0,1\}^{\ell}$ with the following
+  properties.
+
+  
+\begin{enumerate}[leftmargin=*]
+  \item Protocol $\proto$ realizes the ideal functionality $\fioprf$
+    shown in Figure~\ref{idealioprf}. This is a reactive
+    functionality allowing queries from $R$ in a total of $\ell$
+    rounds.  After $\ell$ rounds, $R$ has received
+    $(v_1,\ldots,v_\ell)=\iprf_K(x),|v_i|=\lambda$, from a trusted
+    third party $\ttpioprf$.  Sender $S$ sends $K_i$ in round $i$, but
+    receives nothing from $\fioprf$. We denote receiver $R$'s output $(v_1,\ldots,v_\ell)$ by $\ioprf_K(x)$.
+  
+  \item For all adversaries $\A$ in the real world, there exists a
+    simulator $\myS_R$ in the ideal world such that $R$'s view
+    $\mathsf{REAL}_{\proto,\A,R}(x,K)$ in the real world is
+    computationally indistinguishable from $R$'s view
+    $\mathsf{IDEAL}_{\fioprf,\myS_R(x)}(x,K)$ in the ideal world.
+
+  \item For all adversaries $\A$ in the real world, there exists a
+    simulator $\myS_S$ in the ideal world such that $S$'s view
+    $\mathsf{REAL}_{\proto,\A,S}(K)$ in the real world is
+    computationally indistinguishable from $S$'s view
+    $\mathsf{IDEAL}_{\fioprf,\myS_S}(K)$ in the ideal world.
+\end{enumerate}
+\end{definition}
+
+The crucial difference of $\ioprf$s in contrast to regular
+$\oprf$s~\cite{oprf,stan,chase,koles,boneh,kia} is that at the end of
+the protocol execution, $R$ has received not one but $\ell$ PRF values
+$v_i$ with $(v_1,\ldots,v_\ell)=\iprf_K(x)$. For two inputs $x$ and $x'$
+with the same length $i$ bit prefix, values $v_1,\ldots,v_i$ will be
+the same. Note that receiver $R$ can specify their input adaptively
+during $\ell$ rounds. Before sending $x_i$, $R$ has learned $v_{i-1}$
+from $\fioprf$. Still, $R$ receives output strings matching an
+$\iprf$, so they cannot combine outputs from different $\ioprf$
+executions with different input. For example, knowledge of
+$\ioprf_K(10\ldots)$ and $\ioprf_K(01\ldots)$ should not allow $R$ to
+learn anything about $\ioprf_K(11\ldots)$.  Against a fully-malicious
+$R$, this cannot be accomplished easily with regular OPRFs.  One
+might try and run $\ell$ instances of the OPRF, but the challenge is
+that one would have to force $R$ to link their input during the
+$i^\text{th}$ instance of the OPRF to the $(i-1)^\text{th}$ instance.
+Our $\ioprf$ in Section~\S\ref{our-ioprf} offers a solution to this
+challenge.
+
+\mypara{Verifiability}
+An important aspect of OPRFs which we also require for $\ioprf$s is
+that of {verifiablity}, see \citet{kia} for technical
+details. Essentially, verifiablity implies that $S$ proves to $R$ that
+$R$'s output $(v_1,\ldots,v_\ell)$ has been computed correctly. Towards
+providing malicious security, verifiability is especially important
+when the $\ioprf$ is run multiple times, as $S$ could cheat by using
+different keys for different protocol runs.
+We refer to \cite{kia} for a treatment with more formal definitions in
+the context of OPRFs which also hold for $\ioprf$s.  For our
+constructions, we will prove that $R$'s output has been
+correctly computed by using a key which $S$ has been committed to
+before.
+
+Observe that the original \citet{oprf} OPRF
+(Construction~\ref{ot-oprf}) is not maliciously secure and thus does
+not offer verifiablity. Even if OT as a building block would be secure
+against a malicious adversary, it is unclear how to verify that the
+sender has used the same key $K$ for different OPRF protocol runs.
+
+\mypara{Efficiency}
+The last crucial property we require is that $\ioprf$s are efficient
+with respect to their communication and computational complexity.
+Efficiency is important in practice, as a client can perform
+$q\geq{}1$ queries to decrypt $q$ paths in the owner's data structure.
+For each query, after all $\ell$ rounds, an $\ioprf$ has output $\ell$
+bit strings of length security parameter, so the data exchanged
+between $S$ and $R$ and the number of computations involved to realize
+the $\ioprf$ should be linear in $\ell$.
+Communication and computational complexities of an $\ioprf$ are
+asymptotically \emph{optimal} if, after any $q$ queries, they are both
+in $O(q\cdot\ell)$.  Our main contribution
+(Construction~\ref{const:ioprf}, \S\ref{our-ioprf}) has optimal
+communication and computational complexities.
+
+\subsection{Delegation for $\iprf$s and $\ioprf$s}
+Informally, a PRF $F$ with domain $D$ is delegatable, if for some
+subset $D'\subset{}D$ you can (efficiently) compute a sub-key $K'$
+from key $K$ and another PRF $F'$ from $F$, such that $F'_{K'}$ equals
+$F_K$ on all $x\in{}D'$, but is random everywhere else. There exists a
+rich theory on delegatable PRFs, see \citet{delegate} for details.
+
+In the context of $\iprf$s, we are particularly interested in
+delegating iterative PRF computation for strings
+$x=(x_1\ldots{}x_\ell)$ sharing the same fixed prefix. That is, a
+party $P_1$ knowing key $K$ specifies a prefix
+$x^*=(x^*_1\ldots{}x^*_i)$, computes $K'$ and $\iprf'$, and gives
+$(\iprf',K')$ to party $P_2$. Party $P_2$ is then capable of computing
+$\iprf_K(x)$ for all bit strings $x$ having the same prefix $x^*$. At
+the same time, for all bit strings $x$ with a different prefix than
+$x^*$, $K'$ does not help $P_2$ in distinguishing the first $i$
+outputs of $\iprf_{{K}}(x)$ from the output of random bit strings.  We
+formalize this intuition in Definition~\ref{def:del}.
+
+\begin{definition} \label{def:del}
+  Let $\iprf$ be an iterative pseudo-random function on length $\ell$
+  bit input strings with random key $K$.  We call an $\iprf$
+  \emph{delegatable}, \emph{iff}
+  \begin{enumerate}[leftmargin=*]
+  \item There exists a PPT transformation algorithm $T$, which on
+    input $(\iprf,K,x^*_1\ldots{}x^*_i)$ outputs $(\iprf',K')$, where
+    $\iprf':\{0,1\}^{\lambda\cdot(\ell-i)}\times\{0,1\}^{\ell-i}\rightarrow{}\{0,1\}^{\lambda\cdot(\ell-i)}$
+    and
+    $\forall{}x'=(x'_1\ldots{}x'_{\ell-i}):\iprf'_{K'}(x')=\mathsf{SUFFIX}_{\ell-i}(\iprf_{K}(x^*_1\ldots{}x^*_ix'_1\ldots{}x'_{\ell-i}))$.
+
+    Here,
+    $\mathsf{SUFFIX}_{\ell-i}(\cdots)$ denotes the last $\ell-i$ PRF outputs,
+    each of length $\lambda$ bit, of $\iprf_K(\cdots)$.
+
+\item For all PPT distinguishers $\D$ and randomly chosen $K$,
+    there exists a negligible function $\epsilon$ such that for
+    sufficiently large $\lambda$ we have
+    \begin{align*}
+&\forall{}x^*=(x^*_1\ldots{}x^*_i),\forall{}x=(x_1\ldots{}x_\ell),x_1\ldots{}x_i\neq{}x^*_1\ldots{}x^*_i:
+\\      &|Pr[(v_1,\ldots,v_\ell)=\iprf_{K}(x):\D(1^\lambda,\iprf',K',x,{v}_1,\ldots,{v}_i)=1]-\\&Pr[(r_1,\ldots,r_i)\getr{}U_{\lambda}:\D(1^\lambda,\iprf',K',x,r_1,\ldots,r_i)=1]|=\epsilon(\lambda),
+\ignore{      
+           &\forall{}x=(x_1\ldots{}x_\ell),x_1\ldots{}x_i\neq{}x^*_1\ldots{}x^*_i:\\&|Pr[\hat{K}=(\hat{K}_1,\ldots,\hat{K}_\ell)\getr\{0,1\}^{\lambda\cdot\ell},(v_1,\ldots,v_\ell)=\iprf_K(x),\\&(\hat{v}_1,\ldots,\hat{v}_\ell)=\iprf_{\hat{K}}(x):\D(1^\lambda,\iprf',K',(\hat{v}_1,\ldots,\hat{v}_i,v_{i+1},\ldots,v_\ell))=1]\\-&Pr[\D(1^\lambda,\iprf',K',v_1,\ldots,v_\ell)=1]|=\epsilon(\lambda).
+}%ignore
+    \end{align*}
+    where $U_{\lambda}$ is the probability ensemble of random bit
+    strings of length $\lambda$, $K$ is a randomly chosen key for
+    $\iprf$, and $(\iprf',K')$ are output by $T(\iprf, K,
+    x^*_1\ldots{}x^*_i).$
+\end{enumerate}
+
+\end{definition}
+%Along the same lines,
+A \emph{delegatable} $\ioprf$ is an $\ioprf$
+where the underlying $\iprf$ supports delegation. 
+
+
+\mypara{Discussion}
+Note that knowledge of $K'$ and the first $i$ values of the output
+$(v_1,\ldots,v_i)$ of $\iprf_K(x)$ does permit $P_2$ to enumerate all
+suffixes of strings $x$ which share the same length $i$ prefix as
+$x$. At first, this property might look like a severe restriction to
+the value of this type of delegation, but we will show in
+Section~\ref{sec:applications} that it has very interesting
+real-world applications.
+
+We implicitly require delegation non-triviality (bandwidth
+efficiency~\cite{delegate}). For example, $P_1$ could
+delegate the capability to evaluate strings with prefix $x^*$ by
+computing $\iprf_K(x)$ for all strings $x$ with prefix $x^*$
+and sending the output to $P_2$. Tuple $(\iprf',K')$ should be
+smaller in size than the concatenation of all strings with prefix
+$x^*$.
+
+Finally, we point out that delegation can be extended from $\iprf$s to
+$\ioprf$s in the natural way. If $P_1$ gives $(\iprf',K')$ to $P_2$,
+then $P_2$ is also able to run a 2-party protocol with another party
+$P_3$, where $P_3$ correctly receives
+$\ioprf'_{K'}(x')=\iprf'_{K'}(x')$ for input $x'$ with prefix $x^*$
+while $P_2$ learns nothing about $x'$.
+
+

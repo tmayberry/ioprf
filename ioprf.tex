@@ -1,0 +1,180 @@
+\refstepcounter{construction}\label{const:ioprf}
+\section{Construction~\ref{const:ioprf}: DH-based $\ioprf$}
+\label{our-ioprf}
+We now present a new $\proto$ protocol which realizes the ideal $\ioprf$
+functionality $\fioprf$ from Figure~\ref{idealioprf}.
+
+\subsection{Preliminaries}
+%\subsubsection{Preliminaries}
+Let there be two generators
+$g_1,g_2$ of prime order $p$ group $\myG$ where the DDH assumption
+holds. Neither party should know the discrete log of one generator
+$g_i$ to the basis of the other generator $g_{j\neq{}i}$, which is
+true with high probability if they are chosen at random.
+%\fk{I just want to note that in a prime-order group, if the discrete logarithm $\log_{g_1}(g_2)$ is known, then so is $\log_{g_2}(g_1)$.}
+
+\paragraph{Elgamal Encryption}
+We will use additive Elgamal encryption with private keys $sk\in\Z_p$
+and public keys $pk=g_1^{sk}$. Ciphertext $c$ to encrypt $m\in\Z_p$ is
+$c=(c[0],c[1])=(g_1^r,pk^r\cdot{}g_2^m)\leftarrow\enc_{pk}(m)$, where
+$r\getr\Z_p$.
+
+\paragraph{Pedersen Commitments}
+A Pedersen commitment $\com(m)\in\myG$ to message $m\in\Z_p$ is
+defined as $\com(m)=g_1^r\cdot{}g_2^m$, where $r\getr\Z_p$.  To open
+$\com(m)$, reveal tuple $(m,r)$. Pedersen commitments are perfectly
+hiding and computationally binding.
+
+\subsection{High-Level Intuition}
+In round $i$ of $\ell$ rounds, sender $S$ will receive
+two ciphertexts $V_i$ and $D_i$ from receiver $R$.  During the course of the
+protocol, one of these ciphertexts will contain the $\ioprf$ output and one acts
+as a ``dummy'', to keep $S$ from learning input bits $x_i$ of $R$.  They are
+interchanged between rounds depending on the input bits.
+
+For each round, using the $i^{\text{th}}$ round's keys $(\alpha_i,\beta_i)$, $S$
+will then ``apply'' $\alpha_i$ to $V_i$ and $\beta_i$ to $D_i$, and send the
+results back to $R$. In preparation for the next round $(i+1)$, if $x_{i+1}\neq
+x_{i}$, $R$ will swap $V_i$ and $D_i$ for the next round.  After $\ell$ rounds,
+$V_\ell$ will have the keys applied which correspond to the input bits of $R$, and
+$D_\ell$ will have the complementary combination of keys applied.  $V_0$ is initialized
+as an encryption of 1, so $V_\ell$ will contain the correct $\ioprf$ output, whereas
+$D_0$ is initialized as an encryption of 0 so it will not contain any information.
+
+\subsection{Technical Details}
+For some input string $x=(x_1\ldots{}x_\ell)$, we define the output of
+$\proto$ for the receiver as $(v_1,\ldots,v_\ell)=\ioprf_{K}(x)$ with
+$v_i=g_2^{\prod_{j=1}^{i}(\alpha_j{}x_j+\beta_j(1-x_j))}$ and $K=\{(\alpha_i,\beta_i)\}^\ell_{i=1}$. 
+We now describe details of Construction~\ref{const:ioprf} by its formal
+$\proto$ interface (Definition~\ref{def:ioprf}), i.e., first its
+initialization and then its iterative processing.
+
+\subsubsection{$\proto$ Initialization}
+Sender $S$ randomly chooses secret key
+$K=((\alpha_1,\beta_1),\ldots,(\alpha_\ell,\beta_\ell)),
+(\alpha_i,\beta_i)\getr(\Z_p)^2$.
+
+$S$ also commits to $K$ by computing $2\ell$ Pedersen commitments
+  $(\com(\alpha_i),\com(\beta_i))$. $S$ sends them to $R$ and
+  proves knowledge of plaintexts in ZK (see \S\ref{pokop}).
+
+Receiver $R$ computes a random
+Elgamal private key $sk\getr\Z_p$ and public key $pk=g_1^{sk}$, and
+sends $pk$ to $S$. Receiver $R$ proves knowledge of $sk$ using
+a standard Schnorr ZK proof of knowledge (see \S\ref{poe}).
+
+
+Receiver $R$ computes $V_0 \leftarrow\enc_{pk}(1)$ and
+$D_0\leftarrow\enc_{pk}(0)$, sends them to $S$ and proves that
+these are encryptions of $1$ and $0$ (see \S\ref{poe} below). 
+
+\subsubsection{$\proto$ Iterative Processing in $\ell$ Rounds}
+In round $i\in\{1,\ldots,\ell\}$, for $S$' input bit $x_i$:
+\begin{enumerate}
+  
+\item {\bf Receiver shuffles:}
+\begin{enumerate}%[leftmargin=0.3cm]
+\item For input bit $x_i$, $R$ computes Pedersen commitment
+  $\com{}(x_i)$ and proves that $x_i\in\{0,1\}$ (see
+  \S\ref{pobit}). Similarly, $R$ computes $\com{}(1-x_i)$
+  and proves that $(1-x_i)\in\{0,1\}$ (see \S\ref{pobit}). Finally,
+  $R$ proves that the sum of plaintexts behind
+  $\com{}(x_i)$ and $\com{}(1-x_i)$ equals $1$ (see
+  \S\ref{pkseo}).
+
+
+\item  Receiver $R$ chooses $r,r',r'',r'''\getr\Z_p$ and computes Elgamal ciphertexts
+  \begin{align*}
+    c_i&=(g_1^r\cdot{}V_{i-1}[0]^{x_i},pk^{r}\cdot{}V_{i-1}[1]^{x_i})
+    \\c'_i&=(g_1^{r'}\cdot{}V_{i-1}[0]^{1-x_i},pk^{r'}\cdot{}V_{i-1}[1]^{1-x_i})
+    \\d_i&=(g_1^{r''}\cdot{}D_{i-1}[0]^{x_i},pk^{r''}\cdot{}D_{i-1}[1]^{x_i})
+    \\d'_i&=(g_1^{r'''}\cdot{}D_{i-1}[0]^{1-x_i},pk^{r'''}\cdot{}D_{i-1}[1]^{1-x_i})
+ \end{align*} 
+  \ignore{
+    \vskip 1eX
+\NoIndent{\begin{tabular}{@{}l@{\hskip 0.3cm}l}
+    $c_i=(g_1^r\cdot{}V_{i-1}[0]^{x_i},pk^{r}\cdot{}V_{i-1}[1]^{x_i})$
+    &$c'_i=(g_1^{r'}\cdot{}V_{i-1}[0]^{1-x_i},pk^{r'}\cdot{}V_{i-1}[1]^{1-x_i})$
+    \\$d_i=(g_1^{r''}\cdot{}D_{i-1}[0]^{x_i},pk^{r''}\cdot{}D_{i-1}[1]^{x_i})$
+    &$d'_i=(g_1^{r'''}\cdot{}D_{i-1}[0]^{1-x_i},pk^{r'''}\cdot{}D_{i-1}[1]^{1-x_i})$%\text{ and}
+          \end{tabular}}
+        }%ignore
+  and sends $(c_i,c'_i,d_i,d'_i)$ to $S$.
+\item Receiver $R$ proves correctness of the above computations in
+  ZK. Specifically, $(c_i,c'_i,d_i,d'_i)$ result from correct
+  exponentiation with $x_i$ (or $1-x_i$) from $\com{}(x_i)$ (or
+  $\com{}(1-x_i)$), and multiplication with a random power of
+  $g_1$ and $pk$, i.e., re-randomization (homomorphic addition of
+  encryption of $0$).  See \S\ref{pexr} below for details.
+   Both parties compute
+\begin{align*}
+   T_i&=(c_i[0]\cdot{}d'_i[0],c_i[1]\cdot{}d'_i[1])
+    \\U_i&=(c'_i[0]\cdot{}d_i[0],c'_i[1]\cdot{}d_i[1]).
+\end{align*}   
+  \end{enumerate}
+In the first round, after this step, $T_1$ is an encryption of $1$ and $U_1$ is an encryption of $0$ if $x_1 = 1$.
+If $x_1 = 0$, then $T_1$ is an encryption of $0$ and $U_1$ is an encryption of $1$.
+However,  sender $S$ does not know which of the two is the case.
+
+\item {\bf Sender computes PRF:} For $r,r'\getr\Z_p$, $S$ computes the two Elgamal ciphertexts
+  \begin{align*}
+    X_i&=(g^r_1\cdot{}T_i[0]^{\alpha_i},pk^r\cdot{}T_i[1]^{\alpha_i})
+    \\Y_i&=(g^{r'}_1\cdot{}U_i[0]^{\beta_i},pk^{r'}\cdot{}U_i[1]^{\beta_i}),
+    \end{align*}
+  sends $(X_i,Y_i)$ to $R$, and proves correct exponentiation
+  (scalar multiplication of plaintexts) with $\alpha_i$ and $\beta_i$
+  coming from previous commitments $\com{}(\alpha_i),\com{}(\beta_i)$
+  \emph{and} re-randomization of ciphertexts (see \S\ref{pexr}).
+
+\item {\bf Receiver shuffles back:}
+  For $r,r',r'',r'''\getr\Z_p$, $R$ computes%\vskip 2eX
+  \begin{align*}
+    P_i&=(g_1^r\cdot{}X_i[0]^{x_i},pk^r\cdot{}X_i[1]^{x_i})
+    \\P'_i&=(g_1^{r'}\cdot{}X_i[0]^{1-x_i},pk^{r'}\cdot{}X_i[1]^{1-x_i})
+   \\Q_i&=(g_1^{r''}\cdot{}Y_i[0]^{x_i},pk^{r''}\cdot{}Y_i[1]^{x_i})
+   \\Q'_i&=(g_1^{r'''}\cdot{}Y_i[0]^{1-x_i},pk^{r'''}\cdot{}Y_i[1]^{1-x_i})
+\end{align*}
+   \ignore{
+     \begin{centering}
+    \begin{tabular}{l@{\hskip 0.5cm}l}
+    $P_i=(g_1^r\cdot{}X_i[0]^{x_i},pk^r\cdot{}X_i[1]^{x_i})$
+    &$P'_i=(g_1^{r'}\cdot{}X_i[0]^{1-x_i},pk^{r'}\cdot{}X_i[1]^{1-x_i})$
+   \\$Q_i=(g_1^{r''}\cdot{}Y_i[0]^{x_i},pk^{r''}\cdot{}Y_i[1]^{x_i})$
+   &$Q'_i=(g_1^{r'''}\cdot{}Y_i[0]^{1-x_i},pk^{r'''}\cdot{}Y_i[1]^{1-x_i})$
+  \end{tabular}
+  \end{centering}
+  \vskip 2eX
+  }%ignore
+  and sends $(P_i,P'_i,Q_i,Q'_i)$ together with ZK proofs of correct
+  computation (see \S\ref{pexr}) to $S$.
+
+  Both $S$ and $R$ compute
+  $V_i=(P_i[0]\cdot{}Q'_i[0],P_i[1]\cdot{}Q'_i[1])$ and
+  $D_i=(P'_i[0]\cdot{}Q_i[0],P'_i[1]\cdot{}Q_i[1])$.
+  
+In round $i$, after this step, $V_i$ is an encryption of $\iprf_{K}(x_1,\ldots,x_i)$, and $U_i$ is an encryption of $0$.
+When computing $T_{i+1}$ and $U_{i+1}$, these values will be used instead of the encryptions of $0$ and $1$ and the iterative computation of the PRF continues.
+Since both parties compute $V_i$ and $U_i$, $R$ cannot cheat and substitute for a value of his choice.
+
+\item Receiver $R$ computes and outputs one $\iprf$ value
+  $v_i=\frac{V_i[1]}{V_{i}[0]^{sk}}$.
+\end{enumerate}
+
+\paragraph{Discussion}
+Observe that, in the last step, $R$ can never decrypt
+additively homomorphic Elgamal ciphertext $(V_i[0],V_i[1])$ and thus
+compute an $\alpha_i$ or $\beta_i$. As $\alpha_i$ or $\beta_i$ are in
+the exponent and due to the hardness DLOG, $R$ can only
+compute $v_i=g_2^{\ldots\alpha_i\ldots}$ or
+$v_i=g_2^{\ldots\beta_i\ldots}$.
+If $R$ wants to run several execution of
+Construction~\ref{const:ioprf} and wants that $S$ uses the same key,
+then $R$ will verify that commitments sent by $S$ during initialization do not change between executions. This
+leads to {verifiability}.
+Also note that communication complexity and computational complexity
+are both in $O(\ell)$ per query, i.e.,  asymptotically
+optimal.
+
+%\vskip 1eX\noindent{\bf Security Analysis:} Due to space constraints, we defer %our full security analysis, including formal proofs, to Appendix~\ref{sec:sec-analysis}.
+\input{sec-analysis}
+\input{proof}

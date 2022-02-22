@@ -1,0 +1,95 @@
+\section{Applications}
+\label{sec:applications}
+\paragraph{OPRF applications} Before presenting applications specific to $\ioprf$s, we briefly
+highlight that $\ioprf$s are maliciously-secure OPRFs and can consequently also be used to realize
+maliciously-secure adaptive $k$-out-of-$n$ OT and oblivious keyword
+search~\cite{adaptiveot,oks}. There, a sender encrypts each document
+$i$ with a key $K_i$ that is derived from the document's keyword
+$W_i$, i.e., $\kappa_i = \iprf_K(W_i)$. The sender sends resulting
+ciphertexts to the receiver. Now, sender and receiver evaluate the
+$\ioprf$ such that the receivers gets $\kappa=\ioprf_K(W)$ for a any
+keyword $W$ the receiver is interested in. Using $\kappa$, the
+receiver can decrypt all documents matching $W$. For more details, we
+refer to \citet{oks}.  Note that if we ``structure'' keywords along
+the paths of a binary tree, we can allow some party to derive, for
+example, all keywords that start with the same prefix.
+
+\paragraph{$\ioprf$ specific applications}
+An immediate application specific to our $\ioprf$ (but not OPRFs!) is to force correct
+compliance of clients in structured encryption by allowing them to
+only query a contiguous path in the graph data.  This can be
+accomplished by adding a layer of encryption inside of existing
+structured encryption solutions such that each data element is also
+encrypted with a key derived from one iteration of the $\ioprf$.
+After the structured encryption protocol is complete, an $\ioprf$
+protocol is executed which will allow for final decryption of the
+results only if they are on a contiguous path.
+
+To hide from the server which path is queried, the client can fetch
+each node using Private Information Retrieval or maliciously secure
+OT.
+Also in scenarios with structured encryption, the $\ioprf$'s
+delegation feature can be used to delegate control over well-specified
+sub-trees of the original data to other parties. The delegate can then
+act as a data owner on their sub-tree, serving requests from clients
+with the same security property as the original data owner.
+
+To understand the usefulness of $\ioprf$s, we now
+consider a specific implementation of RFID tag authentication which
+uses a limited form of structured encryption.
+
+
+\input{rf}
+\input{rf-delegation}
+
+\subsection{Private Decision Tree Evaluation}
+Another application where we can apply an $\ioprf$ is in the area of
+private evaluation of decision trees.  There, the goal is to allow a
+client holding a feature vector to query an outsourced decision tree
+held by a server, resulting in the client receiving the machine
+learning classification of their feature vector without the owner of
+the decision tree learning what their input was. We refer to
+\citet{schneidertree} for an overview.
+
+The protocol by \citet{wu2016privately} accomplishes this with two
+main techniques:
+
+\begin{enumerate}[leftmargin=*]
+\item Each node of the decision tree stores one value which will be
+  compared against one feature of the client's feature vector.  To
+  enable this, the client encrypts their feature vector with
+  additively homomorphic encryption using the client's public key and
+  sends ciphertexts to the server.  For each node of the tree, the
+  server computes homomorphic DGK~\cite{dgk} comparisons ``$<$'' of
+  one of the client's encrypted features with the specific node's
+  value and sends encrypted comparison outcomes back to the client.
+  Therewith, the client can identify the path in the tree and the leaf
+  node corresponding to their input.
+
+\item Once the correct leaf node is identified, the client uses
+  oblivious transfer to retrieve it and compute the final
+  classification.
+\end{enumerate}
+
+This protocol works for semi-honest clients, but it does not prevent
+a malicious client from retrieving leaf nodes which do not actually
+correspond to the result of their classification.  This is because the
+server is not able to verify that the client traverses a contiguous
+path in the tree or that the OT they perform corresponds to that path
+if they did.
+Consequently, \citeauthor{wu2016privately} suggest an augmented
+version of the protocol that can handle malicious clients using a new
+\emph{conditional oblivious transfer}, but a maliciously-secure
+version could also be constructed simply by replacing OT with our
+$\ioprf$.
+
+Each node in the tree could be encrypted using keys derived
+from the $\ioprf$ evaluation of their index, meaning that the client
+would have to traverse a path in the tree all the way to the leaf in
+order to decrypt it.  The only necessary modification for this
+approach to work is a small number of additional ZKPs to ``bind'' the
+results of the homomorphic evaluation to the input of the $\ioprf$.
+When constructed this way, the client can use much more efficient
+(maliciously secure) private information
+retrieval~\cite{chang2004single} instead of the expensive conditional
+OT designed by \citet{wu2016privately}.  For space reasons, we list only the main technical modifications necessary (in Appendix~\ref{app:dtrees}).

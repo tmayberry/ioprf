@@ -1,0 +1,217 @@
+\subsubsection{Proof of Construction~\ref{const:ioprf}}
+\label{mainproof}
+We now turn to our main proof, showing that
+Construction~\ref{const:ioprf} is a secure $\ioprf$. We prove in the
+hybrid model, using ZK hybrids with their abbrevations as introduced
+in the previous section.  Recall that, in the hybrid model, ZK hybrids
+are run by separate trusted third parties. Yet, during simulation, it
+is the simulator who takes the role of the TTP and thus automatically
+gets the adversary's inputs and can also cheat, see \citet{howto} for
+details.
+
+\begin{theorem}
+  Assume that Construction~\ref{const:newprf} is an iterative
+  pseudo-random function family $\iprf_K(\cdot)$.  Then,
+  Construction~\ref{const:ioprf} is an $\ioprf$, realizing
+  functionality $\fioprf$ in the
+  $\left(\fzk{enc},\fzk{pop},\fzk{bit},\fzk{sum},\fzk{ExR}\right)$
+  hybrid-model.
+\end{theorem}
+
+\begin{proof}
+  First, observe that Construction~\ref{const:ioprf} is correct. Let
+  $x$ be the receiver's input, and $K$ the key chosen by the
+  sender. If both sender and receiver are honest, then the sender
+  outputs nothing, and the receiver outputs
+  $(v_1,\ldots,v_\ell)=\iprf_K(x)$. Thus, we focus on proving security
+  and build simulators for two cases: one where $S$ is compromised,
+  and one where $R$ is compromised.
+
+  We will show that a simulator $\myS$ can be constructed from both
+  the perspective of $S$ and $R$ such that the adversary $\A$'s view
+  is indistinguishable from real executions of the protocol.  Thus we
+  show that neither a compromised $S$ nor a compromised $R$ learn
+  anything from the real execution of Construction~\ref{const:ioprf}
+  beyond what is specified by the ideal functionality in
+  Figure~\ref{idealioprf}.
+
+  In our presentation below, we will use the term
+  ``$\myS$ \emph{aborts''} as a shorthand for $\myS$ sending \abort to
+  the TTP, simulating its party aborting to $\A$, and then outputting
+  whatever $\A$ outputs.
+
+In both cases below, the simulator will faithfully act as a verifier
+  for ZKPs when interacting with $\A$ as necessary, aborting if the
+  proof does not verify correctly. We omit these messages for
+  readability since they require no special knowledge or behavior from
+  the simulator. Our strategy will broadly be to:
+
+\begin{itemize}[leftmargin=*]
+  \item Replace Elgamal ciphertexts sent by $R$ with encryptions of
+  zero (arbitrarily chosen).  Due to Elgamal's IND-CPA property, these
+  ciphertexts will be indistinguishable from the real protocol for
+  $\A$.  Since $S$ reveives no output from the real execution of the
+  protocol, ciphertexts do not have to conform to any
+  expectations.
+
+\item Replace computation of $X_i$ and $Y_i$ by $S$
+  in the real protocol with an encryption of the output of the
+  $\ioprf$ received from the TTP.  $\myS$ does not know
+  $K_i=(\alpha_i,\beta_i)$ and so cannot faithfully compute $X_i$ or
+  $Y_i$, but it knows from the TTP what output $v_i$
+  should. Consequently, $\myS$ crafts these values accordingly to
+  simulate the real protocol and ``cheat'' in ZKPs where $\myS$ acts
+  as the prover (see, e.g., \S~\ref{sec:extraction}).
+\end{itemize}
+
+Together, this will allow the simulator to generate a view which is
+indistinguishable from a real execution, \ignore{\fixme{we said that
+in the first paragraphs}while having now knowledge beyond that given
+by the TTP,} thus proving that our construction is secure according to
+Definition~\ref{def:ioprf}.
+
+Note that also for all ZKPs with $\myS$ as a prover, $\myS$ acts as
+the TTP and ``cheats'' to convince $\A$.  In many instances, $\myS$
+could honestly prove to $\A$, so ``cheating'' is not really. Yet, for
+ease of exposition, we assume that all proofs are simulated this way.
+  
+\vskip 1eX\noindent{\bf Case 1:} We assume that $\A$ has compromised
+$S$ and build simulator $\myS$ taking the role of $S$ in the ideal
+world, internally simulating a receiver to $\A$ which it only has
+black box access to.
+
+$\myS$ starts $\A$ and receives $2\ell$ commitments
+$(\com(\alpha_i),\com{}(\beta_i))$ from $\A$. $\myS$ also receives
+corresponding $(\alpha_i,\beta_i)$ together with random coins from
+$\fzk{pop}$ sent from $\A$ to $\fzk{pop}$. If these do not match the
+commitments, $\myS$ \emph{aborts}.
+ 
+
+$\myS$ also
+generates an Elgamal key pair $(sk, pk)$, sends
+$pk$ to $\A$, and simulates $\fzk{enc}$.  Also, $\myS$ generates
+$V_0=\enc_{pk}(0)$ and $D_0=\enc_{pk}(0)$, sends them to $\A$, and
+simulates $\fzk{enc}$.
+    
+\noindent{}During the $i^\text{th}$ round,
+  \begin{enumerate}[leftmargin=*]
+  \item $\myS$ sends two independent commitments of zero and simulates
+  $\fzk{bit}$ and $\fzk{sum}$.
+
+  \item $\myS$ also computes and sends $(c_i,c'_i,d_i,d'_i)$, all
+    encryptions of zero, to $\A$ and simulates
+    $\fzk{ExR}$.
+
+  \item $\myS$ receives $(X_i, Y_i)$ from $\A$ as well as
+    $(\alpha'_i,\beta'_i)$ and random coins from $\fzk{ExR}$. If
+    $\alpha_i\neq\alpha'_i$ or $\beta_i\neq\beta'_i$ or if random
+    coins do not match computations specified in
+    Construction~\ref{const:ioprf}, then $\myS$ \emph{aborts}. If they
+    match, $\myS$ forwards $K_i=(\alpha_i,\beta_i)$ to the TTP.
+   
+  \item $\myS$ sends $P_i,P'_i,Q_i,Q'_i$, encryptions of zero, to $\A$
+    and simulates $\fzk{ExR}$.
+    
+  \end{enumerate}
+  $\myS$ outputs what $\A$ outputs.
+During simulation, whenever $\A$ aborts, $\myS$ also \emph{aborts}.
+
+\paragraph{Indistinguishable views} In the protocol, there are three types
+of messages that $\myS$ sends to $\A$: Pedersen commitments, Elgamal
+ciphertexts, and ZKP messages.  All of the Elgamal ciphertexts are
+freshly encrypted (or re-encrypted) using fresh randomness.  They are
+thus indistinguishable from any other Elgamal encryption, regardless
+of any a priori knowledge that $\A$ might have.  As stated above, the
+ZKPs are simulated and are thus also indistinguishable from a real
+execution.  Finally, the commitments are perfectly hiding and are
+never revealed during the protocol, so they are also indistinguishable
+from the commitments of a real execution.
+
+\vskip
+1eX\noindent{\bf Case 2:} We assume that $\A$ has compromised $R$ and
+build simulator $\myS$ as follows.
+
+$\myS$ starts $\A$.
+ $\myS$ randomly selects $\ell$ pairs $(\alpha'_i,\beta'_i)\getr(\Z_p)^2$,
+  commits to them, sends commitments to $\A$, and proves knowledge of
+  $(\alpha'_i,\beta'_i)$ using $\fzk{pop}$.
+
+$\myS$ receives $pk$ from $\A$ and $(sk',pk')$ from
+$\fzk{enc}$ which $\A$ has sent. If $pk\neq{}pk'$ or
+$g_1^{sk'}\neq{}pk$, $\myS$ \emph{aborts}.  Also, $\myS$ receives
+$(V_0,D_0)$ from $\A$ and $\A$'s random coins from $\fzk{enc}$. If
+random coins do not match encryptions of $1$ ($V_0$) or $0$ ($D_0$),
+$\myS$ \emph{aborts}.
+
+\noindent{}During the $i^\text{th}$ round, 
+\begin{enumerate}[leftmargin=*]
+\item $\myS$ receives $(\com(x_i)$, $\com(1-x_i))$ from $\A$ and
+  $(x'_i,1-y'_i)$ with the commitments' random coins from
+  $\fzk{bit}$. If $x'_i$ or $1-y'_i$ and random coins do not match
+  commitments, $\myS$ \emph{aborts}. In the same way, $\myS$ receives
+  $z$ and a random coin for the commitment from sum hybrid
+  $\fzk{sum}$. If $z\neq{}1$ or $z\neq{}x'_i+1-y'_i$ or the random
+  coin does not match the commitment, $\myS$ \emph{aborts}. If
+  everything matches, $\myS$ knows $\A$'s input $(x_i,1-x_i)$.
+
+  $\myS$ receives $(c_i,c'_i,d_i,d'_i)$ from $\A$ and random coins and
+  $(x'_i,1-y'_i)$ from $\fzk{ExR}$. If $(x'_i,1-y'_i)$ do not match
+  the ones from the previous step or if any of the computations do not
+  match $(c_i,c'_i,d_i,d'_i)$, $\myS$ \emph{aborts}.
+
+  $\myS$ computes $(T_i,U_i)$ as in Construction~\ref{const:ioprf}.
+  
+\ignore{   Crucially, as $\myS$ knows $x_i$,
+  they also know which of $T_i$ or $U_i$ contains the encryption of
+  previous $\iprf$ output $v_{i-1}$ and which contains an encryption
+  of $0$. If $x_i=1$, then $T_i$ contains the encryption of $v_{i-1}$
+  (encryption of $1$ for $v_0$), and $U_i$ contains an encryption of
+  $0$. If $x=0$, it is the other way around.}
+
+\item $\myS$ queries the TTP for $x'_i$ and gets back $v_i$. If
+  $x_i=1$, $\myS$ sets $X_i\leftarrow\enc_{pk}(v_i)$ and
+  $Y_i\leftarrow\enc_{pk}(0)$.  If $x_i=0$, $\myS$ sets
+  $X_i\leftarrow\enc_{pk}(0)$ and $Y_i\leftarrow\enc_{pk}(v_i)$.
+  $\myS$ sends $(X_i,Y_i)$ to $\A$ and \emph{cheats} in $\fzk{ExR}$,
+  convincing $\A$ that $(X_i,Y_i)$ are the result of raising $T_i$ and
+  $U_i$ to $\alpha'_i$ and $\beta'_i$ and then re-encrypting.
+  
+\ignore{
+  If $x_i = 1$,
+meaning that $T_i$ contains the input from $\A$ that should be
+included in the PRF, then $\myS$ computes $X_i = \enc_pk(y)$ and $Y_i = \enc_pk(0)$. If $x_i = 0$ it computes $Y_i
+= \enc_pk(y)$ and $X_i = \enc_pk(0)$.  In either case, it also
+``cheats'' the proofs $\fzk{pop}$ and $\fzk{ExR}$ by rewinding after
+receiving the challenge and producing a correct commitment to match
+the challenge.  This is necessary because $\myS$ does not know
+$\alpha$ or $\beta$, only the final output of the $\ioprf$.
+}
+
+\item Finally, $\myS$ receives $(P_i,P'_i,Q_i,Q'_i)$ from $\A$ and
+  random coins and $(x'_i,1-y'_i)$ from $\fzk{ExR}$. Again, $\myS$
+  verifies correct computation of $(P_i,P'_i,Q_i,Q'_i)$ and whether
+  $(x'_i,1-y'_i)$ match previously received values. If anything does
+  not match, $\myS$ \emph{aborts}.
+
+  $\myS$ computes $(V_i,D_i)$ as in Construction~\ref{const:ioprf}.
+  
+\end{enumerate}
+  $\myS$ outputs what $\A$ outputs.
+During simulation, whenever $\A$ aborts, also $\myS$ \emph{aborts}.
+
+\paragraph{Indistinguishable views} As before, the commitments are
+perfectly hiding and are not revealed and so are indistinguishable
+from commitments of a real protocol execution.  ZKPs are also
+simulated as before and are indistinguishable for the same reason.
+
+The only part that is different in this case is the returned values of
+$X_i$ and $Y_i$, which have to decrypt to the correct output of the
+$\ioprf$ in order to match the real protocol.  Fortunately, $\myS$ can
+query the TTP for the correct output and generate encryptions that
+match that output.  In the real protocol, $S$ reencrypts $X_i$ and
+$Y_i$ before returning them to $R$, and so they are indistinguishable
+from the fresh encryptions generated by $\myS$.
+\end{proof}
+As $R$ verifies whether $S$ sends the same commitments to
+$(\alpha_i,\beta_i)$ during multiple executions of
+Construction~\ref{const:ioprf}, we trivially achieve verifiability.

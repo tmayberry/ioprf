@@ -1,0 +1,65 @@
+\subsection{$\iprf$ Analysis}\label{sec:iprf-analysis}
+To show that Construction~\ref{const:newprf} is actually an $\iprf$ according to
+Definition~\ref{defiprf}, it is sufficient to show that each $f^i$ is
+still a pseudo-random function. Mutual independence follows directly from the construction and the random choice of each $(\alpha_i,\beta_i)$.
+
+\begin{theorem}
+\label{theorem:newprf}
+If the DDH-Assumption holds, then for every $i\leq\ell$ and for every
+PPT distinguisher $\mathcal{D}$, there exists a negligible function
+$\epsilon$ such that for sufficiently large $\lambda$
+$$|
+Pr[\mathcal{D}^{f^i_{(\alpha_1,\beta_1),\ldots,(\alpha_i,\beta_i)}(\cdot)}=1]
+- Pr[\mathcal{D}^{R^i(\cdot)} = 1]| =\epsilon(\lambda), $$ where the
+$(\alpha_1,\ldots, \beta_1),\ldots,(\alpha_i,\beta_i)$ are chosen randomly as
+in Construction~\ref{const:newprf}, and $R^i$ is a randomly chosen
+function from the set of functions with domain $\{0,1\}^i$ and image
+$\myG$.
+\end{theorem}
+
+\begin{proof}
+This follows because $f^i$ is essentially taking the output from the
+PRF in Construction~\ref{nrprf} and adding additionally adding extra
+random exponents, which maintains its character as a PRF. We can show
+this via reduction.
+
+First, fix any $i\leq\ell$ and consider $f^i$.  We prove the claim by
+reduction, showing that if $\mathcal{D}$ exists which can distinguish
+between $f^i$ and a random function $R^i$, then we can build
+$\mathcal{D}'$ which can distinguish between $F_K$ from
+Construction~\ref{nrprf} (on $i$ bit inputs and $i$ element keys) and
+a random function $R$ (on $i$ bit inputs). This would violate $F_K$'s
+pseudo-random output property of Definition~\ref{def:pr}.
+
+Assume that $\mathcal{D}$ exists that can violate the inequality from
+Theorem~\ref{theorem:newprf}.  We create $\mathcal{D'}$ as follows.
+First, $\mathcal{D}'$ creates and stores a uniformly random sequence
+$(\beta_1,\ldots,\beta_\ell)$ as in Construction~\ref{const:newprf}.
+Additionally, it queries its oracle for $g' = PRF(0)$ which is
+$g^{\alpha_0}$ if it is interacting with the real instance.  This will
+be given to $\mathcal{D}$ as the generator so that $\mathcal{D}'$ can
+use results from its oracle, which will always include $\alpha_0$, to
+satisfy queries from $\mathcal{D}$.
+
+$\mathcal{D}'$ then runs $\mathcal{D}$ as a subroutine.  Each time
+$\mathcal{D}$ queries the oracle for an evaluation on input
+$y\in\{0,1\}^i$, $\mathcal{D}'$ does the following: 
+\begin{enumerate}
+\item Query their own oracle on input $y$ and receive back $z$.
+\item Calculate $z' = z^{\prod_{y_i = 0} \beta_i}$.
+\item Return $z'$ to $\mathcal{D}$.
+\end{enumerate}
+
+Eventually, $\mathcal{D}'$ outputs the same as $\mathcal{D}$.  If
+$\mathcal{D}'$ is interacting with PRF $F_K$, then the $z'$ values
+$\mathcal{D}'$ gives to $\mathcal{D}$ will be identical to function
+$f^i$, due to $\mathcal{D}'$ being able to multiply in the extra
+$\beta$ components.  If $\mathcal{D}'$ is interacting with a real
+random function, then the responses they give to $\mathcal{D}$ will be
+distributed identically to a random function, since $z$ is the result
+of a random function and $\mathcal{D}'$ is raising it to fixed powers.
+Therefore, if $\mathcal{D}$ has a distinguishing advantage, so will
+$\mathcal{D}'$.  $\mathcal{D}'$ has the same advantage that
+$\mathcal{D}$ does, rendering the reduction tight.
+\end{proof}
+

@@ -1,0 +1,51 @@
+\subsection{Warm-up: simple $\ioprf$ with One-Sided Security}
+\label{sec:ot-ioprf}
+Our $\iprf$ from Construction~\ref{const:newprf} can be computed as an
+$\ioprf$ with only one-sided security, i.e., malicious receiver or
+semi-honest (or malicious, but only focusing on violating
+privacy~\cite{one-sided}) sender, using a similar approach as the OPRF
+by \citeauthor{oprf} (Construction~\ref{ot-oprf}).  Let
+$\ot(b, y_0, y_1)$ denote any $\binom{2}{1}$ oblivious transfer
+protocol which is one-sided simulatable~\cite{one-sided} or even
+maliciously secure~\cite{schneiderot,schollot}.  Sender $S$ holds
+$y_0$ and $y_1$ from $\Z_p$, receiver $R$ holds $b\in\{0,1\}$, and $R$
+obliviously retrieves $y_b$ from $S$. Let $x=(x_1,\ldots,x_\ell)$ be
+$R$'s input.  Our first OT-based construction for a $\proto$ protocol
+gives an $\ioprf$ with one-sided security and works as follows.
+
+\begin{construction}[One-Sided Secure $\ioprf$]
+\label{const:one-side}
+  \begin{itemize}
+\item $S$ generates $\ell$ random scalars $r_i\getr\Z_p$.
+\item For each $1 \leq i \leq \ell$, $R$ and $S$ execute $\ot(x_i, r_i\beta_i,r_i\alpha_i)$,  $R$ stores the result as $z_i$.
+\item $S$ sends to $R$ the sequence $C=(C_1,\ldots,C_\ell)$ where
+  $C_i = g^\frac{1}{\prod_{j=1}^{i} r_j}.$
+\item $R$ recovers $\iprf$ output sequence $(v_1,\ldots,v_\ell)$ by calculating $v_i
+  = C_i^{\prod_{j=1}^{i} z_j}.$
+\end{itemize}
+\end{construction}
+
+{\bf Correctness:}  For all $1 \leq i \leq \ell$, we have
+\begin{equation}
+\begin{aligned}
+v_i &= C_i^{\prod_{j=1}^{i} z_i} 
+= g^{\frac{1}{\prod_{j=1}^{i} r_j} \cdot \prod_{j=1}^{i} z_j} 
+= g^{\frac{1}{\prod_{j=1}^{i} r_j} \cdot \prod_{j=1}^{i} (\alpha_jr_j)^{x_j}(\beta_jr_j)^{1-x_j} } 
+\\&= g^{\prod_{j=1}^{i} \alpha_j^{x_i}\beta_j^{1-x_i}}.
+\end{aligned}
+\end{equation}
+
+
+To prove security for Construction~\ref{const:one-side}, we could make
+a similar argument as \citet{oprf}, but rely on a one-sided
+simulatable OT. However, we refrain from presenting more details, as
+this $\ioprf$ anyways provides only one-sided security and conversion
+to malicious security would be difficult. One would need to prove
+correct computation of the $C_i$ and expensive maliciously secure OT
+with ZK proofs that the sender's input $(r_i\beta_i,r_i\alpha_i)$
+matches previous commitments to $\alpha_i$ and $\beta_i$. This is very
+different from standard committed or verifiable
+OT~\cite{commit-ot,verifot,commit-ot2}.
+
+
+

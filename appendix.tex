@@ -1,0 +1,178 @@
+\section{Decision Trees}
+\label{app:dtrees}
+As an alternative to their paper, we summarize here the changes
+necessary to convert the semi-honest secure protocol from
+\citeauthor{wu2016privately} to a fully-malicious-secure version using
+$\ioprf$.  We will reference our modifications in contrast with their
+protocol (Figure 1 in~\cite{wu2016privately}).
+
+\begin{enumerate}
+    \item In step 1, the client proves that their input encryptions
+    are bits.  This also happens in the maliciously-secure version
+    from the original paper.
+    
+    \item In step 2, the negation of the intended DGK
+      comparisons~\cite{dgk} are also computed.  This way the client
+      has a ``successful'' comparison one way or the other to use in
+      their proof to the server that they are behaving correctly.
+    
+    \item In step 4, the server additionally encrypts each node of the
+    tree with a symmetric key derived from an $\ioprf$.  The keys are
+    chosen such that each node can be decrypted by an $\ioprf$
+    evaluation that corresponds to that node's location in the binary
+    tree, adjusted for the randomly flipped comparisons.  The goal
+    here is to restrict the client to only being able to decrypt the
+    nodes corresponding to the contiguous path in the tree resulting
+    from its comparisons.
+
+  \item In step 5, the client uses PIR~\cite{chang2004single} to
+    retrieve the target leaf node instead of conditional OT.  The
+    client additionally runs an $\ioprf$ protocol to retrieve the
+    symmetric key necessary to decrypt their chosen leaf node.  In
+    execution of this protocol, they also prove in ZK that
+    the input to the $\ioprf$ corresponds to the correct results of
+    the comparison protocol (see Appendix~\ref{app:zkp}).
+\end{enumerate}
+
+\subsection{Binding Homomorphic Comparisons to $\ioprf$ Input}
+\label{app:zkp}
+Since the client now executes two DGK comparisons per level of the
+tree, the original intended one and its negation, they now always have
+a ``successful'' comparison at every level, which tells them which
+direction to go in the tree.  The main idea behind the proofs that
+will bind the client to the correct path is that they can use the
+encryption of zero that results from a successful comparison as
+evidence to the server that they are going in the direction they are
+supposed~to.
+
+At each level of the tree $k\in[d]$, the client creates a ciphertext
+$c \leftarrow \mathsf{Enc}_{pk}(0)$ and generates a commitment  $\com$ to
+$x_k=1$ if the comparison at that node was true and $x_k=0$ if its
+negation was true.  This corresponds to the direction their comparison
+at level $k$ in the shuffled tree tells them to go on the next level.
+They then must prove that there exists an $i$ such that $c$ (the
+encryption of zero) is plaintext-equivalent to either
+$\mathsf{ct}_{k,i}$ or $\mathsf{ct}'_{k,i}$ (the result of the negated
+comparison), and that if it is $\mathsf{ct}_{k,i}$ then $\com$ is 1, or
+if it is $\mathsf{ct}'_{k,i}$ then $\com$ is 0.  Then, $comm$ is used
+as the commitment in the $\ioprf$ protocol.  This binds the output of
+the comparison to the input of the $\ioprf$, completing the proof.
+
+Let $a \equiv b$ signify that $a$ and $b$ are encryptions of the same
+value and $a \equiv {0,1}$ signify that $a$ is an encryption of 0 or
+1.  The statement being proven can then be writen as follows
+
+\begin{gather*}
+\Bigg [ (c \equiv \mathsf{ct}_{k,1} \lor  \ldots \lor c \equiv
+\mathsf{ct}_{k,t}) \land \com \equiv 1 \Bigg ] \\\lor\\ \Bigg [ (c \equiv
+\mathsf{ct}'_{k,1} \lor  \ldots \lor c \equiv \mathsf{ct}'_{k,t})
+\land \com \equiv 0 \Bigg ] 
+\end{gather*}
+  
+We do not produce a full ZK proof for this statement, as it can be
+efficiently designed in the same way we design ZK proofs in
+Section~\ref{sec:sec-analysis} (plaintext equivalence is equivalent to
+a proof of DDH tuple, one-out-of two technique for the $\lor$,
+parallel proofs for $\land$ etc.).  For more details on efficient
+composition of ZK proofs, see also~\citet{camenisch1997proof}.
+
+\begin{comment}
+\begin{figure*}
+\begin{framed}
+\begin{flushleft} Let $(\mathsf{pk}, \mathsf{sk})$ be a public-secret
+key-pair for an additively homomorphic encryption scheme over
+$\mathbb{Z}_p$.  We assume the client holds the secret key.  Fix a
+precision $t \leq \lfloor \log_2 p \rfloor$.
+\end{flushleft}
+
+
+\begin{itemize}
+    \item {\bf Client input:} A feature vector $x \in \mathbb{Z}_p^n$
+    where each $x_i$ is at most $t$ bits.  Let $x_{i,j}$ denote the
+    $j^\text{th}$ bit of $x_i$.
+    
+    \item {\bf Server input:} \ul{An $\ioprf$ key $K = ((\alpha_1,
+    \beta_1), \ldots, (\alpha_\ell, \beta_\ell))$}.  A complete, binary
+    decision tree $\mathcal{T}$ with $m$ internal nodes.  Let $q_1,
+    \ldots, q_\ell$ be the indices of the non-dummy nodes, and let
+    $f_{q_k}(x) = 1\{x_{i_k} \leq t_k\}$, where $i_k \in [n]$ and $t_k
+    \in \mathbb{Z}_p$.  For the dummy nodes $v$, set $f_v(x) = 0$.
+    Let $z_0, \ldots, \in \{0,1\}^*$ be the values of the leaves of
+    $\mathcal{T}$.
+\end{itemize}
+
+\begin{enumerate}
+    \item {\bf Client:} For each $i \in [n]$ and $j \in [t]$, compute
+    and send $\mathsf{Enc}_{\mathsf{pk}}(x_{i,j})$ to the server.
+    \ul{The client proves to the server in zero-knowledge that
+    $\forall i : x_i \in \{0,1\}$.}
+    
+    \setul{6pt}{.4pt}
+    \item {\bf Server:} The server chooses $b \getr
+    \{0,1\}^\ell$.  Then, for each $k \in [\ell]$, set $\gamma_k = 1-2
+    \cdot b_k$.  For each $k \in [\ell]$ and $j \in [t]$, choose
+    $r_{k,j}$,\ul{$r'_{k,j}$}$\getr \mathbb{Z}_p^{*}$ and
+    homomorphically compute the ciphertext
+
+    \vskip 2mm
+
+    \hfil $\mathsf{ct}_{k,j} = \mathsf{Enc}_{\mathsf{pk}}  \Bigg
+    [r_{k,j} \Bigg ( x_{i_k,w} - t_{k,w} + \gamma_k + 3 \cdot
+    \sum_{w<j} (x_{i_k,w} \oplus t_{k,w}) \Bigg ) \Bigg ]$ \hfill
+
+    \vskip 2mm
+
+\ul{and also}
+    \vskip 2mm
+    \setul{12pt}{.4pt}
+    \hfil \ul{$\mathsf{ct}'_{k,j} = \mathsf{Enc}_{\mathsf{pk}}  \Bigg
+    [r'_{k,j} \Bigg ( x_{i_k,w} - t_{k,w} - \gamma_k + 3 \cdot
+    \sum_{w<j} (x_{i_k,w} \oplus t_{k,w}) \Bigg ) \Bigg ]$} \hfill
+    \resetul
+    \vskip 2mm
+
+    For each $k\in[\ell]$, the server sends the client the ciphertexts
+    $(\mathsf{ct}_{k,1}, \ldots, \mathsf{ct}_{k,t})$ \ul{and
+    $(\mathsf{ct'}_{k,1}, \ldots, \mathsf{ct'}_{k,t})$} in
+    \emph{random} order.
+
+    \item {\bf Client:} The client obtains a set of $\ell$ tuples of
+    the form $(\widetilde{\mathsf{ct}}_{k,1}, \ldots,
+    \widetilde{\mathsf{ct}}_{k,t})$ from the server.  For each $k \in
+    [\ell]$, it sets $b'_k = 1$ if there exists $j \in [t]$ such that
+    $\widetilde{\mathsf{ct}}_{k,j}$ is an encryption of 0.  Otherwise,
+    it sets $b'_k = 0$.  The client replies with
+    $\mathsf{Enc}_{pk}(b'_1), \ldots, \mathsf{Enc}_pk(b'_\ell)$.
+    
+    \item {\bf Server:} The server chooses $s \xleftarrow{R}
+    \{0,1\}^m$ and constructs the permuted tree $\mathcal{T}' =
+    \pi_s(\mathcal{T})$, where $\pi_s$ is the permutation associated
+    with the bit-string $s$.  \ul{Let $\mu(m)={\mu_1, \ldots,
+    \mu_\ell}$ be the index of a node $m$ such that $\mu_i = 0$ if at
+    level $i$ of the tree the path to $m$ goes left and $\mu_i = 1$ if
+    it goes right.  Each node of $\mathcal{T}'$ is symmetrically
+    encrypted with the key $\ioprf_K(\mu(m) \oplus b)$, representing the
+    comparisons necessary from the client to reach this node in the
+    tree.} Initialize $\rho = 0^m$.  For $k \in [\ell]$, update
+    $\sigma_{i_k} = b_k \oplus b'_k$.  Let $\mathcal{T}_s$ be the
+    permutation on the node indices of $\mathcal{T}$ effected by
+    $\pi_s$, and compute $\rho' \leftarrow \tau_s(\sigma \oplus s)$.
+    The server homomorphically computes $\mathsf{Enc}_{pk}(\rho')$ and
+    sends the result to the client.
+
+    \item {\bf Client and Server}: The client decrypts the server's
+    message to obtain $\rho'$ and then computes the index $i$ of the
+    leaf node containing the response.  \ul{The client uses Private
+    Information Retrieval to retrieve this leaf node from the server.
+    The client then executes an $\ioprf$ protocol with the server with
+    input $b'$ to obtain the key to decrypt this node.  For each $i
+    \in [\ell]$, the client proves in zero knowledge to the server
+    that $b'_i$ corresponds to the correct evaluation of the
+    homomorphic comparison computed at that level (see Appendix~A.1).}
+    %Some mystery of latex here, if I try to do \ref on the line above
+    %it won't compile, so I "hard coded" the section
+\end{enumerate}
+\end{framed}
+\caption{\label{fig:dectrees} \citeauthor{wu2016privately}'s protocol using an $\ioprf$}
+\end{figure*}
+\end{comment}

@@ -1,0 +1,53 @@
+\section{New $\iprf$ Construction}
+We present our new constructions for both $\iprf$ and $\ioprf$ (Section~\ref{our-ioprf}).  To
+ease readability, we omit an important technicality in the description
+and proofs: our $\iprf$ and $\ioprf$ constructions do not output
+sequences of pseudo-random bit strings of length $\lambda$, but
+pseudo-random elements of DDH group $\myG$. Yet, converting elements
+to bit strings follows from a standard application of the leftover
+hash lemma~\cite{leftover}. As $|p|\geq\lambda$, we have
+$|\myG|\ge{}2^\lambda$, and we silently assume in the following that
+each party implicitly hashes the output of $\iprf$ and $\ioprf$ using
+any pairwise independent family of hash functions.
+
+
+%\subsection{$\iprf$ Construction}
+\label{sec:newprf}
+\begin{construction}[Our iPRF]
+  \label{const:newprf}
+  For any $\ell\in\N$, choose a random generator $g$ and a key
+  $K=(K_1,\ldots,K_\ell)$ by sampling $\ell$ pairs of random scalars
+  $K_i=({\alpha_{i}},{\beta_{i}})\getr{}(\Z_p)^2.$ For any $\ell$ bit
+  input $x=x_1\ldots{}x_\ell$, we define function family
+  $\iprf_K(x_1,\ldots,x_\ell)=(f^1_{(\alpha_1,\beta_1)}(x_1),\ldots,f^\ell_{(\alpha_1,\beta_1),\ldots,(\alpha_\ell,\beta_\ell)}(x_1,\ldots,x_\ell))$,
+  where
+$$  f^i_{(\alpha_1,\beta_1),\ldots,(\alpha_i,\beta_i)}(x_1\ldots{}x_\ell) \stackrel{\text{def}}{=}
+  g^{\prod_{x_i=1}\alpha_i \prod_{x_i=0}\beta_i}
+=g^{\prod_{j=1}^{i}{\alpha_j^{x_j}\cdot{}\beta_j^{1-x_j}}}.$$
+
+
+We can rewrite expression
+$g^{\prod_{j=1}^{i}{\alpha_j^{x_j}\cdot{}\beta_j^{1-x_j}}}$ as
+$g^{\prod_{j=1}^{i}(\alpha_j{}x_j+\beta_j(1-x_j))}$. This
+representation of $f^i$ will be very useful during the
+presentation of our new techniques later.
+ \end{construction}
+
+%   \vskip 1eX\noindent{\bf $\iprf$ Analysis and Delegation:} Due to
+% space constraints, we present the formal analysis of
+% Construction~\ref{const:newprf} as well as its delegation properties
+% in Appendix~\ref{sec:iprf-analysis}.
+
+\input{iprf-analysis}
+\input{delegate-proof}
+
+
+ 
+% \vskip 1eX\noindent{\bf A Straightforward $\ioprf$ with one-sided security}
+%In Appendix~\ref{sec:ot-ioprf}, we show how a trick similar to \citet{oprf} con%verts the above
+%$\iprf$ to an $\ioprf$. This first $\ioprf$ is OT-based and elegant,
+%yet it only offers one-sided security~\cite{efficient2pc} against a
+%malicious receiver and semi-honest sender.
+\input{ot-ioprf}
+
+ 

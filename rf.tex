@@ -1,0 +1,144 @@
+\subsection{RFID}
+Radio Frequency IDentification (RFID) applications comprise a large
+quantity of RFID tags attached to precious goods and RFID readers
+which are connected to a central backend database. The goal is that
+readers can properly identify tags using wireless communication in the
+presence of adversaries.
+
+An adversary observing wireless tag-reader interaction or being able
+to interact with tags themselves should not be able to identify or
+trace tags or even fabricate new tags or clone tags to counterfeit
+goods. The main technical challenge is that RFID tags are extremely
+resource restricted and can merely compute a cryptographic hash
+function. While readers can perform more powerful operations, they
+typically feature low storage (no state), but have network
+connectivity, e.g., to connect to a central database.  RFID security
+has been a very active area of research, see \citet{juels} for an
+overview.
+
+In a typical scenario, the reader wants to know whether a tag and
+therewith the good it is attached to is valid, by interacting first
+with the tag and then with the database. Typically, the tag stores a
+unique key, and the reader performs a challenge-response type of
+authentication, using the database which knows all tags' keys.
+However, previous work has assumed that database and readers are
+within the same trust domain, as the database learns which tag the
+reader is querying for.  This is an unnecessary strong and often
+unrealistic requirement.  To protect tag privacy and internal details
+of supply or distribution chains, the database should not learn which
+tag the reader is querying for. For example, if several readers
+successively query for the same tag, the database knows that a
+specific tag has traveled between these readers. At the same time, the
+database does not want to give unrestricted access to the reader or
+allow queries which leak more information than necessary for the
+identification of a single tag per query. If the reader would receive
+more information, the danger would be that a reader fabricates tags.
+To mitigate these problems, we show how we can extend a prominent RFID
+security protocol from the literature, the one by \citet{molnar}, by a
+simple application of our $\ioprf$.
+
+\paragraph{High-Level Idea} In the original work by \citeauthor{molnar}, the
+database prepares a binary key tree of height $\ell$ storing random
+keys in nodes. Leaves in the tree are enumerated by their path from
+the root to the leaf. For example, the left most leaf is represented
+by the bit string of $\ell$ zero bits. A tag is uniquely identified by
+its ID, a bit string $x=(x_1\ldots{}x_\ell)$. During initialization, a
+tag with ID $x$ receives all keys from the root to the leaf
+represented by $x$. During tag identification, the tag chooses a
+random $r$, ``encrypts'' $r$ with each of their keys, and sends the
+resulting sequence of ciphertexts to the reader. The reader can access
+the database and query keys. The reader checks which path in the tree
+decrypts and ends up with a specific ID (leaf). As you can see, this
+protocol does not protect the tag from a prying database. A simple
+solution of just sending the whole key tree to the reader might
+overburden the reader's storage capabilities and also impose a
+security risk: having access to all keys, the reader could fabricate 
+an arbitrary number of tags.
+
+Our modification to the \citeauthor{molnar} protocol simply consists
+of exchanging the way keys in the tree are computed. In our case, the
+keys are outputs of the $\ioprf$ which will allow the reader to query
+the database for exactly one contiguous path.  As a result, we hide
+from the database which tag the reader is querying for, and the
+database knows that the reader only gets one path of secrets from the
+tree and will be able to identify exactly one tag with it.
+
+\subsubsection{Technical Details}
+Let $N=2^\ell$ be the total number of tags in the system. Each tag
+uniquely corresponds to a leaf of a height $\ell$ binary \emph{key
+tree}. To identify a tag, a reader can communicate with the database
+which stores all keys of the key tree.
+
+\paragraph{Preliminaries}
+The database knows a secret key $K$ and populates binary key tree
+$T$ as follows. First, nodes in this key tree are indexed by bit
+strings following the intuitive notation that the left child (``0'')
+of some node indexed by bit string $\gamma_1\ldots\gamma_i$ is index by
+$\gamma_1\ldots\gamma_i0$, and the right child (``1'') is indexed by
+$\gamma_1\ldots\gamma_i1$. By convention, the root is indexed by
+empty bit string $\epsilon$.
+
+\paragraph{Database Initialization}
+Root node $\epsilon$ stores random key
+$K_{\epsilon}\getr\{0,1\}^\lambda$.  The left child of the root stores
+key $K_0=\ioprf_K(0)$, and the right child stores key
+$K_1=\ioprf_K(1)$. For a node $\gamma_1\ldots\gamma_i$,
+the left child stores key
+$K_{\gamma_1\ldots\gamma_i0}=\ioprf_K(\gamma_1\ldots\gamma_i0)$, and its
+right child stores key
+$K_{\gamma_1\ldots\gamma_i1}=\ioprf_K(\gamma_1\ldots\gamma_i1)$.
+
+During authentication of tag $x$, the database will run
+$\ioprf_K(\cdot)$ as the sender, and the reader will be the receiver
+with input bit strings $x=(x_1\ldots{}x_\ell)$ as follows.
+
+\paragraph{Tag Initialization}
+During initialization of a new tag $x$, the database stores a sequence
+of $(\ell+1)$ keys $K$ on the tag: one for each node on the path from
+the root $K_\epsilon$ of tree $T$ to leaf
+$K_x=K_{x_1\ldots{}x_\ell}$. The tag also stores its own ID $x$.
+
+\paragraph{Secure Tag Identification}
+ Each tag identifies itself to a reader using a variation of
+  the \citeauthor{molnar} protocol:
+
+  \begin{itemize}[leftmargin=*]
+  \item Tag $x$ chooses
+    $r\getr\{0,1\}^\lambda$ and sends $r$ together with a hash of $r$
+    and each of their $(\ell+1)$ keys and the next bit,
+    respectively. More formally, the tag sends 
+$    \trace=(r,T_0=H(r,
+    K_\epsilon,x_1),\ldots,T_\ell=H(r,K_{x_1\ldots{}x_{\ell-1}},x_{\ell}),
+    H(r,K_{x_1\ldots{}x_\ell})).
+    $
+
+The difference to the original protocol is that we also include
+next bit $x_i$ into each hash. This allows the reader to check which
+node to query for during the next iteration. Otherwise, the reader
+would have to retrieve both children of the current node, revealing 
+``one more key'' per level of the tree to the reader.
+
+\item The reader uses the $\ioprf$ as the receiver and the database as
+  the sender to identify the tag as follows.
+
+ \begin{itemize}
+ \item The database begins by sending $K_\epsilon$ to the reader.
+   
+  \item The reader checks whether either $H(r,K_\epsilon,0)$ or $H(r,K_\epsilon,1)$  matches
+    $T_0$.
+
+  \item Depending on the outcome, the reader iteratively continues and
+    queries either the left child ($H(r,K_\epsilon,0)$ matches) or the
+    right child ($H(r,K_\epsilon,1)$ matches) of the root with the
+    $\ioprf$, compute keys, checks which matches etc.
+\end{itemize}
+  \end{itemize}
+
+As you can see, the security we are aiming for asks only for a
+(delegatable) OPRF. Our $\ioprf$ supports delegation, but can do more. We
+could also ask as an additional security requirement that the reader
+should only learn ``one path'', i.e., one tag per interaction with the
+database. 
+
+ Due to space limitations,
+we have moved the {\bf security analysis} to Appendix~\ref{sec:rf-proof}.

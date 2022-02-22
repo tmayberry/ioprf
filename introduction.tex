@@ -1,0 +1,143 @@
+\section{Introduction}
+Structured encryption allows a data owner to encrypt data arranged in
+a data structure and store it on an untrusted
+server~\cite{chase2010structured}.  A crucial property of structured
+encryption is that the data owner can later compute a special
+decryption key for the server which permits the server to decrypt and
+parse a well defined component of the data structure, saving the owner
+from having to individually download and traverse each element
+themselves.  A typical example for structured encryption is data
+arranged in a graph encrypted and outsourced to a server, and the
+owner computing keys for decryption of sub-graphs~\cite{sherman1}.
+Computation of decryption keys is possible despite the owner retaining
+only a constant-sized master key. Keyword-searchable encryption can be
+implemented as a special-case of structured encryption where the graph
+is composed of many linked lists, one for each keyword, containing all
+the documents that match that keyword.
+
+\subsection{New Applications} In this paper, we introduce a twist to
+the standard application scenario of structured encryption.  A third
+party, separate from the data owner and server, which we call the
+client, can ask the data owner for permission to retrieve a specific
+component of the owner's data structure.  The owner is said to
+\emph{delegate} access to this portion of their data to the client.
+However, the data owner and client do not trust each other, and the
+client does not want to reveal to the owner which part of the data
+structure they are interested in.  At the same time, the owner wants
+to restrict the client's access to a specific component of their data
+structure and might even put constraints on that component, e.g.,
+where it begins, how many elements it contains, etc. This new setting
+of mutually untrusted data owner, server, and client has several
+interesting applications. One can imagine a data owner outsourcing a
+medical database with patient records to an untrusted cloud. A
+researcher (client) conducting a study gets access to a specific set
+of patient records (the component) without leaking which set of
+patients is affected to the owner or the database. At the same time,
+the researcher is confined within one component of data structure and
+cannot arbitrarily browse patient records.
+
+In this work, we focus on tree data structures, but in return offer
+more powerful confinement control for the data owner than standard
+structured encryption.  In addition to decryption keys enabling
+decryption of a sub-tree for the client, the data owner can also
+compute keys which enable the client to access only one path, from the
+root of the tree to a leaf.  Moreover, the client can ask to decrypt a
+path in an iterative, adaptive fashion instead of querying the owner
+for the whole path at once. Adaptive queries are necessary to support
+iterative scenarios where the client will parse the tree node by node,
+obliviously asking the owner to decrypt a single child node in the
+tree only after fetching and decrypting the parent node.  For example,
+after decrypting one node of a binary tree, the client can
+\emph{obliviously} query the owner for the decryption key of
+\emph{either} the left \emph{or} right child, depending on the current
+node's data content.  At the same time, the data owner wants to ensure
+that the client can only ask to decrypt one single node which is a
+child of the current node, so that the client is confined to
+decrypting exactly one path and cannot arbitrarily ``jump around'' in
+the data structure.
+
+ While we later present details on two specific applications for tree data structures, one for
+RFID authentication and one for privacy-preserving decision tree
+evaluation, we stress that techniques in this paper are general and
+useful in other scenarios, too. As soon as data is tree-structured
+(XML data, databases using B+ trees or hash maps, hash trees, search
+trees, heaps, \ldots) and should be adaptively parsed, our techniques
+will be required. We also note that our techniques can be used to
+realize maliciously secure, adaptive $k$-out-of-$n$ oblivious
+transfer~\cite{adaptiveot} and oblivious keyword search~\cite{oks}. We
+discuss applications in more detail in Section~\ref{sec:applications}.
+
+\subsection{Technical Challenges} A straightforward approach to
+providing adaptive queries might be for the data owner to apply an
+Oblivious Pseudo-Random Function (OPRF) as the PRF to encrypt nodes.
+For a tree of height $\ell$, owner and client run $\ell$ instances of
+the OPRF such that the client always learns the key for the next node
+on the path they are interested in, and the owner learns nothing. To
+actually fetch a node from the server in an oblivious fashion, the
+client could employ standard PIR or OT protocols. However, this
+approach is only secure against semi-honest clients that stick to the
+rule of asking for the decryption key of one child node of the current
+node. The difficulty lies in making parsing the tree structure secure
+against a fully-malicious client without reverting to general, yet
+expensive techniques like maliciously secure two-party computation and
+general Zero-Knowledge (ZK) proofs.
+
+\subsection{Our contributions} Consequently, we introduce the notion
+of iterative Oblivious Pseudo-Random Functions ($\ioprf$s) and the
+first candidate constructions. An $\ioprf$ is an $\ell$ round two
+party protocol between a sender and a receiver. The intuition behind
+$\ioprf$s is that the receiver adaptively queries $\ell$ input bits
+$x_i$ in $\ell$ rounds such that in the end they learn outputs
+$\text{PRF}_K(x_1),\ldots,\text{PRF}_K(x_1\ldots{}x_\ell)$ for key $K$
+chosen by the sender, and the sender learns nothing. If such an
+$\ioprf$ is used to encrypt the nodes, then fetching a wrong node is
+useless for the client, as they cannot decrypt it anyways.
+
+Our new candidate $\ioprf$ construction is based on a careful
+adaptation of the PRF by \citet{prf}. We first augment the
+\citeauthor{prf} PRF to become an iterative Pseudo-Random Function
+($\iprf$) which has the property that, for input strings with the same
+prefix, its generated output also shares the same prefix.
+\ignore{
+  As a
+warm-up, we then use a similar trick as \citet{oprf} to convert the
+$\iprf$ to an $\ioprf$. This first $\ioprf$ is OT-based and elegant,
+yet it only offers one-sided security~\cite{efficient2pc} against a
+malicious receiver and semi-honest sender.
+}%ignore
+We then present our main
+construction, an $\ioprf$ which is secure against malicious sender and
+malicious receiver. We achieve malicious security by using efficient
+ZK proofs for DH-based statements over elliptic curves and
+avoid costly maliciously secure oblivious transfer (OT).  We implement
+and benchmark our new $\ioprf$ construction to show its practicality
+and efficiency.
+
+
+\ignore{We then show how to integrate an $\ioprf$ into further important
+applications, such as RFID authentication and privacy-preserving
+decision tree evaluation. We believe our construction is an important
+step towards protocols that provide security to both parties.}
+
+\vskip0.5eX\noindent{}In summary, the {technical highlights} of this
+paper are:
+\begin{itemize}
+
+\item The definition of the new cryptographic primitives of $\iprf$
+and $\ioprf$ which extends repeated $\oprf$ constructions with
+security constraints on the client's input.
+
+\item A candidate construction which is efficient and provably secure
+  under the Decisional Diffie-Hellman assumption in the standard
+  model.
+
+  \item To show its practicality, we implement our construction and
+  evaluate its performance. The implementation is available for
+  download~\cite{srcode}.
+
+\item The integration of our primitive into several example
+applications, such as RFID authentication and privacy-preserving
+decision tree evaluation.
+
+\end{itemize}
+

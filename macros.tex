@@ -1,0 +1,124 @@
+%\usepackage[subtle,mathspacing=normal,floats=normal,bibbreaks=normal,wordspacing=normal]{savetrees}
+\usepackage{times}
+\usepackage{setspace}
+\usepackage{comment}
+\usepackage{siunitx}
+\usepackage{multirow}
+\usepackage{xfrac,amsmath,enumitem,url,soul,framed}
+%\usepackage{amssymb}
+%\usepackage[numbers,sort&compress,sectionbib]{natbib}
+
+\usepackage[linesnumbered]{algorithm2e}
+\usepackage{amsfonts}
+
+\usepackage{hyperref}
+%\newtheorem{definition}{Definition}
+%\newtheorem{theorem}{Theorem}
+
+\newcounter{construction}
+\newenvironment{construction}[1][]{\refstepcounter{construction}\par\medskip
+   \noindent \textbf{Construction~\theconstruction} (#1)\textbf{.} \rmfamily}{\medskip}
+
+\newcommand{\mypara}[1]{\vskip 1eX\noindent{}{\bf #1\,\,}}
+\newcommand{\oprf}[0]{\mathsf{OPRF}}
+\newcommand{\getr}[0]{\stackrel{\$}{\leftarrow}}
+\newcommand{\enc}[0]{{\mathsf{Enc}}}
+\newcommand{\dec}[0]{{\mathsf{Dec}}}
+\newcommand{\fixme}[1]{{\bf{}\ [FIXME:} {\emph{#1}} {\bf{}]}}
+%\newcommand{\fk}[1]{{\bf{}\ [Florian:} {\emph{#1}} {\bf{}]}}
+%\newcommand{\todo}[1]{{\bf ToDo:} {{\bf #1}}}
+\newcommand{\dash}[0]{{\text -}}
+\newcommand{\A}[0]{{\mathcal{A}}}
+\newcommand{\D}[0]{{\mathcal{D}}}
+\newcommand{\myO}[0]{\mathcal{O}}
+\newcommand{\ioprf}[0]{\mathsf{i}\mathsf{OPRF}}
+\newcommand{\hmac}[0]{\mathsf{HMAC}}
+\newcommand{\iprf}[0]{\mathsf{i}\mathsf{PRF}}
+\newcommand{\fioprf}[0]{\mathcal{F}_{\mathsf{i}\mathsf{OPRF}}}
+\newcommand{\ttpioprf}[0]{\mathsf{TTP}}
+\newcommand{\ot}[0]{\mathsf{OT}}
+\newcommand{\proto}[0]{{\pi_{\ioprf}}}
+\newcommand{\myS}[0]{{\mathsf{Sim}}}
+\newcommand{\myF}[0]{{\mathcal{F}}}
+\newcommand{\Z}[0]{\mathbb{Z}}
+\newcommand{\myG}[0]{\mathbb{G}}
+\newcommand{\Hide}[1]{}
+
+\newcommand{\prg}[0]{\mathsf{PRG}}
+\newcommand{\seed}[0]{\mathsf{seed}}
+\newcommand{\myroot}[0]{\mathsf{ROOT}}
+
+\newcommand{\trace}[0]{\mathsf{Trace}}
+\newcommand{\crs}[0]{\mathsf{CRS}}
+\newcommand{\com}[0]{\mathsf{com}}
+\newcommand{\sr}[0]{{\stackrel{?}{=}}}
+\newcommand{\fzk}[1]{{f^{\mathsf{#1}}_{\mathsf{zk}}}}
+\newcommand{\abort}[0]{{$\mathsf{abort}$}\xspace}
+
+\let\ignore\Hide
+
+\newcommand{\N}[0]{{\mathbb{N}}}
+
+\makeatletter
+\def\old@comma{,}
+\catcode`\,=13
+\def,{%
+  \ifmmode%
+    \old@comma\discretionary{}{}{}%
+  \else%
+    \old@comma%
+  \fi%
+}
+\makeatother
+
+
+\newenvironment{functionality}[1][htb]
+  {\renewcommand{\algorithmcfname}{Functionality}% Update algorithm name
+   \begin{algorithm}[#1]%
+  }{\end{algorithm}}
+
+\makeatletter
+\newcommand{\removelatexerror}{\let\@latex@error\@gobble}
+\makeatother
+
+\newcommand\NoIndent[1]{%
+  \par\vbox{\parbox[t]{\linewidth}{#1}}%
+}
+
+
+%\pagestyle{plain}
+%\setlength\abovecaptionskip{-1pt}
+%\setlength\belowcaptionskip{-0.5cm}
+%\setlength\abovedisplayskip{0.1cm plus 1pt}
+%\setlength\belowdisplayskip{0.1cm plus 1pt}
+\setlength{\abovedisplayskip}{0pt}
+\setlength{\belowdisplayskip}{0pt}
+%\setlength{\abovedisplayshortskip}{0pt}
+%\setlength{\belowdisplayshortskip}{0pt}
+
+
+\ignore{
+\makeatletter
+\renewcommand\section{\@startsection{section}{1}{\z@}%
+                       {-8\p@ \@plus -4\p@ \@minus -4\p@}%
+                       {8\p@ \@plus 4\p@ \@minus 4\p@}%
+                       {\normalfont\large\bfseries\boldmath
+                        \rightskip=\z@ \@plus 8em\pretolerance=10000 }}
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+                       {-8\p@ \@plus -4\p@ \@minus -4\p@}%
+                       {4\p@ \@plus 4\p@ \@minus 4\p@}%
+                       {\normalfont\normalsize\bfseries\boldmath
+                        \rightskip=\z@ \@plus 8em\pretolerance=10000 }}
+
+
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+                       {-6\p@ \@plus -4\p@ \@minus -4\p@}%
+                       {-0.5em \@plus -0.22em \@minus -0.1em}%
+                       {\normalfont\normalsize\itshape}}
+\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+                       {-6\p@ \@plus -4\p@ \@minus -4\p@}%
+                       {-0.5em \@plus -0.22em \@minus -0.1em}%
+                       {\normalfont\normalsize\bfseries\boldmath}}
+
+\makeatother
+}%ignore

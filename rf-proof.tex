@@ -1,0 +1,59 @@
+\section{RFID Security Analysis}
+\label{sec:rf-proof}
+To summarize security requirements, we briefly describe a reactive,
+ideal functionality $\myF$.  The database sends their input, keys
+$K_\epsilon,K_0,K_1,\ldots,K_{1\ldots{}1}$, all $(2N-1)$ keys of the
+key tree, to a TTP, and the reader sends an empty bit string. Then,
+the TTP sends $K_\epsilon$ to the reader, and nothing to the database.
+The internal state $s$ of TTP is initialized to the empty bit string.
+Then, the RFID reader and TTP additionally interact in a total of
+$\ell$ rounds. In round $i$, let the internal state be bit string
+$s=\gamma_1\ldots{}\gamma_{i-1}$. The reader sends bit $\gamma_i$, and
+TTP responds with $K_{\gamma_1\ldots\gamma_{i}}$ and updates its
+state to $s=\gamma_1\ldots\gamma_{i}$.
+
+\begin{lemma}\label{rfidproof} In the random oracle model, the modified \citeauthor{molnar} protocol securely realizes 
+ideal functionality $\myF$.
+\end{lemma}
+
+As the proof of Lemma~\ref{rfidproof} is straightforward, we only
+summarize it in a draft.
+\begin{proof}[Sketch] We build a simulator for the case of a compromised reader. The simulator for the case of a compromised database works accordingly.
+  \begin{enumerate}
+
+  \item Simulator $\myS$ begins by preparing an initially empty
+    key-value table $\mathsf{RO}$ to implement a standard random
+    oracle functionality $H(\cdot)$. During simulation, whenever any
+    party calls $H(k)$ for some input $k$, this functionality will
+    check whether pair $(k,v)$ is already in table $\mathsf{RO}$ and
+    responds with $v$ in that case. Otherwise, $H$ generates a random
+    string $v$ of length $\lambda$, sends $v$ back to the caller, and
+    places $(k,v)$ in $\mathsf{RO}$.
+
+  \item Also, $\myS$ generates a random key
+    $K=((\alpha_1,\beta_1),\ldots,(\alpha_\ell,\beta_\ell))$ for $\ioprf$.
+ $\myS$ sends $\epsilon$ to TTP and receives $K_\epsilon$ which it
+    forwards to $\A$.
+    
+  \item $\myS$ and $\A$ run Construction~\ref{const:ioprf} with $\myS$
+    as the sender and $\A$ as the receiver.
+
+    During the $i^\text{th}$ iteration of Construction~\ref{const:ioprf}:
+    \begin{enumerate}
+    \item $\myS$
+      extracts $\A$'s input $x_i$ from the Pedersen commitment,
+      forwards it to TTP, and receives back $K_{x_1\ldots{}x_i}$.
+
+    \item $\myS$ adds key-value pair $(g_2^{ \prod_{j=1}^{i}
+      \alpha_j^{x_j}\beta_j^{1-x_j}},K_{x_1\ldots{}x_i})$ to table
+      $\mathsf{RO}$.   
+    \end{enumerate}
+\end{enumerate}
+Observe that $\A$'s view in the simulation is indistinguishable from their view in a real protocol execution.
+\qed\end{proof}
+Note that $\A$ can perform an input-substitution attack, i.e., query
+for some path which does not match the tag they are currently
+interacting with. Without the ability to perform public key
+cryptography on the tag, the strongest security for the database one
+can guarantee is that the reader can get one path, identifying one tag
+and thus can fabricate or clone at most one tag per interaction.
