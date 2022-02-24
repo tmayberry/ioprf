@@ -1,19 +1,12 @@
-%\usepackage[subtle,mathspacing=normal,floats=normal,bibbreaks=normal,wordspacing=normal]{savetrees}
-\usepackage{times}
 \usepackage{setspace}
 \usepackage{comment}
 \usepackage{siunitx}
 \usepackage{multirow}
 \usepackage{xfrac,amsmath,enumitem,url,soul,framed}
-%\usepackage{amssymb}
-%\usepackage[numbers,sort&compress,sectionbib]{natbib}
 
 \usepackage[linesnumbered]{algorithm2e}
-\usepackage{amsfonts}
 
 \usepackage{hyperref}
-%\newtheorem{definition}{Definition}
-%\newtheorem{theorem}{Theorem}
 
 \newcounter{construction}
 \newenvironment{construction}[1][]{\refstepcounter{construction}\par\medskip
@@ -25,8 +18,6 @@
 \newcommand{\enc}[0]{{\mathsf{Enc}}}
 \newcommand{\dec}[0]{{\mathsf{Dec}}}
 \newcommand{\fixme}[1]{{\bf{}\ [FIXME:} {\emph{#1}} {\bf{}]}}
-%\newcommand{\fk}[1]{{\bf{}\ [Florian:} {\emph{#1}} {\bf{}]}}
-%\newcommand{\todo}[1]{{\bf ToDo:} {{\bf #1}}}
 \newcommand{\dash}[0]{{\text -}}
 \newcommand{\A}[0]{{\mathcal{A}}}
 \newcommand{\D}[0]{{\mathcal{D}}}
@@ -40,8 +31,11 @@
 \newcommand{\proto}[0]{{\pi_{\ioprf}}}
 \newcommand{\myS}[0]{{\mathsf{Sim}}}
 \newcommand{\myF}[0]{{\mathcal{F}}}
-\newcommand{\Z}[0]{\mathbb{Z}}
-\newcommand{\myG}[0]{\mathbb{G}}
+
+\newcommand{\Z}[0]{{\Bbb Z}}
+\newcommand{\myG}[0]{{\Bbb G}}
+\newcommand{\N}[0]{{\Bbb N}}
+
 \newcommand{\Hide}[1]{}
 
 \newcommand{\prg}[0]{\mathsf{PRG}}
@@ -57,7 +51,6 @@
 
 \let\ignore\Hide
 
-\newcommand{\N}[0]{{\mathbb{N}}}
 
 \makeatletter
 \def\old@comma{,}
@@ -85,40 +78,6 @@
   \par\vbox{\parbox[t]{\linewidth}{#1}}%
 }
 
-
-%\pagestyle{plain}
-%\setlength\abovecaptionskip{-1pt}
-%\setlength\belowcaptionskip{-0.5cm}
-%\setlength\abovedisplayskip{0.1cm plus 1pt}
-%\setlength\belowdisplayskip{0.1cm plus 1pt}
 \setlength{\abovedisplayskip}{0pt}
 \setlength{\belowdisplayskip}{0pt}
-%\setlength{\abovedisplayshortskip}{0pt}
-%\setlength{\belowdisplayshortskip}{0pt}
 
-
-\ignore{
-\makeatletter
-\renewcommand\section{\@startsection{section}{1}{\z@}%
-                       {-8\p@ \@plus -4\p@ \@minus -4\p@}%
-                       {8\p@ \@plus 4\p@ \@minus 4\p@}%
-                       {\normalfont\large\bfseries\boldmath
-                        \rightskip=\z@ \@plus 8em\pretolerance=10000 }}
-\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
-                       {-8\p@ \@plus -4\p@ \@minus -4\p@}%
-                       {4\p@ \@plus 4\p@ \@minus 4\p@}%
-                       {\normalfont\normalsize\bfseries\boldmath
-                        \rightskip=\z@ \@plus 8em\pretolerance=10000 }}
-
-
-\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
-                       {-6\p@ \@plus -4\p@ \@minus -4\p@}%
-                       {-0.5em \@plus -0.22em \@minus -0.1em}%
-                       {\normalfont\normalsize\itshape}}
-\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
-                       {-6\p@ \@plus -4\p@ \@minus -4\p@}%
-                       {-0.5em \@plus -0.22em \@minus -0.1em}%
-                       {\normalfont\normalsize\bfseries\boldmath}}
-
-\makeatother
-}%ignore

@@ -81,13 +81,13 @@ composition of ZK proofs, see also~\citet{camenisch1997proof}.
 \begin{framed}
 \begin{flushleft} Let $(\mathsf{pk}, \mathsf{sk})$ be a public-secret
 key-pair for an additively homomorphic encryption scheme over
-$\mathbb{Z}_p$.  We assume the client holds the secret key.  Fix a
+$\Z_p$.  We assume the client holds the secret key.  Fix a
 precision $t \leq \lfloor \log_2 p \rfloor$.
 \end{flushleft}
 
 
 \begin{itemize}
-    \item {\bf Client input:} A feature vector $x \in \mathbb{Z}_p^n$
+    \item {\bf Client input:} A feature vector $x \in \Z_p^n$
     where each $x_i$ is at most $t$ bits.  Let $x_{i,j}$ denote the
     $j^\text{th}$ bit of $x_i$.
     
@@ -96,7 +96,7 @@ precision $t \leq \lfloor \log_2 p \rfloor$.
     decision tree $\mathcal{T}$ with $m$ internal nodes.  Let $q_1,
     \ldots, q_\ell$ be the indices of the non-dummy nodes, and let
     $f_{q_k}(x) = 1\{x_{i_k} \leq t_k\}$, where $i_k \in [n]$ and $t_k
-    \in \mathbb{Z}_p$.  For the dummy nodes $v$, set $f_v(x) = 0$.
+    \in \Z_p$.  For the dummy nodes $v$, set $f_v(x) = 0$.
     Let $z_0, \ldots, \in \{0,1\}^*$ be the values of the leaves of
     $\mathcal{T}$.
 \end{itemize}
@@ -111,7 +111,7 @@ precision $t \leq \lfloor \log_2 p \rfloor$.
     \item {\bf Server:} The server chooses $b \getr
     \{0,1\}^\ell$.  Then, for each $k \in [\ell]$, set $\gamma_k = 1-2
     \cdot b_k$.  For each $k \in [\ell]$ and $j \in [t]$, choose
-    $r_{k,j}$,\ul{$r'_{k,j}$}$\getr \mathbb{Z}_p^{*}$ and
+    $r_{k,j}$,\ul{$r'_{k,j}$}$\getr \Z_p^{*}$ and
     homomorphically compute the ciphertext
 
     \vskip 2mm
